@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NOBU-MON - Master Engine -</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=reset1">
+    
+    <style>
+        .hidden { display: none !important; }
+
+        /* レトロウィンドウの共通スタイル（角を丸めない！） */
+        .retro-window {
+            background: #000;
+            border: 4px solid #fff;
+            box-shadow: 4px 4px 0 #000;
+            color: #fff;
+            font-family: 'DotGothic16', sans-serif;
+            box-sizing: border-box;
+        }
+
+        /* タイトルロゴのスタイル（シンプル・レトロな黄色） */
+        #title-screen svg text {
+            fill: #FFFF00;
+            stroke: #fff;
+            stroke-width: 1px;
+            filter: drop-shadow(4px 4px 0px #555);
+            text-shadow: none; 
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <a href="index.html" id="back-to-main" title="メインに戻る">←</a>
+
+        <video id="final-movie" src="img/sunset.MP4" playsinline style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:9999; background:#000;"></video>
+        
+        <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+            
+            <svg viewBox="0 0 400 130" style="width: 95%; max-width: 450px; overflow: visible;">
+                <path id="archPath" d="M 10,120 Q 200,-30 390,120" fill="transparent" />
+                <text font-family="'DotGothic16', sans-serif" font-size="52" font-weight="bold">
+                    <textPath href="#archPath" startOffset="50%" text-anchor="middle">
+                        ノブユキクエスト
+                    </textPath>
+                </text>
+            </svg>
+            
+            <div id="title-text" style="font-size:20px; margin-top:-10px; margin-bottom:50px; text-align:center; letter-spacing:2px; color:#fff; text-shadow: 2px 2px 0 #000;">
+                〜 四街道の幻影 〜
+            </div>
+
+            <div id="title-buttons" class="hidden retro-window" style="flex-direction:column; gap:20px; padding:25px 40px; text-align:left;">
+                <div style="cursor:pointer; font-size:24px;" onclick="startGame(false)">▶ はじめから</div>
+                <div style="cursor:pointer; font-size:24px;" onclick="startGame(true)">▶ つづきから</div>
+                <div style="cursor:pointer; font-size:24px;" onclick="showRanking()">▶ せきばん</div>
+            </div>
+
+            <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
+                <div style="color:#ffd700; font-size:24px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 えいゆう の せきばん 】</div>
+                <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:40vh; overflow-y:auto; color:#fff;">
+                    </div>
+                <div style="cursor:pointer; font-size:20px; padding:10px 20px; border:1px solid #fff; background:#333; color:#fff;" onclick="hideRanking()">もどる</div>
+            </div>
+        </div>
+
+        <div id="view-area">
+            <canvas id="map-canvas" width="480" height="352"></canvas>
+            <div id="battle-enemy-area" class="hidden"><img id="enemy-img" src="" alt="enemy"></div>
+            <div id="battle-sub-window" class="hidden retro-window"></div>
+            
+            <div id="mini-status" class="retro-window" style="position:absolute; top:10px; left:10px; z-index:45; pointer-events:none; font-size:14px; line-height:1.5;">
+                <span id="mini-lv">LV: 1</span><br>
+                <span id="mini-hp">HP: 15/15</span><br>
+                <span id="mini-mp">MP:  5/ 5</span><br>
+                <span id="mini-g">G : 100</span>
+            </div>
+            <div id="menu-btn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:#444; border:2px solid #fff; color:#fff; border-radius:4px; font-size:16px; cursor:pointer; z-index:65;" onmousedown="openMenu()" ontouchstart="openMenu()">MENU</div>
+        </div>
+
+        <div id="menu-screen" class="hidden">
+            <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
+                <div id="menu-stats">のぶゆき LV: 1 ...</div>
+                <div id="menu-tabs">
+                    <div class="menu-tab" onclick="showStatus()">つよさ</div>
+                    <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
+                    <div class="menu-tab" onclick="showItems()">どうぐ</div>
+                    <div class="menu-tab" onclick="showEquip()">そうび</div>
+                    <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
+                    <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
+                    <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
+                    <div class="menu-tab" style="background:#555;" onclick="showSettings()">設定</div>
+                    <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
+                </div>
+            </div>
+            <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
+        </div>
+
+        <div id="msg-area" style="flex-shrink:0; width:100%; padding:5px; background:#000;">
+            <div id="message-box" class="retro-window" style="width:100%; height:100px; padding:15px; z-index:45;">
+                <div id="msg-text" style="font-size:16px; line-height:1.6; word-wrap:break-word; overflow-wrap:break-word;"></div>
+            </div>
+        </div>
+        
+        <div id="controller-area" style="flex:1; position:relative; width:100%;">
+            <div id="d-pad-container">
+                <div id="d-pad">
+                    <div class="btn d-btn" id="btn-up">▲</div><div class="btn d-btn" id="btn-down">▼</div>
+                    <div class="btn d-btn" id="btn-left">◀</div><div class="btn d-btn" id="btn-right">▶</div>
+                </div>
+            </div>
+            <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">まほう</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="maps/0.nobuyuki.map.js"></script>
+    <script src="maps/1.jitaku.js"></script>
+    <script src="maps/2.geo.js"></script>
+    <script src="maps/3.danjon_geooku.js"></script>
+    <script src="maps/4.hankagai.js"></script>
+    <script src="maps/5.sobaya.js"></script>
+    <script src="maps/6.saigonomachi.js"></script>
+    <script src="maps/7.danjon_bougu.js"></script>
+    <script src="maps/8.danjon_ken.js"></script>
+    <script src="maps/9.danjon_rasuboss.js"></script>
+    <script src="maps/10.danjon_tika.js"></script>
+    <script src="maps/11.boss_tika.js"></script>
+    <script src="maps/12.buki_tika.js"></script>
+    <script src="maps/13.buki_tika2.js"></script>
+    <script src="maps/14.danjon_geooku2.js"></script>
+    <script src="maps/15.danjon_geooku3.js"></script>
+    <script src="maps/16.danjon_tika2.js"></script>
+    <script src="maps/18.mochike.js"></script>
+    <script src="maps/17.tanaka.js"></script>
+
+    <script src="js/sound.js?v=sound1"></script>
+    <script src="js/game_data.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/menu.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, increment, setDoc, collection, addDoc, query, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        // プロジェクト設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrDTNLFOC93bBsjzcBrdLt4miPgrat2zY",
+            authDomain: "nobuyukiquest.firebaseapp.com",
+            projectId: "nobuyukiquest",
+            storageBucket: "nobuyukiquest.firebasestorage.app",
+            messagingSenderId: "504992212070",
+            appId: "1:504992212070:web:79f0ccca4e1d136bd639a7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.FirebaseHub = {
+            loadRanking: async function() {
+                const listDiv = document.getElementById('ranking-list');
+                if (!listDiv) return;
+                try {
+                    const q = query(collection(db, "cleared_players"));
+                    const querySnapshot = await getDocs(q);
+                    let players = [];
+                    querySnapshot.forEach(doc => players.push(doc.data()));
+                    
+                    players.sort((a, b) => {
+                        if (a.deathCount !== b.deathCount) return a.deathCount - b.deathCount;
+                        return a.level - b.level;
+                    });
+                    players = players.slice(0, 10);
+
+                    let html = "";
+                    players.forEach((data, idx) => {
+                        let rank = idx + 1;
+                        let safeName = data.name.replace(/</g, "&lt;").replace(/>/g, "&gt;").substring(0, 8);
+                        let rankColor = rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#aaffaa";
+                        html += `<div style="border-bottom: 1px dashed #555; padding: 8px 0; display:flex; justify-content:space-between; color:#fff;">`;
+                        html += `<span><span style="color:${rankColor}; font-weight:bold; margin-right:10px; font-size:18px;">${rank}位</span> ${safeName}</span>`;
+                        html += `<span style="color:#aaa; font-size:14px;">(死:${data.deathCount}回 / Lv:${data.level})</span>`;
+                        html += `</div>`;
+                    });
+                    if (html === "") html = "<div style='text-align:center; margin-top:20px; color:#fff;'>まだ 誰も 魔王を 倒していないようだ……。</div>";
+
+                    const bossQ = query(collection(db, "boss_kill_counts"));
+                    const bossSnap = await getDocs(bossQ);
+                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold;'>【 ボス戦績 (プレイヤー勝率) 】</div>";
+                    const bossNames = { "tanaka": "たなか", "golem": "スロット魔人", "mochida_boss": "もちだ", "robber": "強盗", "ryuou_final": "魔王", "true_boss": "真・魔王" };
+                    
+                    bossSnap.forEach(doc => {
+                        const data = doc.data();
+                        let bId = doc.id;
+                        if(bossNames[bId]) {
+                            let kills = data.kills || 0;
+                            let defeats = data.defeats || 0;
+                            let total = kills + defeats;
+                            let winRate = total > 0 ? Math.floor((defeats / total) * 100) : 0;
+                            bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px;"><span>${bossNames[bId]}</span><span>犠牲:${kills} / 勝率:${winRate}%</span></div>`;
+                        }
+                    });
+
+                    listDiv.innerHTML = html + bossHtml;
+                } catch(e) {
+                    listDiv.innerHTML = "<div style='color:#f55; text-align:center;'>通信エラーだわ！<br>ハッカーに連絡しなさい！</div>";
+                    console.error(e);
+                }
+            },
+
+            saveClearData: async function(playerName, playerLevel, playerDeathCount) {
+                try {
+                    await addDoc(collection(db, "cleared_players"), {
+                        name: playerName, level: playerLevel, deathCount: playerDeathCount, timestamp: serverTimestamp()
+                    });
+                } catch(e) { console.error(e); }
+            },
+
+            incrementBossKill: async function(bossId) {
+                try { await setDoc(doc(db, "boss_kill_counts", bossId), { kills: increment(1) }, { merge: true });
+                } catch(e) { console.error(e); }
+            },
+
+            incrementBossDefeat: async function(bossId) {
+                try { await setDoc(doc(db, "boss_kill_counts", bossId), { defeats: increment(1) }, { merge: true });
+                } catch(e) { console.error(e); }
+            }
+        };
+
+        window.playFinalMovie = function() {
+            if (typeof Sound !== 'undefined' && Sound.stopBGM) Sound.stopBGM();
+            const vid = document.getElementById('final-movie');
+            vid.style.display = 'block';
+            vid.muted = false; 
+            vid.play().catch(e => { console.log("動画エラー:", e); endMovieAndSave(); });
+            vid.onended = () => { endMovieAndSave(); };
+        };
+
+        async function endMovieAndSave() {
+            const vid = document.getElementById('final-movie');
+            vid.style.display = 'none';
+            
+            let playerName = prompt("四街道に 平和が 戻った……！\nせきばんに 英雄の名前を 刻もう！(8文字まで)", "のぶゆき");
+            if (playerName === null) playerName = "のぶゆき";
+            let cleanName = playerName.replace(/　/g, " ").trim();
+            if (cleanName === "") cleanName = "のぶゆき";
+            playerName = cleanName.substring(0, 8);
+
+            if (window.FirebaseHub) {
+                let dCount = (typeof playerStatus !== 'undefined' && playerStatus.flags && typeof playerStatus.flags.deathCount !== 'undefined') ? playerStatus.flags.deathCount : 0;
+                await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
+                console.log("🏆 せきばん（Firebase）にクリア記録を送信したわ！");
+            }
+
+            if (typeof gameState !== 'undefined') gameState = 'TITLE';
+            document.getElementById('title-screen').style.display = 'flex';
+            showRanking(); 
+        };
+
+        window.showRanking = function() {
+            if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
+            document.getElementById('title-buttons').classList.add('hidden');
+            document.getElementById('ranking-screen').classList.remove('hidden');
+            document.getElementById('ranking-list').innerHTML = "<div style='text-align:center; margin-top:20px; color:#aaa;'>通信中……しばらく またれよ……</div>";
+            window.FirebaseHub.loadRanking();
+        };
+
+        window.hideRanking = function() {
+            if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
+            document.getElementById('ranking-screen').classList.add('hidden');
+            document.getElementById('title-buttons').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>

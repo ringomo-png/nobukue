@@ -1,0 +1,80 @@
+* {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+body {
+    margin: 0; background-color: #000; color: #fff;
+    font-family: 'DotGothic16', monospace, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    height: 100dvh; overflow: hidden; overscroll-behavior: none;
+}
+
+#game-container { position: relative; width: 100%; max-width: 640px; height: 100%; display: flex; flex-direction: column; background: #000; }
+.hidden { display: none !important; }
+.invisible { visibility: hidden !important; pointer-events: none !important; }
+
+.retro-window { background: #000; border: 2px solid #fff; border-radius: 4px; color: #fff; padding: 10px; box-shadow: inset 0 0 0 2px #000, inset 0 0 0 4px #fff; box-sizing: border-box; }
+#view-area { position: relative; width: 100%; aspect-ratio: 15/11; background: #000; }
+#map-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+
+#battle-enemy-area { position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px); background: #000; display: flex; justify-content: center; align-items: center; z-index: 40; }
+#enemy-img { width: 120px; height: auto; image-rendering: pixelated; }
+
+#battle-sub-window { position: absolute; top: 10px; right: 10px; width: 130px; max-height: calc(100% - 20px); overflow-y: auto; z-index: 60; }
+.b-sub-item { cursor: pointer; padding: 10px 5px; border-bottom: 1px dashed #555; text-align: center; font-size: 15px; }
+.b-sub-item:last-child { border-bottom: none; }
+.b-sub-item:active { background: #333; }
+
+#mini-status { position: absolute; top: 10px; left: 10px; padding: 10px 15px; font-size: 14px; line-height: 1.5; z-index: 45; pointer-events: none; }
+#menu-btn { position: absolute; top: 10px; right: 10px; background: #444; border: 2px solid #fff; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 16px; cursor: pointer; z-index: 65; box-shadow: 0 4px 0 #111; }
+#menu-btn.active { transform: translateY(4px); box-shadow: 0 0px 0 #111; background: #333; }
+
+#menu-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 70; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+#menu-header { width: 96%; padding: 10px; flex-shrink: 0; background: #000; }
+#menu-stats { margin-bottom: 10px; font-size: 15px; line-height: 1.5; border-bottom: 1px dashed #aaa; padding-bottom: 8px; }
+#menu-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.menu-tab { background: #222; border: 1px solid #fff; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+.menu-tab:active { background: #555; }
+.menu-tab.close-btn { background: #800; border-color: #ffaaaa; } 
+
+#menu-details { width: 96%; flex: 1; padding: 10px; overflow-y: auto; font-size: 15px; line-height: 1.6; background: #000; border: 2px solid #fff; border-radius: 4px; margin-bottom: 10px;}
+#menu-details ul { margin: 0; padding-left: 0; }
+
+/* 💥 ここが修正ポイントよ！ */
+#msg-area { flex-shrink: 0; width: 100%; padding: 5px; background: #000; }
+#message-box { 
+    width: 100%; 
+    height: 100px; 
+    padding: 15px; 
+    box-sizing: border-box; 
+    z-index: 45; 
+}
+#msg-text { 
+    font-size: 16px; 
+    line-height: 1.6; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+}
+/* 💥 ここまで！ */
+
+#controller-area { flex: 1; position: relative; width: 100%; }
+#d-pad-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+#d-pad { position: absolute; right: 60px; bottom: 20px; width: 160px; height: 160px; border-radius: 50%; flex-shrink: 0; }
+.btn { position: absolute; background: #444; border: 2px solid #111; color: #eee; display: flex; justify-content: center; align-items: center; font-weight: normal; cursor: pointer; border-radius: 4px; box-shadow: inset -2px -2px 0px rgba(0,0,0,0.6), inset 2px 2px 0px rgba(255,255,255,0.3), 0 6px 0 #111; transition: transform 0.05s, box-shadow 0.05s; pointer-events: auto; }
+.btn.active { background: #333; color: #fff; transform: translateY(6px); box-shadow: inset -2px -2px 0px rgba(0,0,0,0.6), inset 2px 2px 0px rgba(255,255,255,0.1), 0 0px 0 #111 !important; }
+.d-btn { width: 50px; height: 50px; font-size: 20px; }
+#btn-up { top: 0; left: 55px; } #btn-down { bottom: 0; left: 55px; } #btn-left { top: 55px; left: 0; } #btn-right { top: 55px; right: 0; }
+
+#battle-command { position: absolute; top: 0px; right: 20px; width: 170px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; padding: 10px; z-index: 50; }
+.b-cmd { width: calc(50% - 3px); cursor: pointer; text-align: center; font-size: 16px; padding: 8px 0; border: 1px solid #fff; border-radius: 2px; background: #111; transition: background 0.1s; }
+.b-cmd:active { background: #fff; color: #000; } 
+.screen-shake { animation: shake 0.3s; }
+@keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-10px, 5px); } 50% { transform: translate(10px, -5px); } 75% { transform: translate(-10px, -5px); } }
+.enemy-damage { animation: blink 0.15s 3; }
+@keyframes blink { 0% { filter: invert(1); } 50% { filter: none; } 100% { filter: invert(1); } }
+.enemy-defeat { animation: defeatBlink 1.0s forwards; }
+@keyframes defeatBlink { 0% { opacity: 1; } 10% { opacity: 0; filter: invert(1); } 20% { opacity: 1; } 35% { opacity: 0; filter: invert(1); } 50% { opacity: 1; } 70% { opacity: 0; filter: none; } 85% { opacity: 1; } 100% { opacity: 0; filter: none; } }
