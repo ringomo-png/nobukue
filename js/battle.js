@@ -1,5 +1,5 @@
 // ==========================================
-// ⚔️ battle.js (オートセーブ＆四街道の幻影 伏線回収版)
+// ⚔️ battle.js (連戦ソフトロック完全修正版)
 // ==========================================
 
 function triggerEncounterEffect(callback) {
@@ -344,10 +344,16 @@ window.proceedToExp = function(btn) {
                 startEndingCutscene();
             } else {
                 if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
+                
+                // 💥【NEW】連戦が予約されているかチェック！
+                let isConsecutiveBattle = !!window.nextBossToFight;
+                
                 endBattle(); 
                 
-                // 💥【NEW】戦闘勝利後にオートセーブ発動！
-                if (typeof window.autoSave === 'function') window.autoSave(); 
+                // 💥【NEW】次のボスが控えている時は、絶対にオートセーブさせない！
+                if (!isConsecutiveBattle && typeof window.autoSave === 'function') {
+                    window.autoSave(); 
+                }
             }
         }, 1500); 
     }
@@ -440,6 +446,11 @@ function loseBattle() {
             if (window.FirebaseHub) window.FirebaseHub.incrementBossKill(currentEnemy.id);
         }
 
+        // 💥【NEW】魔王に負けた場合、連戦を最初からやり直すために「もちだ撃破フラグ」をリセットする！
+        if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
+            playerStatus.flags.defeatedMochida = false;
+        }
+
         endBattle(); 
         
         playerStatus.gold = Math.floor(playerStatus.gold * 0.75);
@@ -460,7 +471,6 @@ function loseBattle() {
         setTimeout(function() {
             showMessage("親父「のぶゆきよ、<br>情けない姿を さらしおって……。<page>倒れていた お前を 運ぶのに<br>手間取ったわい。<page>治療費と 運搬代として<br>所持金の 4分の1 を<br>もらっておいたぞ。<page>次は しっかり やるんじゃな！」");
             
-            // 💥【NEW】全滅してペナルティを受けた後もオートセーブ！
             if (typeof window.autoSave === 'function') window.autoSave(); 
             
         }, 500);
