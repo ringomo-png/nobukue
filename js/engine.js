@@ -142,18 +142,27 @@ var isMessageActive = false; var pendingAction = null;
 
 function showMessage(text) { 
     if (text === undefined || text === null) text = "";
+    // 💥【NEW】前の自動消去タイマーが残っていたら確実にキルする！
+    if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
+    
     msgPages = String(text).split("<page>"); currentMsgPage = 0; isWaitingForPage = false; isMessageActive = true; playMsgPage(false); 
     const box = document.getElementById('message-box'); if(box){ box.classList.add('active'); box.style.transform = 'translateY(0)'; }
 }
+
 function showBattleMsg(text) { 
     if (text === undefined || text === null) text = "";
+    // 💥【NEW】前の自動消去タイマーが残っていたら確実にキルする！
+    if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
+    
     msgPages = String(text).split("<page>"); currentMsgPage = 0; isWaitingForPage = false; isMessageActive = true; playMsgPage(true); 
 }
+
 
 function playMsgPage(isBattleMode) {
     const box = document.getElementById('msg-text'); if (!box) return; box.innerHTML = ""; 
     if (messageTimer) { clearInterval(messageTimer); messageTimer = null; } 
     if (bMsgTimer) { clearInterval(bMsgTimer); bMsgTimer = null; } 
+    if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
     
     let text = msgPages[currentMsgPage] ? String(msgPages[currentMsgPage]) : ""; let i = 0; let currentHTML = "";
     let timer = setInterval(function() {
@@ -161,13 +170,14 @@ function playMsgPage(isBattleMode) {
             clearInterval(timer);
             if (isBattleMode) bMsgTimer = null; else messageTimer = null; 
             
-            if (currentMsgPage < msgPages.length - 1) {
+            // 💥【NEW】バトル中、または続きのページがある場合は「▼」を出してタップを待つ！
+            if (currentMsgPage < msgPages.length - 1 || isBattleMode) {
                 box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
                 isWaitingForPage = true; 
             } else {
-                // 💥【NEW】最後のページは矢印を出さず、1.5秒後に自動で閉じる！
+                // 💥 フィールド会話の最後だけ、1.5秒後に自動でスッと消える
                 isWaitingForPage = false; 
-                setTimeout(() => {
+                window.msgCloseTimer = setTimeout(() => {
                     if (isMessageActive) {
                         isMessageActive = false;
                         window.lastMessageCloseTime = Date.now();
@@ -193,6 +203,7 @@ function playMsgPage(isBattleMode) {
     }, isBattleMode ? 25 : 35);
     if (isBattleMode) bMsgTimer = timer; else messageTimer = timer;
 }
+
 
 
 function hasItem(itemName) { for (let i = 0; i < playerStatus.inventory.length; i++) { if (playerStatus.inventory[i].name === itemName) return true; } return false; }
@@ -612,7 +623,8 @@ window.lastActionTime = 0;
 
 const msgBox = document.getElementById('message-box'); 
 if (msgBox) { 
-        window.tapMessage = function(e) { 
+        
+    window.tapMessage = function(e) { 
         if (e && e.target && e.target.classList && e.target.classList.contains('d-btn')) return;
         if (e) e.preventDefault(); 
         if (isCutscene) return; 
@@ -623,11 +635,14 @@ if (msgBox) {
 
         if (isMessageActive) {
             if (messageTimer || bMsgTimer) return; 
-            if (isWaitingForPage) {
-                // 次のページがある場合は進める
+            
+            if (currentMsgPage < msgPages.length - 1) {
+                // 💥 次のページへ進む
                 isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
             } else {
-                // 💥【NEW】最後のページ（1.5秒の自動待機中）にタップされたら、待たずに即閉じる！
+                // 💥 最後のページならウィンドウを閉じる（自動消去タイマーもキルする）
+                if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
+                isWaitingForPage = false; 
                 isMessageActive = false; 
                 window.lastMessageCloseTime = now; 
                 msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
