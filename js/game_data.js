@@ -54,7 +54,7 @@ var shops = {
 
 var playerStatus = {
     level: 1, exp: 0, hp: 15, maxHp: 15, mp: 0, maxMp: 0,
-    str: 4, agi: 4, atk: 4, def: 2, gold: 100, bankGold: 0, // 
+    str: 4, agi: 4, atk: 4, def: 2, gold: 100, bankGold: 0, 
 
     inventory: [ { name: "しゃんてぃ", type: "heal", value: 45, count: 3 } ], 
     equipment: { weapon: null, armor: null, shield: null, accessory: null },
@@ -74,13 +74,13 @@ var levelUpTable = [
     { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "魔法封じ顔", cost: 3, type: "silence", value: 0 } },
     { level: 11, exp: 2900, str: 33, agi: 31, hp: 62, mp: 50, spell: null },
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
-    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "はっく&ひーる", cost: 7, type: "drain", value: 26 } },
+    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "はっく&ひーる", cost: 7, type: "drain", value: 20 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
     { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 6, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
     { level: 17, exp: 17000, str: 68, agi: 64, hp: 100, mp: 100, spell: { name: "まぐま",  cost: 8, type: "attack", value: 65 } },
     { level: 18, exp: 21000, str: 74, agi: 71, hp: 115, mp: 108, spell: null },
-    { level: 19, exp: 25000, str: 80, agi: 76, hp: 130, mp: 115, spell: { name: "大爆発", cost: 12, type: "explosion", value: 100 } },
+    { level: 19, exp: 25000, str: 80, agi: 76, hp: 130, mp: 115, spell: { name: "大爆発", cost: 12, type: "explosion", value: 85 } },
     { level: 20, exp: 29000, str: 85, agi: 82, hp: 138, mp: 128, spell: null },
     { level: 21, exp: 33000, str: 91, agi: 88, hp: 149, mp: 135, spell: null },
     { level: 22, exp: 37000, str: 97, agi: 94, hp: 158, mp: 146, spell: null },
@@ -108,8 +108,7 @@ var enemiesMaster = [
     
     { id: "goldman", img: "monster (19).PNG", name: "ごーるど", hp: 130, maxHp: 130, atk: 48, def: 15, agi: 12, exp: 120, gold: 500, spell: null },
     { id: "magician3", img: "monster (25).PNG", name: "あんこく", hp: 60, maxHp: 60, atk: 50, def: 40, agi: 40, exp: 180, gold: 60, spell: {name:"かえん", type:"attack", value:25} },
-// 変更後（spellを追加！）
-{ id: "rikanto2", img: "monster (13).PNG", name: "きんぐびーすと", hp: 70, maxHp: 70, atk: 72, def: 56, agi: 40, exp: 270, gold: 80, spell: {name:"じゅうおうのいかり", type:"attack", value:38} },
+    { id: "rikanto2", img: "monster (13).PNG", name: "きんぐびーすと", hp: 70, maxHp: 70, atk: 72, def: 56, agi: 40, exp: 270, gold: 80, spell: {name:"じゅうおうのいかり", type:"attack", value:38} },
 
     { id: "metal_slime", img: "monster (24).PNG", name: "しろぱち", hp: 3, maxHp: 4, atk: 10, def: 250, agi: 255, exp: 800, gold: 6, spell: {name:"ひのたま", type:"attack", value:20} },
     { id: "golem", img: "monster (26).PNG", name: "すろっとまじん", hp: 90, maxHp: 90, atk: 60, def: 60, agi: 47, exp: 100, gold: 1700, spell: null },
@@ -177,7 +176,7 @@ var warpZones = [
     
     { id: "w_tanaka_town", fromMap: "0", fromX: 54, fromY: 97, toMap: "17", toX: 9, toY: 18 },
     { id: "w_out_tanaka_town", fromMap: "17", fromX: 9, fromY: 19, toMap: "0", toX: 54, toY: 98 }, 
-    { id: "w_mochida_house", fromMap: "0", fromX: 38, fromY: 79, toMap: "18", toX: 14, toY: 12 }
+    { id: "w_mochida_house", fromMap: "0", fromX: 38, fromY: 79, toMap: "18", toX: 18, toY: 12 }
 ];
 
 var npcs = [
@@ -213,8 +212,7 @@ var npcs = [
     { map: "4", x: 13, y: 4, imgId: 4, dir: 0, anim: 0, isStatic: true, innPrice: 40, message: "ここは 繁華街の ホテルよ。<page>最近、インド人っぽい男が よく出入りしてるわね。<page>40ゴールド だけど 泊まっていく？" },
     { map: "4", x: 5, y: 23, imgId: 1, dir: 0, anim: 0, isStatic: true, shopId: "shop_bunny", message: "いらっしゃい！<br>しゃんてぃ と 怪しい魔除けが<br>おすすめ ヨ！" },
 
-// 変更後
-{ map: "4", x: 24, y: 16, imgId: 1, dir: 0, anim: 0, isStatic: true, isBank: true, message: "いらっしゃいませ！<br>よつかいどう銀行 繁華街支店へ ようこそ！<page>大切なお金、全滅しても安心な<br>当行が 責任をもって お預かりいたしますわ！" },
+    { map: "4", x: 24, y: 16, imgId: 1, dir: 0, anim: 0, isStatic: true, isBank: true, message: "いらっしゃいませ！<br>よつかいどう銀行 繁華街支店へ ようこそ！<page>大切なお金、全滅しても安心な<br>当行が 責任をもって お預かりいたしますわ！" },
 
     { map: "4", x: 23, y: 7, noDraw: true, isDoor: true, requiredEquip: "がんぐのおめん", message: "『セキュリティーエラー！』<page>素顔のままでは 通れません。" },
     { map: "4", x: 23, y: 5, noDraw: true, isStepEvent: true, isEventBoss: true, bossId: "golem", message: "暗がりから いきなり 魔物が おそいかかってきた！" }, 
@@ -225,18 +223,12 @@ var npcs = [
     { map: "4", x: 3, y: 17, imgId: 1, dir: 0, anim: 0, message: "この辺りは 財布をとられるから 注意してね。<page>そうそう、最近 怪しいインド人みたいな男が、奥の部屋に コソコソ入ったりしてるのよ。" },
     { map: "4", x: 10, y: 14, imgId: 2, dir: 0, anim: 0, message: "おい！<br>この台は俺のだからな！取るなよ！" },
     
-    // 💥【ここに復活！】インド人の情報！
     { map: "4", x: 17, y: 16, imgId: 3, dir: 0, anim: 0, message: "はぁ……最近 全然パチンコが 当たらなくなったよ……<page>そういえば、最近 北東の洞窟 に<br>怪しいインド人が 入っていくのを<br>見たんだ……。<page>あいつ、絶対 なにか ヤバいものを<br>隠し持ってるぜ。" },
 
-        // 💥 変更前
-    // { map: "4", x: 11, y: 20, imgId: 1, dir: 0, anim: 0, message: "ここは 夜の街、繁華街よ。<br>羽目を 外しすぎないようにね。" },
-    
-    // 👇 変更後（座標を y:25 にして、世界観とヒントを追加！）
-    { map: "4", x: 11, y: 25, imgId: 1, dir: 0, anim: 0, message: "ここは 夜の街、繁華街よ。<page>この街の 連中は、<br>ローカルな人以外の よそ者に 敏感なの。<page>でも、話しかければ<br>色々 教えてくれるはずよ。<br>どんどん 喋りかけてみてね。" },
+    { map: "4", x: 11, y: 25, imgId: 1, dir: 0, anim: 0, message: "ここは 夜の街、繁華街よ。<page>この街の 連中は、<br>  よそ者に 敏感なの。<page>でも、話しかければ<br>色々 教えてくれるはずよ。<br>どんどん 喋りかけてみてね。" },
 
     { map: "4", x: 24, y: 10, imgId: 2, dir: 0, anim: 0, message: "もちだ：おい 黒ちゃん……この奥の部屋、なんか すげぇあやしいぜ。<page>プンプン匂うぞ……強烈な スパイスと 血の匂いが 混ざってやがる……。" },
     
-    // 💥 繁華街（マップ4）の窃盗スロット台×4（x:9〜12） / 完全版！
     { map: "4", x: 9, y: 13, noDraw: true, isStatic: true, get message() {
         if (playerStatus.flags.defeatedGolem) return "スロット魔人は 完全に 沈黙している……。<br>メダルが 散らばっている。";
         let hasMask = false;
@@ -249,7 +241,7 @@ var npcs = [
                 playerStatus.flags.stolenFromSlot = true; playerStatus.gold += 1000;
                 if(typeof updateMiniStatus === 'function') updateMiniStatus();
                 if(typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                return "スロットの 台に 客の 財布が<br>置かれている。<page>のぶゆき「財布で 場所取り なんて……<br>セキュリティレベルが<br>低すぎる 愚行だぜ」<page>のぶゆき は お面で 顔が<br>バレないのを いいことに<br>客の 財布を 盗み出した！<page>1000 G を てにいれた！";
+                return "スロットの 台に 客の 財布が<br>置かれている。<page>「財布で 場所取り なんて……<br>セキュリティレベルが<br>低すぎる 愚行だぜ」<page>のぶゆき は お面で 顔が<br>バレないのを いいことに<br>客の 財布を 盗み出した！<page>1000 G を てにいれた！";
             } else { return "スロットの 台には もう 何も ない。<br>これ以上は 足がつく……。"; }
         } else {
             return "スロットの 台に 客の 財布が<br>置かれている。<page>客が 財布で 場所取りを<br>しているようだ。";
@@ -285,7 +277,7 @@ var npcs = [
                 playerStatus.flags.stolenFromSlot = true; playerStatus.gold += 1000;
                 if(typeof updateMiniStatus === 'function') updateMiniStatus();
                 if(typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                return "スロットの 台に 客の 財布が<br>置かれている。<page>のぶゆき「財布で 場所取り なんて……<br>セキュリティレベルが<br>低すぎる 愚行だぜ」<page>のぶゆき は お面で 顔が<br>バレないのを いいことに<br>客の 財布を 盗み出した！<page>1000 G を てにいれた！";
+                return "スロットの 台に 客の 財布が<br>置かれている。<page>「財布で 場所取り なんて……<br>セキュリティレベルが<br>低すぎる 愚行だぜ」<page>のぶゆき は お面で 顔が<br>バレないのを いいことに<br>客の 財布を 盗み出した！<page>1000 G を てにいれた！";
             } else { return "スロットの 台には もう 何も ない。<br>これ以上は 足がつく……。"; }
         } else {
             return "スロットの 台に 客の 財布が<br>置かれている。<page>客が 財布で 場所取りを<br>しているようだ。";
@@ -324,15 +316,12 @@ var npcs = [
     { map: "6", x: 25, y: 26, imgId: 2, dir: 0, anim: 0, isStatic: true, shopId: "shop_saigo", message: "よくぞ ここまで たどり着いた！<br>ウチの武器は 最高級だぜ！" },
     { map: "6", x: 8, y: 6, noDraw: true, isDoor: true, requiredKey: "武器庫の鍵", message: "とびらには カギが かかっている！" },
     { map: "6", x: 10, y: 28, noDraw: true, chestItem: { type: "items", index: 2 } }, 
-      // 💥 文字数と行数を 完全に計算し尽くした 安全版！
     { map: "6", x: 26, y: 13, imgId: 5, dir: 0, anim: 0, message: "ここは 人類 最後の街 じゃ。<br>かつて この 四街道は、<br>もっと 活気に あふれていた……。<page>じゃが、魔王の サーバー侵食が<br>始まってから というもの、<br>人々は おかしくなってしまったんじゃ。<page>西の橋を 渡れば 魔王の城じゃ。<br>のぶゆきよ、お前の その<br>ハッキングスキルだけが 頼りじゃ！<page>どうか、この街を……<br>いや、世界を 救ってくれ！！" },
 
     { map: "6", x: 12, y: 19, imgId: 1, dir: 0, anim: 0, isStatic: true, shopId: "shop_item", message: "しゃんてぃ は いかがですか？" },
 
-    // 👇 変更後（isStatic: true を追加し、安全な座標に完全固定！）
     { map: "6", x: 6, y: 14, imgId: 3, dir: 0, anim: 0, isStatic: true, message: "西には 魔王の城が あって危険だ。<page>橋を通ろうとすると、厳しい検問が あるらしいぞ。" },
     
-    // 💥 y:16 だと狭いかもしれないから、y:17 にずらして固定したわ！
     { map: "6", x: 6, y: 16, imgId: 4, dir: 0, anim: 0, isStatic: true, message: "魔獣がでてから この街から<br>でれなくなってしまい 困っています……。<page>そういえば、この街には 代々<br>重要なキーコードを 受け継いでいる<br>娘さんが いるんですが……<page>最近、怪しい インド人みたいな男が<br>現れてから 姿を 見ていないんです。" },
 
 
@@ -340,7 +329,8 @@ var npcs = [
     { map: "6", x: 27, y: 3, imgId: 3, dir: 0, anim: 0, message: "この奥は 秘密の通路だ。<br>誰にも 言うなよ？" },
     { map: "6", x: 6, y: 11, imgId: 4, dir: 0, anim: 0, message: "この街は 迷路みたいで 迷ってしまいましたわ……。" },
     
-    { map: "6", x: 2, y: 26, imgId: 5, dir: 0, anim: 0, message: "四街道には 伝説の装備が<br>隠されておる。<page>一つは 南西の街、<br>もう一つは 北西のほこらじゃ。<page>いずれも 毒沼に おおわれているので、<br>渡るのは 至難の業じゃぞ。" },
+    // 💥【NEW】伝説の装備のヒント変更（親父のトンネルと南西の街）
+    { map: "6", x: 2, y: 26, imgId: 5, dir: 0, anim: 0, message: "四街道には 伝説の装備が<br>隠されておる。<page>北西のどうくつは、蕎麦屋の北に<br>お前の親父さんが<br>トンネルを 掘ってたんじゃ。<page>南西の街は ここから<br>歩いていけるんじゃが……<br>毒に覆われている上に<br>周辺の魔物は かなり強い。<page>しっかりと 準備を していくんじゃぞ。" },
 
     { map: "6", x: 25, y: 20, imgId: 3, dir: 0, anim: 0, message: "近くに 四街道ゴルフクラブが あるぞ。<page>かつて、Par4の2打目を 直接叩き込んだ<br>天才プレーヤーが いたんだ。<page>その時 使われた 伝説のボールは、<br>ものすごく 高く売れる みたいだぜ！" },
 
@@ -350,8 +340,8 @@ var npcs = [
     
     { map: "16", x: 7, y: 2, imgId: 1, dir: 0, anim: 0, isStatic: true, isBossKey3: true, message: "あの インド人みたいな男に 監禁されていたの……。<page>助けてくれて ありがとう。<br>お礼に キーコード3 を MFAに 書き込んであげる！" },
 
-      // 💥 最後の街（マップ6）の隠し武器庫フラグ・もちだ！（究極完成版）
-    { map: "6", x: 13, y: 11, imgId: 2, dir: 0, anim: 0, isStatic: true, message: "もちだ「おっ、黒ちゃん……。<br>よくぞ この 最後の街まで<br>たどり着いたな……。」<page>「実はな、この街には 俺の<br>隠し武器庫が あるんだぜ。<br>もっちーもちもち……。」<page>「カギが ないと 入れねぇけど……<br>絶対に 勝手に<br>入るんじゃねーぞ！」<page>「ここで 装備を 揃えるのも いいし、<br>伝説の武器を 探し出してから<br>魔王に 挑むのも アリだ。」<page>「すべては お前の 自由だ。<br>後悔のない 選択を<br>もっちーもちもち！」" },
+       // 💥【NEW】最後の街のもちだ（武器を揃えるヒント復活 ＆ 操られ風の演出！）
+    { map: "6", x: 13, y: 11, imgId: 2, dir: 0, anim: 0, isStatic: true, message: "もちだ「おっ、黒ちゃん……。<br>よくぞ この 最後の街まで<br>たどり着いたな……。」<page>「実はな、ここに 俺の<br>隠し武器庫が あるんだ……<br>うっ！ 頭が……！」<page>「ぜったいに……<br>はいるん じゃない ぞ……！！」<page>「……ここで 装備を 揃えるのも いいし、<br>伝説の武器を 探し出してから<br>魔王に 挑むのも アリだ。」<page>「すべては お前の 自由だ。<br>後悔のない 選択を……<br>もっちー……もちもち……！」" },
 
     
     { map: "12", x: 5, y: 3, noDraw: true, chestItem: { type: "weapons", index: 6 } }, 
@@ -361,10 +351,10 @@ var npcs = [
     { map: "11", x: 5, y: 5, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaBoss: true, message: "もちだ「やあ黒ちゃん……。<br>いっしょに あそぼうよ……フフフ……。」" },
     { map: "0", x: 48, y: 85, noDraw: true, isStepEvent: true, isGoldBall: true, message: "なにかが 足元で 光っている……" },
     
-    { map: "17", x: 5, y: 5, imgId: 3, dir: 0, anim: 0, isStatic: true, isTanakaEvent: true, message: "オイオイ、俺は田中だ。<page>って……お前、のぶゆき じゃねぇか！<page>あの時、俺の白バイを奪って 逃走しやがって……！<br>おかげで クビ寸前なんだよ！<page>罰金1000G 払うか、ここで ぶっ殺されるか 選べ！" },
+    { map: "17", x: 5, y: 5, imgId: 3, dir: 0, anim: 0, isStatic: true, isTanakaEvent: true, message: "オイオイ、俺は田中だ。<page>って……お前、のぶゆき じゃねぇか！<page>あの時、俺の白バイを奪って 逃走しやがって……！<br>おかげで クビ寸前なんだよ！<page>罰金払うか、ここで ぶっ殺されるか 選べ！" },
     
     { map: "17", x: 5, y: 4, noDraw: true, chestItem: { type: "armors", index: 6 } },
-    { map: "18", x: 14, y: 6, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaHouseInn: true, message: "もちだ「ここまで 来たか……。<br>もっちーもちもち……。<page>わけあって 俺が 力になれるのも<br>ここまでだ。<page>この先の 魔物は かなり 強いぜ。<br>今日は ゆっくり 休んでいけよ。」" },
+    { map: "18", x: 14, y: 6, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaHouseInn: true, message: "もちだ「ここまで 来たか……。<br>もっちーもちもち……。<page>わけあって 俺が 力になれるのも<br>ここまでだ。<page>この先の 魔物は かなり 激辛だぜ。<br>今日は ゆっくり 休んでいけよ。」" },
     
     { map: "7", x: 4, y: 9, noDraw: true, isRandomChest: true },
     { map: "7", x: 10, y: 9, noDraw: true, isRandomChest: true },

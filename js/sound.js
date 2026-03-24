@@ -1,5 +1,5 @@
 // ==========================================
-// 🎵 sound.js (メニューSE・会話音量アップ・エンディング対応版)
+// 🎵 sound.js (音量調整スライダー・ON/OFF対応 安定版)
 // ==========================================
 
 window.Sound = {
@@ -7,6 +7,12 @@ window.Sound = {
     currentBgm: null,
     ctx: null, 
     unlocked: false,
+
+    // 音量とミュート設定のプロパティ
+    bgmVolume: 0.3,
+    seVolume: 1.0,
+    bgmMuted: false,
+    seMuted: false,
 
     init: function() {
         if (!this.ctx) {
@@ -44,7 +50,9 @@ window.Sound = {
         if (src !== "") {
             this.bgmPlayer.src = src;
             this.bgmPlayer.loop = true;
-            this.bgmPlayer.volume = 0.4; 
+            
+            // ミュートなら0、それ以外は設定音量にする
+            this.bgmPlayer.volume = this.bgmMuted ? 0 : this.bgmVolume; 
 
             let playPromise = this.bgmPlayer.play();
             if (playPromise !== undefined) {
@@ -66,21 +74,41 @@ window.Sound = {
         this.currentBgm = null;
     },
 
+    // BGM/SEの設定変更メソッド
+    changeBgmVolume: function(val) {
+        this.bgmVolume = parseFloat(val);
+        if (!this.bgmMuted && this.bgmPlayer) this.bgmPlayer.volume = this.bgmVolume;
+    },
+    toggleBgmMute: function() {
+        this.bgmMuted = !this.bgmMuted;
+        if (this.bgmPlayer) this.bgmPlayer.volume = this.bgmMuted ? 0 : this.bgmVolume;
+        return this.bgmMuted;
+    },
+    changeSeVolume: function(val) {
+        this.seVolume = parseFloat(val);
+    },
+    toggleSeMute: function() {
+        this.seMuted = !this.seMuted;
+        return this.seMuted;
+    },
+
     playSE: function(fileName, vol=1.0) {
+        if (this.seMuted) return; // ミュート時は再生しない
         let se = new Audio("se/" + fileName);
-        se.volume = vol;
+        se.volume = vol * this.seVolume; // マスター音量を掛け合わせる
         se.play().catch(e => console.log("SE再生エラー(" + fileName + "が見つからないわ！):", e));
     },
 
+    // 効果音メソッド群（全部1.0でフラットに鳴らす安定版よ！）
     hit: function() { this.playSE('hit.mp3', 1.0); },
-    damage: function() { this.playSE('damage.mp3', 1.0); },
-    defeat: function() { this.playSE('defeat.mp3', 1.0); },
+    ougon: function() { this.playSE('ougon.mp3', 1.0); },
+    majin: function() { this.playSE('majin.mp3', 1.0); },
+    damage: function() { this.playSE('damage.mp3', 0.8); },
+    defeat: function() { this.playSE('defeat.mp3', 0.8); },
     decide: function() { this.playSE('cursor.mp3', 0.8); },
     cursor: function() { this.playSE('cursor.mp3', 0.8); },
-    
     cursor2: function() { this.playSE('cursor2.mp3', 0.8); },
     cursor3: function() { this.playSE('cursor3.mp3', 0.8); },
-    
     itemGet: function() { this.playSE('item.mp3', 1.0); },
     densetsu: function() { this.playSE('densetsu.mp3', 1.0); }, 
     magic: function() { this.playSE('magic.mp3', 1.0); },
@@ -88,7 +116,7 @@ window.Sound = {
     
     enc: function() {
         this.stopBGM();
-        this.playSE('enc.mp3', 1.0);
+        this.playSE('enc.mp3', 0.6);
     },
     
     levelUp: function() {
@@ -98,13 +126,16 @@ window.Sound = {
     },
 
     msgTick: function() {
+        if (this.seMuted) return; // 会話のピピピ音もミュート対応
         if (!this.ctx || !this.unlocked || this.ctx.state === 'suspended') return;
         try {
             let osc = this.ctx.createOscillator();
             let gain = this.ctx.createGain();
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.15, this.ctx.currentTime); 
+            // マスターSE音量を反映 (最大0.15)
+            let tickVol = 0.15 * this.seVolume;
+            gain.gain.setValueAtTime(tickVol, this.ctx.currentTime); 
             gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.03);
             osc.connect(gain); gain.connect(this.ctx.destination);
             osc.start(); 

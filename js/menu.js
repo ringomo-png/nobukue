@@ -1,6 +1,41 @@
 // ==========================================
-// 📊 menu.js (売却・即装備・魔除け・MFA完全版)
+// 📊 menu.js (オートセーブ内蔵＆全機能統合 完全版)
 // ==========================================
+
+// 💥【NEW】裏でこっそり保存する「サイレント・オートセーブ機能」
+// 💥【NEW】裏でこっそり保存する「サイレント・オートセーブ機能」
+window.autoSave = function() {
+    if (typeof playerStatus === 'undefined' || !playerStatus) return;
+    
+    // 💥【ラスボス対策の安全装置】
+    // 魔王を倒した後（エンディング中）は、オートセーブを一切ストップする！
+    // もしここでリロードされても、魔王戦の直前からやり直せる（王道RPGの仕様）
+    if (playerStatus.flags && playerStatus.flags.gameClear) {
+        console.log("【システム】エンディング中のため、オートセーブを停止中……");
+        return; 
+    }
+
+    let saveData = {
+        playerStatus: playerStatus,
+        player: player,
+        currentMapKey: currentMapKey,
+        returnStack: window.returnStack || [],
+        worldReturn: window.worldReturn || null,
+        soundSettings: {
+            bgmVolume: (typeof Sound !== 'undefined') ? Sound.bgmVolume : 0.4,
+            seVolume: (typeof Sound !== 'undefined') ? Sound.seVolume : 1.0,
+            bgmMuted: (typeof Sound !== 'undefined') ? Sound.bgmMuted : false,
+            seMuted: (typeof Sound !== 'undefined') ? Sound.seMuted : false
+        }
+    };
+    let npcStates = [];
+    if(typeof npcs !== 'undefined') { npcs.forEach((n, idx) => { npcStates.push({opened: n.opened, hidden: n.hidden}); }); }
+    saveData.npcStates = npcStates;
+    try {
+        localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
+        console.log("【システム】オートセーブ完了！");
+    } catch(e) {}
+};
 
 function calcPlayerStats() {
     if (typeof playerStatus === 'undefined' || !playerStatus.equipment) return { baseStr:0, baseDef:0, baseAgi:0, equipAtk:0, equipDef:0, equipAgi:0, totalAtk:0, totalDef:0, totalAgi:0 };
@@ -32,6 +67,7 @@ function openMenu() {
 function closeMenu() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
     isMenuOpen = false; document.getElementById('menu-screen').classList.add('hidden'); 
+    if (typeof window.autoSave === 'function') window.autoSave(); // 💥 メニューを閉じた時にオートセーブ！
 }
 function updateMenuStats() { const statsDiv = document.getElementById('menu-stats'); if (!statsDiv || typeof playerStatus === 'undefined') return; statsDiv.innerHTML = "のぶゆき　LV: " + playerStatus.level + "　おかね: " + playerStatus.gold + " Ｇ<br>ＨＰ: " + playerStatus.hp + " / " + playerStatus.maxHp + "　MP: " + playerStatus.mp + " / " + playerStatus.maxMp; }
 
@@ -95,7 +131,7 @@ function useHackMenu(index) {
     }
 
     updateMiniStatus(); updateMenuStats(); showHack(); 
-    showMessage("💻 " + spell.name + " を じっこう した！<br>のぶゆき の HP が かいふくした！");
+    showMessage("" + spell.name + " を じっこう した！<br>のぶゆき の HP が かいふくした！");
 }
 
 function showItems() {
@@ -118,18 +154,14 @@ function useItemMenu(index) {
         return;
     }
     
-    // 💥【完全版】インド魔除けの使用処理！
     if (item.name === "インド魔除け") {
         if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
-        
-        window.amuletSteps = 100; // 100歩セット
-        
+        window.amuletSteps = 100; 
         if (item.count) { item.count--; if (item.count <= 0) playerStatus.inventory.splice(index, 1); } 
         else { playerStatus.inventory.splice(index, 1); }
-        
         closeMenu();
         showMessage("のぶゆき は インド魔除け を つかった！<page>強烈な スパイスの 香りがする……。<br>フィールドで 100歩のあいだ<br>魔物が でなくなった！");
-        return; // 💥 これが命綱よ！
+        return; 
     }
         
     if (item.type === "heal") {
@@ -248,28 +280,19 @@ function showMFA() {
         return; 
     }
 
-    // 👇 変更後（完璧な時系列順パッチ！）
     let html = "<div style='color:#aaaaff; font-size:14px; margin-bottom:10px;'>どこへ フライアウェイ しますか？</div><ul style='list-style:none; padding:0; margin:0;'>";
     
-    // ① じたく（無条件）
     html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"1\", 19, 37)'>▶ よつかいどう (自宅)</li>";
     
-    // MFAバージョン2以上なら表示
     if (playerStatus.flags.mfaVersion >= 2) {
-        // ② ゲオ周辺
         if (playerStatus.flags.visited_2) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"2\", 19, 39)'>▶ ゲオ周辺</li>";
-        // ③ 蕎麦屋
         if (playerStatus.flags.visited_5) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"5\", 39, 20)'>▶ 蕎麦屋</li>";
-        // ④ 繁華街
         if (playerStatus.flags.visited_4) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"4\", 14, 29)'>▶ 繁華街</li>";
-        // ⑤ 最後の街
         if (playerStatus.flags.visited_6) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"6\", 29, 15)'>▶ 最後の街</li>";
-        // ⑥ 田中の街
         if (playerStatus.flags.visited_17) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"17\", 9, 18)'>▶ 南西の街</li>";
+        if (playerStatus.flags.visited_18) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"18\", 14, 12)'>▶ もちだの家</li>";
     }
-
-
-    
+   
     html += "</ul>"; details.innerHTML = html;
 }
 
@@ -282,6 +305,10 @@ function executeMFA(mapId, x, y) {
         setTimeout(() => { 
             window.returnStack = []; window.worldReturn = null;
             if(typeof loadMap === 'function') loadMap(mapId); player.x = x; player.y = y; if(typeof draw === 'function') draw(); fade.style.opacity = '0'; setTimeout(() => { if(container.contains(fade)) container.removeChild(fade); }, 500); 
+            
+            // 💥【NEW】MFAワープ後にもオートセーブ！
+            if (typeof window.autoSave === 'function') window.autoSave();
+            
         }, 800); 
     }, 1000); 
 }
@@ -301,17 +328,45 @@ function showMap() {
 function showSettings() {
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
     const details = document.getElementById('menu-details');
-    let html = "<div style='color:#aaffaa; margin-bottom:15px;'>【デバッグ・システム設定】</div>";
+    
+    let bgmBtnColor = (typeof Sound !== 'undefined' && Sound.bgmMuted) ? "#800" : "#282";
+    let bgmBtnText = (typeof Sound !== 'undefined' && Sound.bgmMuted) ? "OFF" : "ON";
+    let seBtnColor = (typeof Sound !== 'undefined' && Sound.seMuted) ? "#800" : "#282";
+    let seBtnText = (typeof Sound !== 'undefined' && Sound.seMuted) ? "OFF" : "ON";
+    let curBgmVol = (typeof Sound !== 'undefined') ? Sound.bgmVolume : 0.4;
+    let curSeVol = (typeof Sound !== 'undefined') ? Sound.seVolume : 1.0;
+
+    let html = "<div style='color:#aaffaa; margin-bottom:15px; font-size:18px; text-align:center;'>【サウンド設定】</div>";
+    
+    html += "<div style='background:#111; padding:10px; border-radius:4px; margin-bottom:15px;'>";
+    html += "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>";
+    html += "<span>BGM音量</span>";
+    html += "<span id='bgm-toggle-btn' style='cursor:pointer; background:" + bgmBtnColor + "; padding:4px 12px; border-radius:4px; border:1px solid #fff;' onclick='toggleBgmMuteMenu()'>" + bgmBtnText + "</span>";
+    html += "</div>";
+    html += "<input type='range' id='bgm-slider' min='0' max='1' step='0.05' value='" + curBgmVol + "' style='width:100%;' onchange='changeBgmVolMenu(this.value)' oninput='changeBgmVolMenu(this.value)'>";
+    html += "</div>";
+
+    html += "<div style='background:#111; padding:10px; border-radius:4px; margin-bottom:20px;'>";
+    html += "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>";
+    html += "<span>SE(効果音)</span>";
+    html += "<span id='se-toggle-btn' style='cursor:pointer; background:" + seBtnColor + "; padding:4px 12px; border-radius:4px; border:1px solid #fff;' onclick='toggleSeMuteMenu()'>" + seBtnText + "</span>";
+    html += "</div>";
+    html += "<input type='range' id='se-slider' min='0' max='1' step='0.05' value='" + curSeVol + "' style='width:100%;' onchange='changeSeVolMenu(this.value)' oninput='changeSeVolMenu(this.value)'>";
+    html += "</div>";
+
+    html += "<hr style='border:none; border-top:1px dashed #555; margin:15px 0;'>";
+
+    html += "<div style='color:#aaffaa; margin-bottom:10px;'>【システム設定】</div>";
     html += "<div style='margin-bottom:20px;'>敵の出現率: <select id='encRate' onchange='changeEncRate(this.value)' style='background:#222; color:#fff; padding:5px; font-size:16px;'>";
     let rates = [0.00, 0.03, 0.10, 0.20]; let rateLabels = ["出ない (0%)", "普通 (3%)", "多い (10%)", "地獄 (20%)"];
     for(let i=0; i<rates.length; i++) { let sel = (window.encounterRate === rates[i]) ? "selected" : ""; html += "<option value='" + rates[i] + "' " + sel + ">" + rateLabels[i] + "</option>"; }
     html += "</select></div>";
-    html += "<div style='margin-bottom:10px;'>主人公のレベルを強制変更:</div>";
     
+    html += "<div style='margin-bottom:10px;'>主人公のレベルを強制変更:</div>";
     html += "<div><input type='number' id='cheatLevel' value='"+playerStatus.level+"' min='1' max='30' style='width:60px; background:#222; color:#fff; padding:5px; font-size:16px;'> ";
     html += "<button type='button' onclick='applyCheatLevel(event)' ontouchstart='applyCheatLevel(event)' style='background:#800; color:#fff; border:1px solid #faa; padding:5px 15px; cursor:pointer;'>変更して確認</button></div>";
-
     html += "<div style='font-size:12px; color:#888; margin-top:5px;'>(※変更後、自動的に「つよさ」画面に移動します)</div>";
+    
     details.innerHTML = html;
 }
 
@@ -337,9 +392,9 @@ function scrollList(elementId, amount) {
     if (el) { el.scrollTop += amount; if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); }
 }
 
-// 💥 ==================================
-// 💥 NEW: カウ/ウル 統合ショップシステム！
-// 💥 ==================================
+// ==================================
+// ショップシステム
+// ==================================
 var currentShopId = null;
 
 function openShop(shopId) {
@@ -351,7 +406,6 @@ function openShop(shopId) {
     const statsDiv = document.getElementById('menu-stats'); 
     statsDiv.innerHTML = "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'><span style='color:#aaffaa;'>【おみせ】</span><span style='cursor:pointer; background:#800; padding:4px 10px; border-radius:4px; border:1px solid #ffaaaa; font-size:14px;' onclick='closeShop()'>✖ やめる</span></div>おかね: <span style='color:#ffffaa;' id='shop-gold-display'>" + playerStatus.gold + " G</span>";
     
-    // 💥 ここが「トップメニュー（かう/うる）」よ！
     const details = document.getElementById('menu-details'); 
     let html = "<div style='color:#aaaaff; margin-bottom:20px; text-align:center; font-size:18px;'>いらっしゃいませ！<br>なにを しますか？</div>";
     html += "<div style='display:flex; flex-direction:column; gap:15px; align-items:center;'>";
@@ -361,7 +415,6 @@ function openShop(shopId) {
     details.innerHTML = html;
 }
 
-// 💥 ここから「かう（購入）」の処理
 function showBuyList() {
     if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
     const details = document.getElementById('menu-details'); 
@@ -370,18 +423,34 @@ function showBuyList() {
     
     shops[currentShopId].forEach((entry, index) => { 
         const itemData = itemMaster[entry.type][entry.index]; 
-        html += "<li style='cursor:pointer; padding:12px 8px; border-bottom:1px dashed #555; background:#222; margin-bottom:4px; border-radius:4px; display:flex; justify-content:space-between;' onclick='confirmBuyItem(" + index + ")'><span>▶ " + itemData.name + "</span> <span style='color:#ffffaa;'>" + itemData.price + " G</span></li>"; 
+        
+        let diffText = "";
+        if (["weapon", "armor", "shield", "accessory"].includes(itemData.type)) {
+            let currentEquip = playerStatus.equipment[itemData.type];
+            let cAtk = currentEquip && currentEquip.atk ? currentEquip.atk : 0;
+            let cDef = currentEquip && currentEquip.def ? currentEquip.def : 0;
+            let nAtk = itemData.atk || 0; let nDef = itemData.def || 0;
+            
+            if (nAtk > 0 || cAtk > 0) {
+                let d = nAtk - cAtk; let color = d > 0 ? "#aaffaa" : (d < 0 ? "#ffaaaa" : "#888"); let sign = d > 0 ? "+" : (d === 0 ? "±" : "");
+                diffText += `<span style='color:${color}; font-size:12px; margin-left:8px;'>(攻${sign}${d})</span>`;
+            }
+            if (nDef > 0 || cDef > 0) {
+                let d = nDef - cDef; let color = d > 0 ? "#aaffaa" : (d < 0 ? "#ffaaaa" : "#888"); let sign = d > 0 ? "+" : (d === 0 ? "±" : "");
+                diffText += `<span style='color:${color}; font-size:12px; margin-left:8px;'>(守${sign}${d})</span>`;
+            }
+        }
+
+        let nameColor = (playerStatus.gold >= itemData.price) ? "#fff" : "#777";
+        let priceColor = (playerStatus.gold >= itemData.price) ? "#ffffaa" : "#888";
+
+        html += "<li style='cursor:pointer; padding:12px 8px; border-bottom:1px dashed #555; background:#222; margin-bottom:4px; border-radius:4px; display:flex; justify-content:space-between;' onclick='confirmBuyItem(" + index + ")'><span style='color:" + nameColor + ";'>▶ " + itemData.name + diffText + "</span> <span style='color:" + priceColor + ";'>" + itemData.price + " G</span></li>"; 
     });
     html += "</ul>"; 
     html += "<div style='text-align:center; margin-top:15px;'><span style='cursor:pointer; background:#555; padding:8px 30px; border-radius:4px; border:1px solid #fff;' onclick='openShop(currentShopId)'>もどる</span></div>";
     details.innerHTML = html;
 }
 
-// 💥 ==================================
-// 💥 ここから「買う」処理（上限7個＆まとめ買い対応！）
-// 💥 ==================================
-
-// 💥 グローバル変数として購入数などを保持するわ！
 window.shopItemIndex = null;
 window.shopBuyQuantity = 1;
 window.shopMaxAllowed = 1;
@@ -392,7 +461,6 @@ window.confirmBuyItem = function(index) {
     const entry = shops[currentShopId][index]; 
     const itemData = itemMaster[entry.type][entry.index];
     
-    // 💥 アイテムの所持数をカウント（最大7個まで！）
     let currentCount = 0;
     let existingItem = playerStatus.inventory.find(i => i.name === itemData.name);
     
@@ -402,11 +470,9 @@ window.confirmBuyItem = function(index) {
         currentCount = playerStatus.inventory.filter(i => i.name === itemData.name).length;
     }
     
-    // 所持上限（7個）から今持っている数を引く
     let maxCanHold = 7 - currentCount;
     const details = document.getElementById('menu-details');
     
-    // すでに7個持っていたらブロック！
     if (maxCanHold <= 0) {
         let html = "<div style='color:#ffaaaa; text-align:center; margin-top:20px; font-size:18px;'>これいじょう 【" + itemData.name + "】 は<br>もてないようだ！ (最大7個)</div>";
         html += "<div style='text-align:center; margin-top:20px;'><span style='cursor:pointer; background:#555; padding:8px 30px; border-radius:4px; border:1px solid #fff;' onclick='showBuyList()'>もどる</span></div>";
@@ -414,24 +480,21 @@ window.confirmBuyItem = function(index) {
         return;
     }
     
-    // お金で買える限界数を計算！
     let maxAffordable = Math.floor(playerStatus.gold / itemData.price);
-    if (maxAffordable <= 0) {
-        let html = "<div style='color:#ffaaaa; text-align:center; margin-top:20px; font-size:18px;'>【" + itemData.name + "】を かう<br>おかねが たりないようだね。</div>";
-        html += "<div style='text-align:center; margin-top:20px;'><span style='cursor:pointer; background:#555; padding:8px 30px; border-radius:4px; border:1px solid #fff;' onclick='showBuyList()'>もどる</span></div>";
-        details.innerHTML = html;
-        return;
-    }
     
-    // 「持てる限界」と「買える限界」の小さい方を最大購入数に設定！
-    window.shopMaxAllowed = Math.min(maxCanHold, maxAffordable);
-    window.shopBuyQuantity = 1;
+    if (maxAffordable <= 0) {
+        window.shopMaxAllowed = 0; 
+        window.shopBuyQuantity = 0; 
+    } else {
+        window.shopMaxAllowed = Math.min(maxCanHold, maxAffordable);
+        window.shopBuyQuantity = 1;
+    }
     
     renderConfirmBuyItem();
 };
 
-// 💥 ➕➖ボタンを押したときの処理！
 window.changeBuyQuantity = function(amt) {
+    if (window.shopMaxAllowed <= 0) return; 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
     window.shopBuyQuantity += amt;
     if(window.shopBuyQuantity < 1) window.shopBuyQuantity = 1;
@@ -439,7 +502,6 @@ window.changeBuyQuantity = function(amt) {
     renderConfirmBuyItem();
 };
 
-// 💥 画面の描画（おまとめ買いUI付き！）
 window.renderConfirmBuyItem = function() {
     const entry = shops[currentShopId][window.shopItemIndex]; 
     const itemData = itemMaster[entry.type][entry.index];
@@ -480,7 +542,13 @@ window.renderConfirmBuyItem = function() {
         html += "<div style='color:#aaffaa; margin-bottom:15px;'>どうぐ だ。</div>";
     }
     
-    // 💥 個数選択セレクター！
+    if (window.shopMaxAllowed <= 0) {
+        html += "<div style='color:#ffaaaa; text-align:center; font-size:16px; margin-bottom:15px; padding:10px; border:1px solid #ffaaaa; border-radius:4px;'>これを かう おかねが<br>たりないようだね。</div>";
+        html += "<div style='text-align:center;'><span style='cursor:pointer; background:#555; padding:8px 30px; border-radius:4px; border:1px solid #fff;' onclick='showBuyList()'>もどる</span></div>";
+        details.innerHTML = html;
+        return;
+    }
+
     html += "<div style='display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:4px; margin-bottom:15px;'>";
     html += "<span>いくつ かう？</span>";
     if (window.shopMaxAllowed > 1) {
@@ -504,7 +572,6 @@ window.renderConfirmBuyItem = function() {
     details.innerHTML = html;
 };
 
-// 💥 購入実行！ まとめてインベントリに追加！
 window.buyItem = function() { 
     const entry = shops[currentShopId][window.shopItemIndex]; 
     const itemData = itemMaster[entry.type][entry.index]; 
@@ -515,7 +582,6 @@ window.buyItem = function() {
         if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
         playerStatus.gold -= totalPrice; 
         
-        // 💥 アイテムはスタック（×〇個）して、装備は別枠で追加！
         if (itemData.type === "heal" || itemData.type === "item") {
             let existingItem = playerStatus.inventory.find(i => i.name === itemData.name);
             if (existingItem) {
@@ -536,7 +602,6 @@ window.buyItem = function() {
         const goldDisp = document.getElementById('shop-gold-display');
         if(goldDisp) goldDisp.innerText = playerStatus.gold + " G";
         
-        // 装備品を1個だけ買った場合は、親切に「すぐ装備する？」を聞く！
         if (qty === 1 && ["weapon", "armor", "shield", "accessory"].includes(itemData.type)) {
             const details = document.getElementById('menu-details'); 
             let html = "<div style='color:#aaffaa; margin-bottom:15px; font-size:18px; text-align:center;'>" + itemData.name + " を かった！<br>さっそく そうび していくかね？</div>";
@@ -568,19 +633,13 @@ window.equipJustBought = function(slot) {
     playerStatus.inventory.splice(itemIndex, 1); 
     
     calcPlayerStats(); updateMiniStatus(); updateMenuStats(); 
-    
     showBuyList();
     setTimeout(() => alert(item.name + " を そうびした！"), 100); 
 };
-// 💥 ここまで！
 
-
-
-// 💥 ここから「うる（売却）」の処理！
 function showSellList() {
     if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
     const details = document.getElementById('menu-details');
-    
     const goldDisp = document.getElementById('shop-gold-display');
     if(goldDisp) goldDisp.innerText = playerStatus.gold + " G";
 
@@ -589,7 +648,7 @@ function showSellList() {
 
     let hasSellable = false;
     playerStatus.inventory.forEach((item, index) => {
-        let sellPrice = Math.floor((item.price || 0) / 2); // 売値は買値の半額！
+        let sellPrice = Math.floor((item.price || 0) / 2); 
         if (sellPrice > 0) {
             hasSellable = true;
             let countText = item.count ? (" ×" + item.count) : "";
@@ -642,6 +701,7 @@ function sellItem(index) {
 function closeShop() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
     currentShopId = null; closeMenu(); const tabs = document.getElementById('menu-tabs'); if(tabs) tabs.style.display = 'flex'; 
+    if (typeof window.autoSave === 'function') window.autoSave(); // 💥 ショップを閉じた時もオートセーブ！
 }
 
 var currentInnPrice = 0;
@@ -666,8 +726,10 @@ function executeInn() {
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); fade.style.opacity = '0'; setTimeout(() => { if(container.contains(fade)) container.removeChild(fade); }, 1000);
             setTimeout(() => { 
                 if(typeof window.isCutscene !== 'undefined') window.isCutscene = false; 
-                                if (currentMapKey === "6") { showMessage("おはよう！<page>……あれっ？ なぜか のぶゆきの パンツが<br>ビリビリに 引き裂かれている！？"); } else { showMessage("おはよう！<page>HP と MP が まんたんに なった！"); }
-
+                if (currentMapKey === "6") { showMessage("おはよう！<page>……あれっ？ なぜか のぶゆきの パンツが<br>ビリビリに 引き裂かれている！？"); } else { showMessage("おはよう！<page>HP と MP が まんたんに なった！"); }
+                
+                // 💥【NEW】宿屋で回復した直後にもオートセーブ！
+                if (typeof window.autoSave === 'function') window.autoSave(); 
             }, 500);
         }, 2000);
     } else { 
@@ -678,18 +740,20 @@ function executeInn() {
 
 function saveGameData() {
     if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
-    
-    // 💥【NEW】セーブする前に確認ダイアログを出す！
-    if (!confirm("これまでの ぼうけんのきろく を\nセーブしますか？")) {
-        return; // 「キャンセル」を押したらここで処理を止める！
-    }
+    if (!confirm("これまでの ぼうけんのきろく を\nセーブしますか？")) return; 
 
     let saveData = {
         playerStatus: playerStatus,
         player: player,
         currentMapKey: currentMapKey,
         returnStack: window.returnStack || [],
-        worldReturn: window.worldReturn || null
+        worldReturn: window.worldReturn || null,
+        soundSettings: {
+            bgmVolume: (typeof Sound !== 'undefined') ? Sound.bgmVolume : 0.4,
+            seVolume: (typeof Sound !== 'undefined') ? Sound.seVolume : 1.0,
+            bgmMuted: (typeof Sound !== 'undefined') ? Sound.bgmMuted : false,
+            seMuted: (typeof Sound !== 'undefined') ? Sound.seMuted : false
+        }
     };
     let npcStates = [];
     if(typeof npcs !== 'undefined') { npcs.forEach((n, idx) => { npcStates.push({opened: n.opened, hidden: n.hidden}); }); }
@@ -698,7 +762,6 @@ function saveGameData() {
     alert("冒険の書に 記録しました！");
 }
 
-
 function loadGameData() {
     let dataStr = localStorage.getItem("nobuMonSave");
     if (!dataStr) return false;
@@ -706,6 +769,15 @@ function loadGameData() {
         let data = JSON.parse(dataStr);
         playerStatus = data.playerStatus; player = data.player; currentMapKey = data.currentMapKey;
         window.returnStack = data.returnStack; window.worldReturn = data.worldReturn;
+        
+        if (data.soundSettings && typeof Sound !== 'undefined') {
+            Sound.bgmVolume = data.soundSettings.bgmVolume;
+            Sound.seVolume = data.soundSettings.seVolume;
+            Sound.bgmMuted = data.soundSettings.bgmMuted;
+            Sound.seMuted = data.soundSettings.seMuted;
+            if (Sound.bgmPlayer) Sound.bgmPlayer.volume = Sound.bgmMuted ? 0 : Sound.bgmVolume;
+        }
+
         if (data.npcStates && typeof npcs !== 'undefined') {
             data.npcStates.forEach((state, idx) => { if (npcs[idx]) { npcs[idx].opened = state.opened; npcs[idx].hidden = state.hidden; } });
         }
@@ -713,7 +785,42 @@ function loadGameData() {
     } catch(e) { console.error(e); return false; }
 }
 
-// 💥 新しく作った関数たち（showBuyList等）をwindowオブジェクトに登録しておくわよ！
+window.toggleBgmMuteMenu = function() {
+    if(typeof Sound !== 'undefined') {
+        let isMuted = Sound.toggleBgmMute();
+        if(!isMuted) Sound.decide();
+        const btn = document.getElementById('bgm-toggle-btn');
+        if(btn) {
+            btn.innerText = isMuted ? "OFF" : "ON";
+            btn.style.background = isMuted ? "#800" : "#282";
+        }
+    }
+};
+window.changeBgmVolMenu = function(val) {
+    if(typeof Sound !== 'undefined') {
+        Sound.changeBgmVolume(val);
+        if(Sound.bgmMuted && val > 0) window.toggleBgmMuteMenu(); 
+    }
+};
+window.toggleSeMuteMenu = function() {
+    if(typeof Sound !== 'undefined') {
+        let isMuted = Sound.toggleSeMute();
+        if(!isMuted) Sound.decide(); 
+        const btn = document.getElementById('se-toggle-btn');
+        if(btn) {
+            btn.innerText = isMuted ? "OFF" : "ON";
+            btn.style.background = isMuted ? "#800" : "#282";
+        }
+    }
+};
+window.changeSeVolMenu = function(val) {
+    if(typeof Sound !== 'undefined') {
+        Sound.changeSeVolume(val);
+        if(Sound.seMuted && val > 0) window.toggleSeMuteMenu();
+        if (!Sound.seMuted) Sound.decide();
+    }
+};
+
 window.updateMiniStatus = updateMiniStatus; window.openMenu = openMenu; window.closeMenu = closeMenu; window.updateMenuStats = updateMenuStats; window.showStatus = showStatus; window.showItems = showItems; window.showEquip = showEquip; window.showEquipList = showEquipList; window.useItemMenu = useItemMenu; window.equipItem = equipItem; window.unequipItem = unequipItem; window.calcPlayerStats = calcPlayerStats; 
 window.openShop = openShop; window.showBuyList = showBuyList; window.confirmBuyItem = confirmBuyItem; window.buyItem = buyItem; window.equipJustBought = equipJustBought; window.showSellList = showSellList; window.confirmSellItem = confirmSellItem; window.sellItem = sellItem; window.closeShop = closeShop; 
 window.showMFA = showMFA; window.executeMFA = executeMFA; window.showMap = showMap; window.openInn = openInn; window.executeInn = executeInn; window.showSettings = showSettings; window.applyCheatLevel = applyCheatLevel; window.scrollList = scrollList; window.changeEncRate = changeEncRate; window.showHack = showHack; window.useHackMenu = useHackMenu; window.saveGameData = saveGameData; window.loadGameData = loadGameData;
@@ -808,5 +915,9 @@ window.executeBankTransaction = function() {
         setTimeout(() => alert(window.bankAmount + " G を ひきだしました！"), 100);
     }
     if(typeof updateMiniStatus === 'function') updateMiniStatus();
+    
+    // 💥【NEW】銀行でお金を出し入れした直後にもオートセーブ！
+    if(typeof window.autoSave === 'function') window.autoSave(); 
+    
     openBank();
 }

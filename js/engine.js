@@ -74,7 +74,7 @@ function loadMap(mapKey) {
     if (typeof TileMaps === 'undefined' || !TileMaps[mapKey]) return; 
     currentMapKey = mapKey; currentMapData = TileMaps[mapKey]; 
     MAP_W = currentMapData.width; MAP_H = currentMapData.height; 
-    if (["1", "2", "4", "5", "6", "17"].includes(mapKey)) { playerStatus.flags["visited_" + mapKey] = true; }
+    if (["1", "2", "4", "5", "6", "17","18"].includes(mapKey)) { playerStatus.flags["visited_" + mapKey] = true; }
     if (typeof playMapBGM === 'function') playMapBGM(); 
 }
 
@@ -264,7 +264,25 @@ function interactWithTile(targetX, targetY) {
                     return true; 
                 }
 
-                if (npc.isDoor) { if (npc.requiredEquip) { if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; } } else if (npc.requiredKey) { if (hasItem(npc.requiredKey)) { npc.hidden = true; showMessage(npc.requiredKey + " を つかった！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; } } }
+                if (npc.isDoor) { if (npc.requiredEquip) { if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; }                 } else if (npc.requiredKey) { 
+                    if (hasItem(npc.requiredKey)) { 
+                        npc.hidden = true; 
+                        // 💥 鍵を開けた時の効果音！
+                        if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
+                        showMessage(npc.requiredKey + " を つかった！<br>とびらが ひらいた！"); 
+                        draw(); 
+                        return true; 
+                    } else { 
+                        // 💥 家の鍵を持っていない時の専用セリフ
+                        if (npc.requiredKey === "家の鍵") {
+                            showMessage("おかしいな、ゲオに 落としてきたかな……？<page>カギが かかっている。");
+                        } else {
+                            showMessage(npc.message); 
+                        }
+                        return true; 
+                    } 
+                }
+}
                 
                 if (npc.isRandomChest) {
                     if (!npc.opened) {
@@ -316,8 +334,18 @@ function interactWithTile(targetX, targetY) {
                     } 
                     return true; 
                 }
-                 
-                if (npc.isMFAUpgrade) { if (!npc.opened) { npc.opened = true; playerStatus.flags.mfaVersion = 2; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message); } else { showMessage("たからばこ は からっぽ だ。"); } return true; }
+                                 if (npc.isMFAUpgrade) { 
+                    if (!npc.opened) { 
+                        npc.opened = true; playerStatus.flags.mfaVersion = 2; 
+                        if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
+                        showMessage(npc.message); 
+                    } else { 
+                        // 💥 宝箱はからっぽだ、をやめてセリフに変更！
+                        showMessage("もちだ「これで どこでも いける もちね！」"); 
+                    } 
+                    return true; 
+                }
+
                 if (npc.isGeouKey) { if (!npc.opened) { npc.opened = true; playerStatus.inventory.push({ name: "家の鍵", type: "item", price: 0 }); if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message + "<page>家の鍵 を てにいれた！"); } else { showMessage("昔、ここのアダルトコーナーには たいへん お世話になったんじゃ……。"); } return true; }
 
                 if (npc.isRobberEvent) { if (!playerStatus.flags.defeatedRobber) { showMessage(npc.message); pendingAction = () => { setTimeout(() => startBattle("robber"), 500); }; } return true; }

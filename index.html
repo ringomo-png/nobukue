@@ -20,9 +20,9 @@
             box-sizing: border-box;
         }
 
-        /* タイトルロゴのスタイル（シンプル・レトロな黄色） */
+        /* タイトルロゴのスタイル（せきばんと同じゴールドに統一！） */
         #title-screen svg text {
-            fill: #FFFF00;
+            fill: #ffd700;
             stroke: #fff;
             stroke-width: 1px;
             filter: drop-shadow(4px 4px 0px #555);
@@ -35,8 +35,6 @@
     <div id="game-container">
         <a href="index.html" id="back-to-main" title="メインに戻る">←</a>
 
-        <video id="final-movie" src="img/sunset.MP4" playsinline style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:9999; background:#000;"></video>
-        
         <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
             
             <svg viewBox="0 0 400 130" style="width: 95%; max-width: 450px; overflow: visible;">
@@ -59,9 +57,9 @@
             </div>
 
             <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
-                <div style="color:#ffd700; font-size:24px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 えいゆう の せきばん 】</div>
-                <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:40vh; overflow-y:auto; color:#fff;">
-                    </div>
+                <div style="color:#ffd700; font-size:18px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 えいゆう の せきばん 】</div>
+                <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:55vh; overflow-y:auto; color:#fff;">
+                </div>
                 <div style="cursor:pointer; font-size:20px; padding:10px 20px; border:1px solid #fff; background:#333; color:#fff;" onclick="hideRanking()">もどる</div>
             </div>
         </div>
@@ -83,17 +81,18 @@
         <div id="menu-screen" class="hidden">
             <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
                 <div id="menu-stats">のぶゆき LV: 1 ...</div>
-                <div id="menu-tabs">
+                              <div id="menu-tabs">
                     <div class="menu-tab" onclick="showStatus()">つよさ</div>
-                    <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
-                    <div class="menu-tab" onclick="showItems()">どうぐ</div>
                     <div class="menu-tab" onclick="showEquip()">そうび</div>
+                    <div class="menu-tab" onclick="showItems()">どうぐ</div>
                     <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
+                    <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
                     <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
+                    <div class="menu-tab" style="background:#444;" onclick="showSettings()">せってい</div>
                     <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
-                    <div class="menu-tab" style="background:#555;" onclick="showSettings()">設定</div>
                     <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
                 </div>
+
             </div>
             <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
         </div>
@@ -113,7 +112,7 @@
             </div>
             <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
                 <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
-                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">まほう</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">はっく</div>
                 <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
                 <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
             </div>
@@ -186,25 +185,46 @@
                         let rankColor = rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#aaffaa";
                         html += `<div style="border-bottom: 1px dashed #555; padding: 8px 0; display:flex; justify-content:space-between; color:#fff;">`;
                         html += `<span><span style="color:${rankColor}; font-weight:bold; margin-right:10px; font-size:18px;">${rank}位</span> ${safeName}</span>`;
-                        html += `<span style="color:#aaa; font-size:14px;">(死:${data.deathCount}回 / Lv:${data.level})</span>`;
+                        html += `<span style="color:#aaa; font-size:14px;">(Death:${data.deathCount} / Lv:${data.level})</span>`;
                         html += `</div>`;
                     });
                     if (html === "") html = "<div style='text-align:center; margin-top:20px; color:#fff;'>まだ 誰も 魔王を 倒していないようだ……。</div>";
 
+                    let localFlags = {};
+                    try {
+                        let saveData = JSON.parse(localStorage.getItem("nobuMonSave"));
+                        if (saveData && saveData.playerStatus && saveData.playerStatus.flags) {
+                            localFlags = saveData.playerStatus.flags;
+                        }
+                    } catch(e) {}
+
                     const bossQ = query(collection(db, "boss_kill_counts"));
                     const bossSnap = await getDocs(bossQ);
-                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold;'>【 ボス戦績 (プレイヤー勝率) 】</div>";
-                    const bossNames = { "tanaka": "たなか", "golem": "スロット魔人", "mochida_boss": "もちだ", "robber": "強盗", "ryuou_final": "魔王", "true_boss": "真・魔王" };
+                    let bossDataMap = {};
+                    bossSnap.forEach(doc => { bossDataMap[doc.id] = doc.data(); });
+
+                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold;'>【 BOSS STATS 】</div>";
                     
-                    bossSnap.forEach(doc => {
-                        const data = doc.data();
-                        let bId = doc.id;
-                        if(bossNames[bId]) {
+                    const bossOrder = [
+                        { id: "robber", trueName: "強盗", flag: "defeatedRobber" },
+                        { id: "golem", trueName: "スロット魔人", flag: "defeatedGolem" },
+                        { id: "tanaka", trueName: "たなか", flag: "defeatedTanaka" },
+                        { id: "mochida_boss", trueName: "もちだ", flag: "defeatedMochida" },
+                        { id: "ryuou_final", trueName: "魔王", flag: "gameClear" }
+                    ];
+                    
+                    bossOrder.forEach(boss => {
+                        let data = bossDataMap[boss.id];
+                        if(data) {
                             let kills = data.kills || 0;
                             let defeats = data.defeats || 0;
                             let total = kills + defeats;
                             let winRate = total > 0 ? Math.floor((defeats / total) * 100) : 0;
-                            bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px;"><span>${bossNames[bId]}</span><span>犠牲:${kills} / 勝率:${winRate}%</span></div>`;
+                            
+                            let displayName = localFlags[boss.flag] ? boss.trueName : "？？？";
+                            
+                            // 💥【Win Rate】に変更！
+                            bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px;"><span>${displayName}</span><span>Death:${kills} / Win Rate:${winRate}%</span></div>`;
                         }
                     });
 
@@ -234,34 +254,112 @@
             }
         };
 
-        window.playFinalMovie = function() {
+        window.showEndRoll = function() {
             if (typeof Sound !== 'undefined' && Sound.stopBGM) Sound.stopBGM();
-            const vid = document.getElementById('final-movie');
-            vid.style.display = 'block';
-            vid.muted = false; 
-            vid.play().catch(e => { console.log("動画エラー:", e); endMovieAndSave(); });
-            vid.onended = () => { endMovieAndSave(); };
-        };
-
-        async function endMovieAndSave() {
-            const vid = document.getElementById('final-movie');
-            vid.style.display = 'none';
-            
-            let playerName = prompt("四街道に 平和が 戻った……！\nせきばんに 英雄の名前を 刻もう！(8文字まで)", "のぶゆき");
-            if (playerName === null) playerName = "のぶゆき";
-            let cleanName = playerName.replace(/　/g, " ").trim();
-            if (cleanName === "") cleanName = "のぶゆき";
-            playerName = cleanName.substring(0, 8);
-
-            if (window.FirebaseHub) {
-                let dCount = (typeof playerStatus !== 'undefined' && playerStatus.flags && typeof playerStatus.flags.deathCount !== 'undefined') ? playerStatus.flags.deathCount : 0;
-                await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
-                console.log("🏆 せきばん（Firebase）にクリア記録を送信したわ！");
+            if (typeof Sound !== 'undefined' && Sound.playBGM) {
+                Sound.playBGM('end'); 
+            } else {
+                let endAudio = new Audio('end.mp3'); 
+                endAudio.play().catch(e => console.log("BGM再生エラー:", e));
             }
+            
+            const container = document.getElementById('game-container');
+            const endScreen = document.createElement('div');
+            endScreen.id = 'ending-screen';
+            endScreen.style.position = 'absolute';
+            endScreen.style.inset = '0';
+            endScreen.style.backgroundColor = '#000'; 
+            endScreen.style.color = '#fff';
+            endScreen.style.zIndex = '9999';
+            endScreen.style.display = 'flex';
+            endScreen.style.flexDirection = 'column';
+            endScreen.style.justifyContent = 'center';
+            endScreen.style.alignItems = 'center';
+            endScreen.style.opacity = '0';
+            endScreen.style.transition = 'opacity 2s ease-in-out';
+            endScreen.style.textAlign = 'center';
+            endScreen.style.lineHeight = '2.2';
+            endScreen.style.fontSize = '18px';
+            endScreen.style.fontFamily = "'DotGothic16', sans-serif"; 
+            endScreen.style.textShadow = "2px 2px 0px #444"; 
+            endScreen.style.padding = '20px';
+            
+            container.appendChild(endScreen);
+            
+            setTimeout(() => { endScreen.style.opacity = '1'; }, 500);
+            
+                        // 💥【NEW】匂わせエンドロール！「幻影」と「バナナらっしー」を繋げる
+            const messages = [
+                "四街道の メインサーバーから<br>邪悪な プログラムは 完全に 消え去った……",
+                "暴走していた 魔物たちは 姿を消し<br>人々は ついに 正気を 取り戻した。",
+                "『げぇお』には 再び ゲーマーが 集い<br>蕎麦屋には 平和な 笑い声が 響く。",
+                "あの 幻影 も 今頃 どこかで<br>大好きな バナナらっしー を 飲んで 笑っているだろうか。",
+                "ありがとう、のぶゆき。<br>君の ハッキングスキルが、世界を 救ったのだ。",
+                "<span style='font-size:26px; color:#ffffaa; font-weight:bold;'>〜 のぶゆきクエスト　完 〜</span><br><br><span style='font-size:14px; color:#aaa; line-height: 1.8;'>Executive Producer : MORI<br>Character Design Support : KAIRI<br>Special Game Freak : BORI<br>Special Thanks : NOBUYUKI<br>Programming & Design Assistant : AI</span>"
+            ];
 
-            if (typeof gameState !== 'undefined') gameState = 'TITLE';
-            document.getElementById('title-screen').style.display = 'flex';
-            showRanking(); 
+            
+            let msgIndex = 0;
+            
+            function showNextMessage() {
+                if (msgIndex >= messages.length) {
+                    endScreen.innerHTML = "<div style='font-size:40px; font-weight:bold; letter-spacing:8px; opacity:0; transition:opacity 2s ease;' id='final-end-text'>END</div>";
+                    setTimeout(() => {
+                        const finalEnd = document.getElementById('final-end-text');
+                        if (finalEnd) finalEnd.style.opacity = '1';
+
+                        setTimeout(async () => {
+                            let playerName = prompt("四街道に 平和が 戻った……！\nせきばんに 英雄の名前を 刻もう！(8文字まで)", "のぶゆき");
+                            if (playerName === null) playerName = "のぶゆき";
+                            let cleanName = playerName.replace(/　/g, " ").trim();
+                            if (cleanName === "") cleanName = "のぶゆき";
+                            playerName = cleanName.substring(0, 8);
+
+                            if (window.FirebaseHub) {
+                                let dCount = (typeof playerStatus !== 'undefined' && playerStatus.flags && typeof playerStatus.flags.deathCount !== 'undefined') ? playerStatus.flags.deathCount : 0;
+                                await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
+                            }
+
+                            try {
+                                let saveData = JSON.parse(localStorage.getItem("nobuMonSave"));
+                                if (!saveData) {
+                                    saveData = { playerStatus: playerStatus, player: player, currentMapKey: currentMapKey };
+                                } else {
+                                    saveData.playerStatus = playerStatus; 
+                                }
+                                localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
+                            } catch(e) { console.error("オートセーブ失敗", e); }
+
+                            if (typeof gameState !== 'undefined') gameState = 'TITLE';
+                            
+                            const titleScreen = document.getElementById('title-screen');
+                            if (titleScreen) {
+                                titleScreen.style.display = 'flex';
+                                titleScreen.classList.remove('hidden');
+                            }
+                            if (typeof showRanking === 'function') showRanking(); 
+                            
+                            if (container.contains(endScreen)) container.removeChild(endScreen);
+                        }, 4000);
+                    }, 100);
+                    return;
+                }
+                
+                endScreen.innerHTML = "<div id='end-text' style='opacity:0; transition:opacity 2s ease-in-out;'>" + messages[msgIndex] + "</div>";
+                
+                setTimeout(() => {
+                    const textEl = document.getElementById('end-text');
+                    if(textEl) textEl.style.opacity = '1';
+                    
+                    setTimeout(() => {
+                        if(textEl) textEl.style.opacity = '0';
+                        setTimeout(() => { msgIndex++; showNextMessage(); }, 2000); 
+                    }, 4000); 
+                    
+                }, 100);
+            }
+            
+            setTimeout(showNextMessage, 3500); 
         };
 
         window.showRanking = function() {

@@ -1,5 +1,5 @@
 // ==========================================
-// ⚔️ battle.js (ハッカー仕様・エンディング完全版 v3.1)
+// ⚔️ battle.js (オートセーブ＆四街道の幻影 伏線回収版)
 // ==========================================
 
 function triggerEncounterEffect(callback) {
@@ -110,7 +110,13 @@ function playerAction(type, data, next) {
     if (type === 'attack') {
         showBattleMsg("のぶゆき の こうげき！");
         setTimeout(function() {
-            if(typeof Sound !== 'undefined' && Sound.hit) Sound.hit(); 
+            let isOugon = (playerStatus.equipment.weapon && playerStatus.equipment.weapon.name === "黄金剣");
+            if (isOugon) {
+                if(typeof Sound !== 'undefined' && Sound.ougon) Sound.ougon();
+            } else {
+                if(typeof Sound !== 'undefined' && Sound.hit) Sound.hit();
+            }
+            
             let baseDmg = Math.floor(playerStatus.atk / 2) - Math.floor(currentEnemy.def / 4);
             let dmg = baseDmg + Math.floor(Math.random() * (baseDmg / 4 + 1));
             if (dmg < 1) dmg = 1;
@@ -123,10 +129,10 @@ function playerAction(type, data, next) {
             currentEnemy.hp -= dmg; shakeEnemy(); next();
         }, 800);
     }
-        else if (type === 'magic') {
+    else if (type === 'magic') {
         playerStatus.mp -= data.cost; updateMiniStatus();
         showBattleMsg("のぶゆき は " + data.name + " を じっこうした！");
-        if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic();
+        if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
 
         setTimeout(function() {
             if (data.type === 'heal') {
@@ -158,6 +164,7 @@ function playerAction(type, data, next) {
                     let dmg = Math.floor(playerStatus.atk * 1.5); if(dmg < 1) dmg = 1;
                     currentEnemy.hp -= dmg; shakeEnemy();
                     showBattleMsg("イカレた まじん が あらわれた！<br>" + currentEnemy.name + " に " + dmg + " の ダメージ！");
+                    if(typeof Sound !== 'undefined' && Sound.majin) Sound.majin();
                 } else { 
                     showBattleMsg("しかし イカレ魔人 は どっかに いってしまった！"); 
                 }
@@ -179,7 +186,6 @@ function playerAction(type, data, next) {
             }
         }, 1200);
     }
-
     else if (type === 'item') {
         showBattleMsg("のぶゆき は " + data.name + " を つかった！");
         setTimeout(function() {
@@ -339,6 +345,9 @@ window.proceedToExp = function(btn) {
             } else {
                 if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
                 endBattle(); 
+                
+                // 💥【NEW】戦闘勝利後にオートセーブ発動！
+                if (typeof window.autoSave === 'function') window.autoSave(); 
             }
         }, 1500); 
     }
@@ -348,7 +357,7 @@ function winBattle() {
     if(typeof Sound !== 'undefined' && Sound.defeat) Sound.defeat();
     const es = document.getElementById('enemy-img'); if (es) es.classList.add('enemy-defeat');
 
-    const nextBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888;'>▶ リザルトへ すすむ</span></div>";
+    const nextBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
     let autoProceed = true; 
 
     if (currentEnemy.id === "tanaka") {
@@ -369,24 +378,24 @@ function winBattle() {
     } else if (currentEnemy.id === "mochida_boss") {
         playerStatus.flags.defeatedMochida = true;
         window.nextBossToFight = "ryuou_final"; 
-        const mochidaBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#400; color:#fff; border:2px solid #f88; border-radius:6px; cursor:pointer; font-weight:bold;'>▶ つぎの たたかい へ</span></div>";
+        
+        const mochidaBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#400; color:#fff; border:2px solid #f88; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
         showBattleMsg("もちだ を 倒した！<page>もちだ「ぐああぁぁっ！！」<page>もちだ「ハァ……ハァ……黒ちゃん……<br>ごめん……俺、操られて……」<page>もちだ「逃げろ……黒ちゃん……<br>あいつは……魔王は……ヤバい……！」<page>もちだ は その場に 倒れ込んだ！<page>どこからともなく 邪悪な声が 響き渡る！<page>謎の声「ふん……もちだ は 使えないわね。<br>くもひとつ ないわ……」" + mochidaBtn);
         autoProceed = false;
         
-// 変更後
     } else if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
         playerStatus.flags.gameClear = true; 
         window.justCleared = true; 
         
-        const endBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#004; color:#fff; border:2px solid #88f; border-radius:6px; cursor:pointer; font-weight:bold;'>▶ エンディング へ</span></div>";
-        showBattleMsg(currentEnemy.name + " を たおした！<page>魔王「グアアアアアッ！！<br>バカな……この私が……！<br>ただの プログラマーごときに……！！」<page>魔王「ガアアアァァァァァッ！！」<page>のぶゆき は 気づいた。<br>魔王のシステムバグが これ以上 広がらなかったのは、<br>もちだ が 裏で 抑え込んでいてくれた おかげだったのだ……！<page>魔王の体が 光に包まれ、<br>ノイズと共に 消滅していった！<page>四街道の メインサーバーは 浄化され、<br>街に 平和が 戻った……！！" + endBtn);
+        const endBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#004; color:#fff; border:2px solid #88f; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
+        
+        showBattleMsg(currentEnemy.name + " を たおした！<page>魔王「グアアアアアッ！！<br>バカな……この私が……！<br>ただの プログラマーごときに……！！」<page>魔王「ガアアアァァァァァッ！！」<page>消えゆく 魔王の ノイズの 向こう側に、<br>四街道を さまよっていた あの『幻影』が 重なって 見えた。<page>幻影は、のぶゆき に 向かって 小さく うなずき……<br>そのまま 光の 中へと 溶けていった。<page>魔王の ウイルス侵食から サーバーを 守るため、<br>ずっと 裏で 戦い続けていたのは……。<page>四街道の メインサーバーは 浄化され、<br>街に 平和が 戻った……！！" + endBtn);
         autoProceed = false;
         
     } else {
         showBattleMsg(currentEnemy.name + " を たおした！");
     }
 
-    // 💥【NEW】ボスを倒した（勝った）という記録をFirebaseに送る！
     const bossList = ["tanaka", "golem", "mochida_boss", "robber", "ryuou_final", "true_boss"];
     if (bossList.includes(currentEnemy.id)) {
         if (window.FirebaseHub) window.FirebaseHub.incrementBossDefeat(currentEnemy.id);
@@ -397,103 +406,27 @@ function winBattle() {
 
 window.startEndingCutscene = function() {
     if (typeof Sound !== 'undefined' && Sound.stopBGM) Sound.stopBGM();
-    if (typeof Sound !== 'undefined' && Sound.playBGM) {
-        Sound.playBGM('end'); 
-    } else {
-        let endAudio = new Audio('end.mp3'); 
-        endAudio.play().catch(e => console.log("BGM再生ブロック:", e));
-    }
     
-    const container = document.getElementById('game-container');
-    const endScreen = document.createElement('div');
-    endScreen.id = 'ending-screen';
-    endScreen.style.position = 'absolute';
-    endScreen.style.inset = '0';
-    endScreen.style.backgroundColor = '#000'; 
-    endScreen.style.color = '#fff';
-    endScreen.style.zIndex = '9999';
-    endScreen.style.display = 'flex';
-    endScreen.style.flexDirection = 'column';
-    endScreen.style.justifyContent = 'center';
-    endScreen.style.alignItems = 'center';
-    endScreen.style.opacity = '0';
-    endScreen.style.transition = 'opacity 2s ease-in-out';
-    endScreen.style.textAlign = 'center';
-    endScreen.style.lineHeight = '2.2';
-    endScreen.style.fontSize = '18px';
+    if(typeof loadMap === 'function') loadMap("1"); 
+    player.x = 16; 
+    player.y = 7; 
+    player.dir = 3; 
     
-    endScreen.style.fontFamily = "'DotGothic16', 'PixelMplus', 'MS PGothic', monospace"; 
-    endScreen.style.textShadow = "2px 2px 0px #444"; 
-    endScreen.style.padding = '20px';
+    if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
+    fadeAlpha = 1.0; 
+    if(typeof draw === 'function') draw(); 
     
-    container.appendChild(endScreen);
+    endBattle(); 
+    if (typeof playMapBGM === 'function') playMapBGM(); 
     
-    setTimeout(() => { endScreen.style.opacity = '1'; }, 500);
-    
-    const messages = [
-        "四街道の メインサーバーから<br>邪悪な プログラムは 完全に 消え去った……",
-        "暴走していた 魔物たちは 姿を消し<br>人々は ついに 正気を 取り戻した。",
-        "『げぇお』には 再び ゲーマーが 集い<br>蕎麦屋には 平野な 笑い声が 響く。",
-        "操られていた もちだ も 正気を 取り戻し<br>大好きな バナナらっしーを 飲んで 笑っている。",
-        "ありがとう、のぶゆき。<br>君の ハッキングスキルが、世界を 救ったのだ。",
-        "<span style='font-size:26px; color:#ffffaa; font-weight:bold;'>〜 のぶゆきクエスト　完 〜</span><br><br><span style='font-size:14px; color:#aaa; line-height: 1.8;'>製作総指揮：MORI<br>協力：KAIRI<br>スペシャルサンクス：NOBUYUKI<br>製作：AI</span>"
-    ];
-    
-    let msgIndex = 0;
-    
-    function showNextMessage() {
-        if (msgIndex >= messages.length) {
-            endScreen.innerHTML += "<br><br><div style='margin-top:40px; padding:12px 30px; border:2px solid #fff; border-radius:8px; cursor:pointer; display:inline-block; font-weight:bold; text-shadow:none;' onclick='returnToWorld()'>▶ 平和な 四街道へ もどる</div>";
-            return;
-        }
-        
-        endScreen.innerHTML = "<div id='end-text' style='opacity:0; transition:opacity 2s ease-in-out;'>" + messages[msgIndex] + "</div>";
-        
-        setTimeout(() => {
-            const textEl = document.getElementById('end-text');
-            if(textEl) textEl.style.opacity = '1';
-            
-            setTimeout(() => {
-                if(msgIndex < messages.length - 1) {
-                    if(textEl) textEl.style.opacity = '0';
-                    setTimeout(() => { msgIndex++; showNextMessage(); }, 2000); 
-                } else {
-                    msgIndex++; showNextMessage();
-                }
-            }, 4000); 
-            
-        }, 100);
-    }
-    
-    setTimeout(showNextMessage, 3500); 
+    setTimeout(() => {
+        const tapMovieBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); document.getElementById(\"message-box\").classList.remove(\"active\"); if(typeof showEndRoll === \"function\") showEndRoll();' ontouchstart='event.stopPropagation(); document.getElementById(\"message-box\").classList.remove(\"active\"); if(typeof showEndRoll === \"function\") showEndRoll();' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
+
+        showMessage("親父「おぉ、のぶゆき！<br>よくぞ 四街道を 救ってくれた！<br>本当に ありがとう。<page>……なんじゃ、その顔は。<br>もう 次の冒険に 行ってしまうんじゃろ？<page>お前の ハッカー魂は 誰にも 止められんからな。<br>いつでも 応援しておるぞ！<br>気をつけてな！」" + tapMovieBtn);
+    }, 1000);
 };
 
-window.returnToWorld = async function() {
-    if(typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
-    playerStatus.flags.gameClear = true; 
-
-    const endScreen = document.getElementById('ending-screen');
-    if (endScreen) {
-        endScreen.style.opacity = '0'; 
-        setTimeout(() => {
-            if (endScreen.parentNode) endScreen.parentNode.removeChild(endScreen);
-            
-            // 💥 実家の親父の前（X:16, Y:6、上向き）に帰還させる！
-            if(typeof loadMap === 'function') loadMap("1"); 
-            player.x = 16; 
-            player.y = 6; 
-            player.dir = 3; 
-            
-            if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-            fadeAlpha = 1.0; 
-            if(typeof draw === 'function') draw(); 
-            
-            endBattle(); 
-            if (typeof playMapBGM === 'function') playMapBGM();
-            
-        }, 2000);
-    }
-};
+window.returnToWorld = null;
 
 function loseBattle() { 
     showBattleMsg("のぶゆき は ちからつきた……。"); 
@@ -526,6 +459,10 @@ function loseBattle() {
         
         setTimeout(function() {
             showMessage("親父「のぶゆきよ、<br>情けない姿を さらしおって……。<page>倒れていた お前を 運ぶのに<br>手間取ったわい。<page>治療費と 運搬代として<br>所持金の 4分の1 を<br>もらっておいたぞ。<page>次は しっかり やるんじゃな！」");
+            
+            // 💥【NEW】全滅してペナルティを受けた後もオートセーブ！
+            if (typeof window.autoSave === 'function') window.autoSave(); 
+            
         }, 500);
         
     }, 2500); 
