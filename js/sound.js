@@ -1,5 +1,5 @@
 // ==========================================
-// 🎵 sound.js (音量調整スライダー・ON/OFF対応 安定版)
+// 🎵 sound.js (バックグラウンド再生防止・安定版)
 // ==========================================
 
 window.Sound = {
@@ -9,10 +9,13 @@ window.Sound = {
     unlocked: false,
 
     // 音量とミュート設定のプロパティ
-    bgmVolume: 0.3,
+    bgmVolume: 0.4,
     seVolume: 1.0,
     bgmMuted: false,
     seMuted: false,
+    
+    // 💥【NEW】裏画面にいった時にBGMが鳴っていたかを記憶するフラグ
+    _wasPlayingOnHide: false,
 
     init: function() {
         if (!this.ctx) {
@@ -72,6 +75,7 @@ window.Sound = {
     stopBGM: function() {
         this.bgmPlayer.pause();
         this.currentBgm = null;
+        this._wasPlayingOnHide = false; // 止めた時はフラグもリセット
     },
 
     // BGM/SEの設定変更メソッド
@@ -96,15 +100,15 @@ window.Sound = {
         if (this.seMuted) return; // ミュート時は再生しない
         let se = new Audio("se/" + fileName);
         se.volume = vol * this.seVolume; // マスター音量を掛け合わせる
-        se.play().catch(e => console.log("SE再生エラー(" + fileName + "が見つからないわ！):", e));
+        se.play().catch(e => console.log("SE再生エラー(" + fileName + "):", e));
     },
 
-    // 効果音メソッド群（全部1.0でフラットに鳴らす安定版よ！）
+    // 効果音メソッド群（全部1.0でフラットに鳴らす安定版）
     hit: function() { this.playSE('hit.mp3', 1.0); },
     ougon: function() { this.playSE('ougon.mp3', 1.0); },
     majin: function() { this.playSE('majin.mp3', 1.0); },
-    damage: function() { this.playSE('damage.mp3', 0.8); },
-    defeat: function() { this.playSE('defeat.mp3', 0.8); },
+    damage: function() { this.playSE('damage.mp3', 1.0); },
+    defeat: function() { this.playSE('defeat.mp3', 1.0); },
     decide: function() { this.playSE('cursor.mp3', 0.8); },
     cursor: function() { this.playSE('cursor.mp3', 0.8); },
     cursor2: function() { this.playSE('cursor2.mp3', 0.8); },
@@ -116,7 +120,7 @@ window.Sound = {
     
     enc: function() {
         this.stopBGM();
-        this.playSE('enc.mp3', 0.6);
+        this.playSE('enc.mp3', 1.0);
     },
     
     levelUp: function() {
@@ -126,14 +130,13 @@ window.Sound = {
     },
 
     msgTick: function() {
-        if (this.seMuted) return; // 会話のピピピ音もミュート対応
+        if (this.seMuted) return; 
         if (!this.ctx || !this.unlocked || this.ctx.state === 'suspended') return;
         try {
             let osc = this.ctx.createOscillator();
             let gain = this.ctx.createGain();
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-            // マスターSE音量を反映 (最大0.15)
             let tickVol = 0.15 * this.seVolume;
             gain.gain.setValueAtTime(tickVol, this.ctx.currentTime); 
             gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.03);
@@ -149,6 +152,28 @@ window.Sound = {
     }
 };
 
+// ユーザーのアクションでオーディオを初期化
 window.addEventListener('mousedown', () => Sound.init());
 window.addEventListener('touchstart', () => Sound.init(), {passive: true});
 window.addEventListener('keydown', () => Sound.init());
+
+// 💥【NEW】タブの切り替えや最小化を検知してBGMを一時停止・再開する処理
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // 画面が隠れた時：もしBGMが鳴っていれば一時停止し、鳴っていたことを記憶する
+        if (Sound.bgmPlayer && !Sound.bgmPlayer.paused && Sound.currentBgm) {
+            Sound._wasPlayingOnHide = true;
+            Sound.bgmPlayer.pause();
+        } else {
+            Sound._wasPlayingOnHide = false;
+        }
+    } else {
+        // 画面が戻ってきた時：隠れる前に鳴っていたなら、再生を再開する
+        if (Sound._wasPlayingOnHide && Sound.bgmPlayer && Sound.currentBgm) {
+            let playPromise = Sound.bgmPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => { console.log("復帰時のBGM自動再生がブロックされました:", e); });
+            }
+        }
+    }
+});
