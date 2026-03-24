@@ -87,7 +87,7 @@
                     <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
                     <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
                     <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
-                    <div class="menu-tab" style="background:#444;" onclick="showSettings()">せってい</div>
+                    <div class="menu-tab hidden" style="background:#444;" onclick="showSettings()">せってい</div>
                     <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
                     <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
                 </div>
@@ -331,7 +331,7 @@
                                 localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
                             } catch(e) { console.error("オートセーブ失敗", e); }
                             */
-                            // 💥【ここまで削除！】e) { console.error("オートセーブ失敗", e); }
+                            // 💥【ここまで削除！】
 
                             if (typeof gameState !== 'undefined') gameState = 'TITLE';
                             
