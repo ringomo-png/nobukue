@@ -490,8 +490,8 @@ function endBattle() {
     const dpadContainer = document.getElementById('d-pad-container'); if (dpadContainer) dpadContainer.classList.remove('invisible');
     const menuBtn = document.getElementById('menu-btn'); if (menuBtn) menuBtn.classList.remove('invisible');
     
-    const msgText = document.getElementById('msg-text'); 
-    if (msgText && typeof currentMapKey !== 'undefined') msgText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")";
+    //const msgText = document.getElementById('msg-text'); 
+    //if (msgText && typeof currentMapKey !== 'undefined') msgText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")";
 
     walkTimer = 10; keys.up = keys.down = keys.left = keys.right = keys.action = false;
 
