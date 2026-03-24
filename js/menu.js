@@ -1,15 +1,11 @@
 // ==========================================
-// 📊 menu.js (オートセーブ内蔵＆全機能統合 完全版)
+// 📊 menu.js (タイトルへ戻る機能＆全機能統合 完全版)
 // ==========================================
 
-// 💥【NEW】裏でこっそり保存する「サイレント・オートセーブ機能」
-// 💥【NEW】裏でこっそり保存する「サイレント・オートセーブ機能」
+// 裏でこっそり保存する「サイレント・オートセーブ機能」
 window.autoSave = function() {
     if (typeof playerStatus === 'undefined' || !playerStatus) return;
     
-    // 💥【ラスボス対策の安全装置】
-    // 魔王を倒した後（エンディング中）は、オートセーブを一切ストップする！
-    // もしここでリロードされても、魔王戦の直前からやり直せる（王道RPGの仕様）
     if (playerStatus.flags && playerStatus.flags.gameClear) {
         console.log("【システム】エンディング中のため、オートセーブを停止中……");
         return; 
@@ -67,7 +63,7 @@ function openMenu() {
 function closeMenu() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
     isMenuOpen = false; document.getElementById('menu-screen').classList.add('hidden'); 
-    if (typeof window.autoSave === 'function') window.autoSave(); // 💥 メニューを閉じた時にオートセーブ！
+    if (typeof window.autoSave === 'function') window.autoSave(); 
 }
 function updateMenuStats() { const statsDiv = document.getElementById('menu-stats'); if (!statsDiv || typeof playerStatus === 'undefined') return; statsDiv.innerHTML = "のぶゆき　LV: " + playerStatus.level + "　おかね: " + playerStatus.gold + " Ｇ<br>ＨＰ: " + playerStatus.hp + " / " + playerStatus.maxHp + "　MP: " + playerStatus.mp + " / " + playerStatus.maxMp; }
 
@@ -305,10 +301,7 @@ function executeMFA(mapId, x, y) {
         setTimeout(() => { 
             window.returnStack = []; window.worldReturn = null;
             if(typeof loadMap === 'function') loadMap(mapId); player.x = x; player.y = y; if(typeof draw === 'function') draw(); fade.style.opacity = '0'; setTimeout(() => { if(container.contains(fade)) container.removeChild(fade); }, 500); 
-            
-            // 💥【NEW】MFAワープ後にもオートセーブ！
             if (typeof window.autoSave === 'function') window.autoSave();
-            
         }, 800); 
     }, 1000); 
 }
@@ -367,8 +360,36 @@ function showSettings() {
     html += "<button type='button' onclick='applyCheatLevel(event)' ontouchstart='applyCheatLevel(event)' style='background:#800; color:#fff; border:1px solid #faa; padding:5px 15px; cursor:pointer;'>変更して確認</button></div>";
     html += "<div style='font-size:12px; color:#888; margin-top:5px;'>(※変更後、自動的に「つよさ」画面に移動します)</div>";
     
+    // 💥【NEW】ここにタイトルに戻るボタンを追加！
+    html += "<hr style='border:none; border-top:1px dashed #555; margin:20px 0;'>";
+    html += "<div style='text-align:center; padding-bottom:10px;'>";
+    html += "<div style='cursor:pointer; background:#900; color:#fff; padding:12px 30px; border-radius:4px; border:2px solid #faa; display:inline-block; font-weight:bold; letter-spacing:2px; box-shadow:2px 2px 0px #000;' onclick='returnToTitleFromMenu()'>タイトルへ もどる</div>";
+    html += "<div style='font-size:12px; color:#ffaaaa; margin-top:8px;'>※最後にオートセーブされた地点から<br>やり直すことができます。</div>";
+    html += "</div>";
+
     details.innerHTML = html;
 }
+
+// 💥【NEW】安全にタイトル画面へ戻る処理（フェードアウト付き！）
+window.returnToTitleFromMenu = function() {
+    if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
+    if (confirm("タイトル画面に もどりますか？\n（※直前のセーブ地点からやり直せます）")) {
+        const container = document.body; 
+        const fade = document.createElement('div');
+        fade.style.position = 'fixed';
+        fade.style.inset = '0';
+        fade.style.background = '#000';
+        fade.style.opacity = '0';
+        fade.style.transition = 'opacity 1s ease';
+        fade.style.zIndex = '9999';
+        container.appendChild(fade);
+
+        if (typeof Sound !== 'undefined' && Sound.stopBGM) Sound.stopBGM();
+
+        setTimeout(() => { fade.style.opacity = '1'; }, 50);
+        setTimeout(() => { location.reload(); }, 1200); 
+    }
+};
 
 function changeEncRate(val) { window.encounterRate = parseFloat(val); alert("敵の出現率を変更しました！"); }
 
@@ -701,7 +722,7 @@ function sellItem(index) {
 function closeShop() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
     currentShopId = null; closeMenu(); const tabs = document.getElementById('menu-tabs'); if(tabs) tabs.style.display = 'flex'; 
-    if (typeof window.autoSave === 'function') window.autoSave(); // 💥 ショップを閉じた時もオートセーブ！
+    if (typeof window.autoSave === 'function') window.autoSave(); 
 }
 
 var currentInnPrice = 0;
@@ -728,7 +749,6 @@ function executeInn() {
                 if(typeof window.isCutscene !== 'undefined') window.isCutscene = false; 
                 if (currentMapKey === "6") { showMessage("おはよう！<page>……あれっ？ なぜか のぶゆきの パンツが<br>ビリビリに 引き裂かれている！？"); } else { showMessage("おはよう！<page>HP と MP が まんたんに なった！"); }
                 
-                // 💥【NEW】宿屋で回復した直後にもオートセーブ！
                 if (typeof window.autoSave === 'function') window.autoSave(); 
             }, 500);
         }, 2000);
@@ -916,7 +936,6 @@ window.executeBankTransaction = function() {
     }
     if(typeof updateMiniStatus === 'function') updateMiniStatus();
     
-    // 💥【NEW】銀行でお金を出し入れした直後にもオートセーブ！
     if(typeof window.autoSave === 'function') window.autoSave(); 
     
     openBank();
