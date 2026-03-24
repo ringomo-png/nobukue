@@ -1,5 +1,5 @@
 // ==========================================
-// 🧠 engine.js (時限爆弾撤去・安定メッセージ処理版)
+// 🧠 engine.js (関数連携ミス修正・完全スマートタップ版)
 // ==========================================
 
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
@@ -137,7 +137,7 @@ function draw() {
     if (fadeAlpha > 0) { ctx.globalAlpha = fadeAlpha; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.globalAlpha = 1.0; }
 }
 
-var msgPages = []; var currentMsgPage = 0; var isWaitingForPage = false; var battleLevelUpWait = false; 
+var msgPages = []; var currentMsgPage = 0; var isWaitingForPage = false; 
 var isMessageActive = false; var pendingAction = null;    
 
 function showMessage(text) { 
@@ -161,9 +161,6 @@ function playMsgPage(isBattleMode) {
             clearInterval(timer);
             if (isBattleMode) bMsgTimer = null; else messageTimer = null; 
             
-            // 💥【超重要修正】
-            // 画面を勝手に閉じる時限爆弾タイマー（autoCloseMsgTimer）を完全に排除！
-            // プレイヤーが必ずTAP（またはキー入力）して次に進む、超安全な設計に統一したわ！
             box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
             isWaitingForPage = true; 
             return;
@@ -618,15 +615,30 @@ if (msgBox) {
         e.preventDefault(); 
         if (isCutscene) return; 
         
-        // 💥 メッセージの送り処理（完全にプレイヤー主導！）
+        // 💥【超絶進化】空っぽページへの無限ループを完全にシャットアウト＆安全な経験値呼び出し！
         if (isBattle) {
             if (bMsgTimer) return; 
             if (isWaitingForPage) { 
-                isWaitingForPage = false; 
-                if (currentMsgPage >= msgPages.length - 1 && battleLevelUpWait) { 
-                    battleLevelUpWait = false; if(typeof endBattle === 'function') endBattle(); return; 
+                if (currentMsgPage >= msgPages.length - 1) { 
+                    // これが最後のページの場合
+                    isWaitingForPage = false; 
+                    if (window.isWaitingForExp) {
+                        // 💥 ここが原因だったわ！「window.proceedToExp」としっかり明記して確実に呼び出す！
+                        if (typeof window.proceedToExp === 'function') window.proceedToExp();
+                    } else {
+                        // 経験値も表示し終わった完全な最後なら、戦闘を終わらせる！
+                        if (window.justCleared) {
+                            window.justCleared = false; 
+                            if(typeof window.startEndingCutscene === 'function') window.startEndingCutscene();
+                        } else {
+                            if(typeof window.endBattle === 'function') window.endBattle(); 
+                        }
+                    }
+                    return; 
                 } 
-                currentMsgPage++; playMsgPage(true); return; 
+                isWaitingForPage = false; 
+                currentMsgPage++; playMsgPage(true); 
+                return; 
             }
             return;
         }
