@@ -430,6 +430,8 @@ function tryMove(dx, dy) {
         } 
     }
     
+    // engine.js の tryMove 関数の中にあるゲート処理を書き換え
+
     if (currentMapKey === "0" && nextX === 35 && nextY === 76) { 
         if (!playerStatus.flags.bridgeUnlocked) {
             if (!playerStatus.flags.bossKey1 || !playerStatus.flags.bossKey2 || !playerStatus.flags.bossKey3) { 
@@ -437,7 +439,11 @@ function tryMove(dx, dy) {
             } else {
                 if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
                 showMessage("セキュリティゲート に アクセス中……<page>キーコード1…… 認証完了。<br>キーコード2…… 認証完了。<br>キーコード3…… 認証完了。<page>MFA フル・アクセス 承認。<br>魔王城への ルートを 解放します！");
-                playerStatus.flags.bridgeUnlocked = true;
+                
+                // 💥【NEW】メッセージを最後まで読み終えた瞬間にフラグをONにする！
+                pendingAction = () => {
+                    playerStatus.flags.bridgeUnlocked = true;
+                };
                 return; 
             }
         }
@@ -580,23 +586,12 @@ function startGameLoop() {
         frameCount++;
         
         if (frameCount % 20 === 0) { 
-            let needsDraw = false;
-            if (typeof npcs !== 'undefined') {
-                for (let i = 0; i < npcs.length; i++) {
-                    const npc = npcs[i]; if (npc.map !== currentMapKey || npc.hidden) continue;
-                    npc.anim = (npc.anim === 0) ? 1 : 0; needsDraw = true;
-                    if (Math.random() < 0.02 && !npc.isStatic && !npc.noDraw && !npc.isStepEvent) {
-                        const d = Math.floor(Math.random() * 4); npc.dir = d; let nx = npc.x, ny = npc.y;
-                        if (d === 0) ny++; else if (d === 1) nx--; else if (d === 2) nx++; else if (d === 3) ny--;
-                        const tiles = getTilesAt(nx, ny); const top = tiles[tiles.length - 1]; const unwalk = (currentMapKey === "0") ? unWalkMain : unWalkMachi; let hit = unwalk.includes(top); if (nx === player.x && ny === player.y) hit = true;
-                        for (let j = 0; j < npcs.length; j++) { const other = npcs[j]; if (other !== npc && other.map === currentMapKey && other.x === nx && other.y === ny && !other.hidden) hit = true; }
-                        if (!hit && nx >= 0 && nx < MAP_W && ny >= 0 && ny < MAP_H) { npc.x = nx; npc.y = ny; }
-                    }
-                }
-            }
-            if (needsDraw) draw();
+            // （中略：NPCの移動処理など）
         }
         if (walkTimer > 0) { walkTimer--; return; }
+        
+        // 💥【NEW】メッセージ表示中はプレイヤーの移動を完全にブロック！
+        if (isMessageActive) return;
         
         let speed = 10; 
         let walkDx = 0, walkDy = 0; 
