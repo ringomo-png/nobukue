@@ -1,37 +1,6 @@
 // ==========================================
-// 📊 menu.js (タイトルへ戻る機能＆全機能統合 完全版)
+// 📊 menu.js (オートセーブ撤去・安定手動セーブ版)
 // ==========================================
-
-// 裏でこっそり保存する「サイレント・オートセーブ機能」
-window.autoSave = function() {
-    if (typeof playerStatus === 'undefined' || !playerStatus) return;
-    
-    if (playerStatus.flags && playerStatus.flags.gameClear) {
-        console.log("【システム】エンディング中のため、オートセーブを停止中……");
-        return; 
-    }
-
-    let saveData = {
-        playerStatus: playerStatus,
-        player: player,
-        currentMapKey: currentMapKey,
-        returnStack: window.returnStack || [],
-        worldReturn: window.worldReturn || null,
-        soundSettings: {
-            bgmVolume: (typeof Sound !== 'undefined') ? Sound.bgmVolume : 0.4,
-            seVolume: (typeof Sound !== 'undefined') ? Sound.seVolume : 1.0,
-            bgmMuted: (typeof Sound !== 'undefined') ? Sound.bgmMuted : false,
-            seMuted: (typeof Sound !== 'undefined') ? Sound.seMuted : false
-        }
-    };
-    let npcStates = [];
-    if(typeof npcs !== 'undefined') { npcs.forEach((n, idx) => { npcStates.push({opened: n.opened, hidden: n.hidden}); }); }
-    saveData.npcStates = npcStates;
-    try {
-        localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
-        console.log("【システム】オートセーブ完了！");
-    } catch(e) {}
-};
 
 function calcPlayerStats() {
     if (typeof playerStatus === 'undefined' || !playerStatus.equipment) return { baseStr:0, baseDef:0, baseAgi:0, equipAtk:0, equipDef:0, equipAgi:0, totalAtk:0, totalDef:0, totalAgi:0 };
@@ -63,7 +32,6 @@ function openMenu() {
 function closeMenu() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
     isMenuOpen = false; document.getElementById('menu-screen').classList.add('hidden'); 
-    if (typeof window.autoSave === 'function') window.autoSave(); 
 }
 function updateMenuStats() { const statsDiv = document.getElementById('menu-stats'); if (!statsDiv || typeof playerStatus === 'undefined') return; statsDiv.innerHTML = "のぶゆき　LV: " + playerStatus.level + "　おかね: " + playerStatus.gold + " Ｇ<br>ＨＰ: " + playerStatus.hp + " / " + playerStatus.maxHp + "　MP: " + playerStatus.mp + " / " + playerStatus.maxMp; }
 
@@ -301,7 +269,6 @@ function executeMFA(mapId, x, y) {
         setTimeout(() => { 
             window.returnStack = []; window.worldReturn = null;
             if(typeof loadMap === 'function') loadMap(mapId); player.x = x; player.y = y; if(typeof draw === 'function') draw(); fade.style.opacity = '0'; setTimeout(() => { if(container.contains(fade)) container.removeChild(fade); }, 500); 
-            if (typeof window.autoSave === 'function') window.autoSave();
         }, 800); 
     }, 1000); 
 }
@@ -360,17 +327,15 @@ function showSettings() {
     html += "<button type='button' onclick='applyCheatLevel(event)' ontouchstart='applyCheatLevel(event)' style='background:#800; color:#fff; border:1px solid #faa; padding:5px 15px; cursor:pointer;'>変更して確認</button></div>";
     html += "<div style='font-size:12px; color:#888; margin-top:5px;'>(※変更後、自動的に「つよさ」画面に移動します)</div>";
     
-    // 💥【NEW】ここにタイトルに戻るボタンを追加！
     html += "<hr style='border:none; border-top:1px dashed #555; margin:20px 0;'>";
     html += "<div style='text-align:center; padding-bottom:10px;'>";
     html += "<div style='cursor:pointer; background:#900; color:#fff; padding:12px 30px; border-radius:4px; border:2px solid #faa; display:inline-block; font-weight:bold; letter-spacing:2px; box-shadow:2px 2px 0px #000;' onclick='returnToTitleFromMenu()'>タイトルへ もどる</div>";
-    html += "<div style='font-size:12px; color:#ffaaaa; margin-top:8px;'>※最後にオートセーブされた地点から<br>やり直すことができます。</div>";
+    html += "<div style='font-size:12px; color:#ffaaaa; margin-top:8px;'>※最後にセーブされた地点から<br>やり直すことができます。</div>";
     html += "</div>";
 
     details.innerHTML = html;
 }
 
-// 💥【NEW】安全にタイトル画面へ戻る処理（フェードアウト付き！）
 window.returnToTitleFromMenu = function() {
     if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
     if (confirm("タイトル画面に もどりますか？\n（※直前のセーブ地点からやり直せます）")) {
@@ -722,7 +687,6 @@ function sellItem(index) {
 function closeShop() { 
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
     currentShopId = null; closeMenu(); const tabs = document.getElementById('menu-tabs'); if(tabs) tabs.style.display = 'flex'; 
-    if (typeof window.autoSave === 'function') window.autoSave(); 
 }
 
 var currentInnPrice = 0;
@@ -748,8 +712,6 @@ function executeInn() {
             setTimeout(() => { 
                 if(typeof window.isCutscene !== 'undefined') window.isCutscene = false; 
                 if (currentMapKey === "6") { showMessage("おはよう！<page>……あれっ？ なぜか のぶゆきの パンツが<br>ビリビリに 引き裂かれている！？"); } else { showMessage("おはよう！<page>HP と MP が まんたんに なった！"); }
-                
-                if (typeof window.autoSave === 'function') window.autoSave(); 
             }, 500);
         }, 2000);
     } else { 
@@ -776,7 +738,12 @@ function saveGameData() {
         }
     };
     let npcStates = [];
-    if(typeof npcs !== 'undefined') { npcs.forEach((n, idx) => { npcStates.push({opened: n.opened, hidden: n.hidden}); }); }
+    if(typeof npcs !== 'undefined' && npcs !== null) { 
+        npcs.forEach((n) => { 
+            if (n) { npcStates.push({opened: n.opened, hidden: n.hidden}); } 
+            else { npcStates.push({opened: false, hidden: true}); }
+        }); 
+    }
     saveData.npcStates = npcStates;
     localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
     alert("冒険の書に 記録しました！");
@@ -798,7 +765,7 @@ function loadGameData() {
             if (Sound.bgmPlayer) Sound.bgmPlayer.volume = Sound.bgmMuted ? 0 : Sound.bgmVolume;
         }
 
-        if (data.npcStates && typeof npcs !== 'undefined') {
+        if (data.npcStates && typeof npcs !== 'undefined' && npcs !== null) {
             data.npcStates.forEach((state, idx) => { if (npcs[idx]) { npcs[idx].opened = state.opened; npcs[idx].hidden = state.hidden; } });
         }
         return true;
@@ -935,8 +902,6 @@ window.executeBankTransaction = function() {
         setTimeout(() => alert(window.bankAmount + " G を ひきだしました！"), 100);
     }
     if(typeof updateMiniStatus === 'function') updateMiniStatus();
-    
-    if(typeof window.autoSave === 'function') window.autoSave(); 
     
     openBank();
 }
