@@ -566,7 +566,7 @@ function tryMove(dx, dy) {
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         }
 
-        if (!warped && !isMessageActive) { const boxText = document.getElementById('msg-text'); if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; }
+        //if (!warped && !isMessageActive) { const boxText = document.getElementById('msg-text'); if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; }
     }
 }
 
@@ -619,8 +619,8 @@ if (msgBox) {
                 } else {
                     isWaitingForPage = false; isMessageActive = false; 
                     msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
-                    const boxText = document.getElementById('msg-text'); 
-                    if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; 
+                    //const boxText = document.getElementById('msg-text'); 
+                    //if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; 
                     
                     if (pendingAction) { 
                         let action = pendingAction; pendingAction = null; action(); 
