@@ -1,5 +1,5 @@
 // ==========================================
-// 🧠 engine.js (シンプル＆鉄壁のメッセージ管理版)
+// 🧠 engine.js (シンプル＆鉄壁のメッセージ管理・完全版)
 // ==========================================
 
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
@@ -430,8 +430,6 @@ function tryMove(dx, dy) {
         } 
     }
     
-    // engine.js の tryMove 関数の中にあるゲート処理を書き換え
-
     if (currentMapKey === "0" && nextX === 35 && nextY === 76) { 
         if (!playerStatus.flags.bridgeUnlocked) {
             if (!playerStatus.flags.bossKey1 || !playerStatus.flags.bossKey2 || !playerStatus.flags.bossKey3) { 
@@ -439,11 +437,7 @@ function tryMove(dx, dy) {
             } else {
                 if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
                 showMessage("セキュリティゲート に アクセス中……<page>キーコード1…… 認証完了。<br>キーコード2…… 認証完了。<br>キーコード3…… 認証完了。<page>MFA フル・アクセス 承認。<br>魔王城への ルートを 解放します！");
-                
-                // 💥【NEW】メッセージを最後まで読み終えた瞬間にフラグをONにする！
-                pendingAction = () => {
-                    playerStatus.flags.bridgeUnlocked = true;
-                };
+                pendingAction = () => { playerStatus.flags.bridgeUnlocked = true; };
                 return; 
             }
         }
@@ -465,7 +459,6 @@ function tryMove(dx, dy) {
         return; 
     }
 
-    
     const nextTiles = getTilesAt(nextX, nextY); const topTile = nextTiles[nextTiles.length - 1]; const activeUnwalkable = (currentMapKey === "0") ? unWalkMain : unWalkMachi;
 
     if (!activeUnwalkable.includes(topTile)) {
@@ -538,11 +531,9 @@ function tryMove(dx, dy) {
         const encounterMaps = ["0", "3", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
 
         if (!warped && encounterMaps.includes(currentMapKey)) { 
-            let encRate = (currentMapKey === "0") ? window.encounterRate : 0.04;
+            let encRate = (currentMapKey === "0") ? window.encounterRate : (window.encounterRate <= 0 ? 0 : 0.04);
             
-            if (currentMapKey === "0" && window.amuletSteps > 0) {
-                encRate = 0;
-            }
+            if (currentMapKey === "0" && window.amuletSteps > 0) { encRate = 0; }
             
             if (encRate > 0 && Math.random() < encRate) { 
                 if(typeof startBattle === 'function') startBattle(); 
@@ -554,9 +545,7 @@ function tryMove(dx, dy) {
             let hasGoldenSuit = (playerStatus.equipment.armor && playerStatus.equipment.armor.name === "黄金スーツ");
             
             if (currentMapKey === "0" && topTile === 4) { 
-                if (!hasGoldenSuit) {
-                    playerStatus.hp -= 2; if (playerStatus.hp <= 0) playerStatus.hp = 1; flashPoison(); 
-                }
+                if (!hasGoldenSuit) { playerStatus.hp -= 2; if (playerStatus.hp <= 0) playerStatus.hp = 1; flashPoison(); }
             }
             
             if (hasGoldenSuit && playerStatus.hp > 0 && playerStatus.hp < playerStatus.maxHp) {
@@ -565,8 +554,6 @@ function tryMove(dx, dy) {
             
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         }
-
-        //if (!warped && !isMessageActive) { const boxText = document.getElementById('msg-text'); if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; }
     }
 }
 
@@ -590,8 +577,7 @@ function startGameLoop() {
         }
         if (walkTimer > 0) { walkTimer--; return; }
         
-        // 💥【NEW】メッセージ表示中はプレイヤーの移動を完全にブロック！
-        if (isMessageActive) return;
+        if (isMessageActive) return; // 💥 メッセージ中の移動ロック
         
         let speed = 10; 
         let walkDx = 0, walkDy = 0; 
@@ -601,14 +587,15 @@ function startGameLoop() {
     }, 16); 
 }
 
-window.addEventListener('keydown', function(e) { if (isCutscene) return; if (e.key === 'ArrowUp') keys.up = true; if (e.key === 'ArrowDown') keys.down = true; if (e.key === 'ArrowLeft') keys.left = true; if (e.key === 'ArrowRight') keys.right = true; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') { if (!keys.action && !isMessageActive) tryAction(); keys.action = true; } }); window.addEventListener('keyup', function(e) { if (e.key === 'ArrowUp') keys.up = false; if (e.key === 'ArrowDown') keys.down = false; if (e.key === 'ArrowLeft') keys.left = false; if (e.key === 'ArrowRight') keys.right = false; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') keys.action = false; });
 const dpad = document.getElementById('d-pad'); if (dpad) { let activeTouchId = null; let isTouchDevice = false; const resetKeys = function() { keys.up = keys.down = keys.left = keys.right = false; document.querySelectorAll('.d-btn').forEach(function(b) { b.classList.remove('active'); }); }; const handleMove = function(clientX, clientY) { if(isCutscene) return; resetKeys(); const rect = dpad.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const dx = clientX - centerX; const dy = clientY - centerY; if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0) { keys.right = true; document.getElementById('btn-right').classList.add('active'); } else { keys.left = true; document.getElementById('btn-left').classList.add('active'); } } else { if (dy > 0) { keys.down = true; document.getElementById('btn-down').classList.add('active'); } else { keys.up = true; document.getElementById('btn-up').classList.add('active'); } } }; dpad.addEventListener('touchstart', function(e) { e.preventDefault(); isTouchDevice = true; const touch = e.changedTouches[0]; activeTouchId = touch.identifier; handleMove(touch.clientX, touch.clientY); }, {passive: false}); dpad.addEventListener('touchmove', function(e) { e.preventDefault(); for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === activeTouchId) { handleMove(e.touches[i].clientX, e.touches[i].clientY); break; } } }, {passive: false}); const endTouch = function(e) { e.preventDefault(); for (let i = 0; i < e.changedTouches.length; i++) { if (e.changedTouches[i].identifier === activeTouchId) { activeTouchId = null; resetKeys(); break; } } }; dpad.addEventListener('touchend', endTouch); dpad.addEventListener('touchcancel', endTouch); let isDragging = false; dpad.addEventListener('mousedown', function(e) { if (isTouchDevice) return; isDragging = true; handleMove(e.clientX, e.clientY); }); window.addEventListener('mousemove', function(e) { if (isTouchDevice || !isDragging) return; handleMove(e.clientX, e.clientY); }); window.addEventListener('mouseup', function() { if (isTouchDevice || !isDragging) return; isDragging = false; resetKeys(); }); }
 
-// 💥 修正箇所：engine.js の下の方（tapMessageの中身）
+// 💥【NEW】連打防止タイマーと新しいタップ＆キーボード処理
+window.lastActionTime = 0;
+
 const msgBox = document.getElementById('message-box'); 
 if (msgBox) { 
-    const tapMessage = function(e) { 
-        e.preventDefault(); 
+    window.tapMessage = function(e) { 
+        if (e) e.preventDefault(); 
         if (isCutscene) return; 
 
         if (isMessageActive) {
@@ -618,9 +605,8 @@ if (msgBox) {
                     isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
                 } else {
                     isWaitingForPage = false; isMessageActive = false; 
+                    window.lastActionTime = Date.now(); // 💥 時間を記録！
                     msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
-                    //const boxText = document.getElementById('msg-text'); 
-                    //if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; 
                     
                     if (pendingAction) { 
                         let action = pendingAction; pendingAction = null; action(); 
@@ -630,13 +616,32 @@ if (msgBox) {
             return;
         }
         
-        // 💥 ここが原因！ 戦闘中（isBattle）じゃない時だけ調べるようにガード！
-        if (!isBattle) {
+        // 💥 0.5秒のクールダウン（連打ループ防止）
+        if (!isBattle && Date.now() - window.lastActionTime > 500) {
             tryAction(); 
         }
     }; 
-    msgBox.addEventListener('touchstart', tapMessage, {passive: false}); msgBox.addEventListener('mousedown', tapMessage); 
+    msgBox.addEventListener('touchstart', window.tapMessage, {passive: false}); 
+    msgBox.addEventListener('mousedown', window.tapMessage); 
 }
+
+window.addEventListener('keydown', function(e) { 
+    if (isCutscene) return; 
+    if (e.key === 'ArrowUp') keys.up = true; if (e.key === 'ArrowDown') keys.down = true; if (e.key === 'ArrowLeft') keys.left = true; if (e.key === 'ArrowRight') keys.right = true; 
+    if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') { 
+        if (!keys.action) {
+            if (isMessageActive && typeof window.tapMessage === 'function') {
+                window.tapMessage();
+            } else if (!isMessageActive && Date.now() - (window.lastActionTime || 0) > 500) {
+                tryAction(); 
+            }
+        }
+        keys.action = true; 
+    } 
+}); 
+window.addEventListener('keyup', function(e) { 
+    if (e.key === 'ArrowUp') keys.up = false; if (e.key === 'ArrowDown') keys.down = false; if (e.key === 'ArrowLeft') keys.left = false; if (e.key === 'ArrowRight') keys.right = false; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') keys.action = false; 
+});
 
 document.addEventListener('touchmove', function(e) { if (!isMenuOpen && !isMessageActive) { e.preventDefault(); } }, { passive: false });
 window.loadMap = loadMap; window.draw = draw; window.showMessage = showMessage; window.showBattleMsg = showBattleMsg;
