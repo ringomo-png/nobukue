@@ -371,8 +371,10 @@
 
         window.hideRanking = function() {
             if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
-            document.getElementById('ranking-screen').classList.add('hidden');
-            document.getElementById('title-buttons').classList.remove('hidden');
+            
+            // 💥【NEW】変数の初期化漏れを完全に防ぐため、ブラウザごとクリーンリロード！
+            // リロードすればタイトル画面から始まり、メモリは完全に真っ更になるわ。
+            location.reload(); 
         };
     </script>
 </body>
