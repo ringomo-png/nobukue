@@ -1,5 +1,5 @@
 // ==========================================
-// ⚔️ battle.js (オートセーブ撤去・安定版)
+// ⚔️ battle.js (快適自動クローズ＆安定版)
 // ==========================================
 
 function triggerEncounterEffect(callback) {
@@ -296,7 +296,6 @@ window.proceedToExp = function(btn) {
     let getExp = currentEnemy.exp * 3;
     let getGold = Math.floor(currentEnemy.gold * 4.5); 
     
-    showBattleMsg(getExp + " EX と " + getGold + " G を てにいれた！");
     playerStatus.exp += getExp; 
     playerStatus.gold += getGold;
     
@@ -318,13 +317,16 @@ window.proceedToExp = function(btn) {
         playerStatus.mp += (nextLevelData.mp - oldMaxMp);
     }
 
+    const tapBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); closeLevelUpMsg(this)' ontouchstart='event.stopPropagation(); closeLevelUpMsg(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
+
     if (leveledUp) { 
         setTimeout(function() {
             if(typeof Sound !== 'undefined' && Sound.levelUp) Sound.levelUp();
             let diffHp = playerStatus.maxHp - oldMaxHp; let diffMp = playerStatus.maxMp - oldMaxMp;
             let diffStr = playerStatus.str - oldStr; let diffAgi = playerStatus.agi - oldAgi;
 
-            let upMsg = "のぶゆき は レベル " + playerStatus.level + " に あがった！";
+            let upMsg = getExp + " EX と " + getGold + " G を てにいれた！";
+            upMsg += "<page>のぶゆき は レベル " + playerStatus.level + " に あがった！";
             upMsg += "<page>最大HP が " + diffHp + " あがった！<br>最大MP が " + diffMp + " あがった！";
             upMsg += "<page>ちから が " + diffStr + " あがった！<br>すばやさ が " + diffAgi + " あがった！";
             
@@ -333,22 +335,26 @@ window.proceedToExp = function(btn) {
                 upMsg += "<page>のぶゆき は 「" + nextLevelData.spell.name + "」 の プログラム を おぼえた！"; 
             } 
             
-            const lvlBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); closeLevelUpMsg(this)' ontouchstart='event.stopPropagation(); closeLevelUpMsg(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
-            
+            // レベルアップした時は必ずTAPボタンで終わらせる！
             battleLevelUpWait = true; 
-            showBattleMsg(upMsg + lvlBtn); 
+            showBattleMsg(upMsg + tapBtn); 
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-        }, 1500); 
+        }, 800); 
     } else { 
-        setTimeout(function() { 
+        // 💥【NEW】レベルアップしない時はTAPボタンを出さず、文字が出終わったら1.2秒後に自動で閉じる！
+        let msg = getExp + " EX と " + getGold + " G を てにいれた！";
+        showBattleMsg(msg);
+        if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
+        
+        // 💥 engine.js のタイマーと干渉しない独自の安全な自動クローズ
+        setTimeout(() => {
             if (window.justCleared) {
                 window.justCleared = false; 
                 startEndingCutscene();
             } else {
-                if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-                endBattle(); 
+                if(typeof endBattle === 'function') endBattle(); 
             }
-        }, 1500); 
+        }, 2200); // メッセージが表示される時間(約1秒) + 1.2秒の余韻
     }
 };
 
