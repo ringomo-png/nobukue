@@ -443,7 +443,7 @@ function tryMove(dx, dy) {
         }
     }
 
-    if (nextX < 0 || nextX >= MAP_W || nextY < 0 || nextY >= MAP_H) { 
+        if (nextX < 0 || nextX >= MAP_W || nextY < 0 || nextY >= MAP_H) { 
         if (currentMapKey !== "0") { 
             let rx = 19, ry = 37; 
             if (worldReturn) { rx = worldReturn.x; ry = worldReturn.y; }
@@ -454,7 +454,9 @@ function tryMove(dx, dy) {
             else if (currentMapKey === "6") { rx = 81; ry = 77; } 
             else if (currentMapKey === "17") { rx = 54; ry = 97; } 
             else if (currentMapKey === "18") { rx = 38; ry = 80; }
-            showMessage("外に出た！"); loadMap("0"); player.x = rx; player.y = ry; fadeAlpha = 1.0; draw(); 
+            
+            // 💥【NEW】無駄なメッセージを削除！画面がフェードしてスッとフィールドに出る！
+            loadMap("0"); player.x = rx; player.y = ry; fadeAlpha = 1.0; draw(); 
         } 
         return; 
     }
@@ -598,15 +600,19 @@ if (msgBox) {
         if (e) e.preventDefault(); 
         if (isCutscene) return; 
 
-        if (isMessageActive) {
+                if (isMessageActive) {
             if (messageTimer || bMsgTimer) return; 
             if (isWaitingForPage) {
                 if (currentMsgPage < msgPages.length - 1) {
                     isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
                 } else {
                     isWaitingForPage = false; isMessageActive = false; 
-                    window.lastActionTime = Date.now(); // 💥 時間を記録！
+                    window.lastActionTime = Date.now(); 
                     msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
+                    
+                    // 💥【NEW】ウィンドウが閉じると同時に、中身のテキストも綺麗に消し去る！
+                    const boxText = document.getElementById('msg-text');
+                    if (boxText) boxText.innerHTML = ""; 
                     
                     if (pendingAction) { 
                         let action = pendingAction; pendingAction = null; action(); 
@@ -615,7 +621,7 @@ if (msgBox) {
             }
             return;
         }
-        
+
         // 💥 0.5秒のクールダウン（連打ループ防止）
         if (!isBattle && Date.now() - window.lastActionTime > 500) {
             tryAction(); 
