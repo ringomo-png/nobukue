@@ -1,5 +1,5 @@
 // ==========================================
-// ⚔️ battle.js (連戦ソフトロック完全修正版)
+// ⚔️ battle.js (オートセーブ撤去・安定版)
 // ==========================================
 
 function triggerEncounterEffect(callback) {
@@ -333,8 +333,10 @@ window.proceedToExp = function(btn) {
                 upMsg += "<page>のぶゆき は 「" + nextLevelData.spell.name + "」 の プログラム を おぼえた！"; 
             } 
             
+            const lvlBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); closeLevelUpMsg(this)' ontouchstart='event.stopPropagation(); closeLevelUpMsg(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
+            
             battleLevelUpWait = true; 
-            showBattleMsg(upMsg); 
+            showBattleMsg(upMsg + lvlBtn); 
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         }, 1500); 
     } else { 
@@ -344,18 +346,20 @@ window.proceedToExp = function(btn) {
                 startEndingCutscene();
             } else {
                 if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-                
-                // 💥【NEW】連戦が予約されているかチェック！
-                let isConsecutiveBattle = !!window.nextBossToFight;
-                
                 endBattle(); 
-                
-                // 💥【NEW】次のボスが控えている時は、絶対にオートセーブさせない！
-                if (!isConsecutiveBattle && typeof window.autoSave === 'function') {
-                    window.autoSave(); 
-                }
             }
         }, 1500); 
+    }
+};
+
+window.closeLevelUpMsg = function(btn) {
+    if (btn) { btn.onclick = null; btn.ontouchstart = null; btn.style.display = 'none'; }
+    if (window.justCleared) {
+        window.justCleared = false; 
+        startEndingCutscene();
+    } else {
+        if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
+        endBattle(); 
     }
 };
 
@@ -446,7 +450,6 @@ function loseBattle() {
             if (window.FirebaseHub) window.FirebaseHub.incrementBossKill(currentEnemy.id);
         }
 
-        // 💥【NEW】魔王に負けた場合、連戦を最初からやり直すために「もちだ撃破フラグ」をリセットする！
         if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
             playerStatus.flags.defeatedMochida = false;
         }
@@ -470,9 +473,6 @@ function loseBattle() {
         
         setTimeout(function() {
             showMessage("親父「のぶゆきよ、<br>情けない姿を さらしおって……。<page>倒れていた お前を 運ぶのに<br>手間取ったわい。<page>治療費と 運搬代として<br>所持金の 4分の1 を<br>もらっておいたぞ。<page>次は しっかり やるんじゃな！」");
-            
-            if (typeof window.autoSave === 'function') window.autoSave(); 
-            
         }, 500);
         
     }, 2500); 
