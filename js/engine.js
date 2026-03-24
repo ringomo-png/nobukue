@@ -1,5 +1,5 @@
 // ==========================================
-// 🧠 engine.js (オープニング＆ダンジョンエンカウント対応版)
+// 🧠 engine.js (時限爆弾撤去・安定メッセージ処理版)
 // ==========================================
 
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
@@ -150,13 +150,10 @@ function showBattleMsg(text) {
     msgPages = String(text).split("<page>"); currentMsgPage = 0; isWaitingForPage = false; isMessageActive = true; playMsgPage(true); 
 }
 
-window.autoCloseMsgTimer = null;
-
 function playMsgPage(isBattleMode) {
     const box = document.getElementById('msg-text'); if (!box) return; box.innerHTML = ""; 
     if (messageTimer) { clearInterval(messageTimer); messageTimer = null; } 
     if (bMsgTimer) { clearInterval(bMsgTimer); bMsgTimer = null; } 
-    if (window.autoCloseMsgTimer) { clearTimeout(window.autoCloseMsgTimer); window.autoCloseMsgTimer = null; } 
     
     let text = msgPages[currentMsgPage] ? String(msgPages[currentMsgPage]) : ""; let i = 0; let currentHTML = "";
     let timer = setInterval(function() {
@@ -164,21 +161,11 @@ function playMsgPage(isBattleMode) {
             clearInterval(timer);
             if (isBattleMode) bMsgTimer = null; else messageTimer = null; 
             
-            if (!isBattleMode && currentMsgPage >= msgPages.length - 1 && !pendingAction && !window.isCutscene) {
-                box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
-                isWaitingForPage = true; 
-                window.autoCloseMsgTimer = setTimeout(() => {
-                    if (isMessageActive && isWaitingForPage) {
-                        isWaitingForPage = false; isMessageActive = false; 
-                        const msgBox = document.getElementById('message-box'); 
-                        if(msgBox){ msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; }
-                        if (box) box.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; 
-                    }
-                }, 2500);
-            } else {
-                box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
-                isWaitingForPage = true; 
-            }
+            // 💥【超重要修正】
+            // 画面を勝手に閉じる時限爆弾タイマー（autoCloseMsgTimer）を完全に排除！
+            // プレイヤーが必ずTAP（またはキー入力）して次に進む、超安全な設計に統一したわ！
+            box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
+            isWaitingForPage = true; 
             return;
         }
         if (text[i] === '<') { 
@@ -217,12 +204,9 @@ function interactWithTile(targetX, targetY) {
             if (npc.isOyajiPre && playerStatus.flags.defeatedRobber) continue;
             if (npc.isOyajiInn && !playerStatus.flags.defeatedRobber) continue;
 
-            // 💥 対象のマスにNPCがいるか判定
             if (npc.map === currentMapKey && npc.x === targetX && npc.y === targetY && !npc.hidden) {
                 if (!npc.noDraw) { if (player.dir === 0) npc.dir = 3; else if (player.dir === 1) npc.dir = 2; else if (player.dir === 2) npc.dir = 1; else if (player.dir === 3) npc.dir = 0; draw(); }
                 
-                // 💥【NEW】親父に話しかけた時の特別処理（クリア後ならムービーへ！）
-                // ※ちゃんと npc が見つかった「この中」に書くのが正解よ！
                 if (npc.isOyajiStart) {
                     showMessage(npc.message);
                     if (playerStatus.flags.gameClear) {
@@ -264,16 +248,14 @@ function interactWithTile(targetX, targetY) {
                     return true; 
                 }
 
-                if (npc.isDoor) { if (npc.requiredEquip) { if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; }                 } else if (npc.requiredKey) { 
+                if (npc.isDoor) { if (npc.requiredEquip) { if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; }                } else if (npc.requiredKey) { 
                     if (hasItem(npc.requiredKey)) { 
                         npc.hidden = true; 
-                        // 💥 鍵を開けた時の効果音！
                         if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
                         showMessage(npc.requiredKey + " を つかった！<br>とびらが ひらいた！"); 
                         draw(); 
                         return true; 
                     } else { 
-                        // 💥 家の鍵を持っていない時の専用セリフ
                         if (npc.requiredKey === "家の鍵") {
                             showMessage("おかしいな、ゲオに 落としてきたかな……？<page>カギが かかっている。");
                         } else {
@@ -340,7 +322,6 @@ function interactWithTile(targetX, targetY) {
                         if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
                         showMessage(npc.message); 
                     } else { 
-                        // 💥 宝箱はからっぽだ、をやめてセリフに変更！
                         showMessage("もちだ「これで どこでも いける もちね！」"); 
                     } 
                     return true; 
@@ -457,16 +438,14 @@ function tryMove(dx, dy) {
             if (!playerStatus.flags.bossKey1 || !playerStatus.flags.bossKey2 || !playerStatus.flags.bossKey3) { 
                 showMessage("MFAキーコードが 不足しています。(キーコード1,2,3が必要)<page>通行する 資格が ありません。"); return; 
             } else {
-                // 💥 鍵が3つ揃っている場合の認証シークエンス！
                 if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
                 showMessage("セキュリティゲート に アクセス中……<page>キーコード1…… 認証完了。<br>キーコード2…… 認証完了。<br>キーコード3…… 認証完了。<page>MFA フル・アクセス 承認。<br>魔王城への ルートを 解放します！");
                 playerStatus.flags.bridgeUnlocked = true;
-                return; // 演出を見せるために一度足止めするわ。次の一歩で通れるようになるわよ。
+                return; 
             }
         }
     }
 
-    // 変更後（💥 Map 17 の条件を追加！）
     if (nextX < 0 || nextX >= MAP_W || nextY < 0 || nextY >= MAP_H) { 
         if (currentMapKey !== "0") { 
             let rx = 19, ry = 37; 
@@ -638,6 +617,8 @@ if (msgBox) {
     const tapMessage = function(e) { 
         e.preventDefault(); 
         if (isCutscene) return; 
+        
+        // 💥 メッセージの送り処理（完全にプレイヤー主導！）
         if (isBattle) {
             if (bMsgTimer) return; 
             if (isWaitingForPage) { 
@@ -653,8 +634,6 @@ if (msgBox) {
         if (isMessageActive) {
             if (messageTimer) return; 
             if (isWaitingForPage) {
-                if (window.autoCloseMsgTimer) { clearTimeout(window.autoCloseMsgTimer); window.autoCloseMsgTimer = null; } 
-                
                 if (currentMsgPage < msgPages.length - 1) {
                     isWaitingForPage = false; currentMsgPage++; playMsgPage(false); 
                 } else {
