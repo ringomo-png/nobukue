@@ -161,8 +161,23 @@ function playMsgPage(isBattleMode) {
             clearInterval(timer);
             if (isBattleMode) bMsgTimer = null; else messageTimer = null; 
             
-            box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
-            isWaitingForPage = true; 
+            if (currentMsgPage < msgPages.length - 1) {
+                box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
+                isWaitingForPage = true; 
+            } else {
+                // 💥【NEW】最後のページは矢印を出さず、1.5秒後に自動で閉じる！
+                isWaitingForPage = false; 
+                setTimeout(() => {
+                    if (isMessageActive) {
+                        isMessageActive = false;
+                        window.lastMessageCloseTime = Date.now();
+                        const msgBox = document.getElementById('message-box');
+                        if (msgBox) { msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; }
+                        box.innerHTML = "";
+                        if (pendingAction) { let action = pendingAction; pendingAction = null; action(); }
+                    }
+                }, 1500);
+            }
             return;
         }
         if (text[i] === '<') { 
@@ -178,6 +193,7 @@ function playMsgPage(isBattleMode) {
     }, isBattleMode ? 25 : 35);
     if (isBattleMode) bMsgTimer = timer; else messageTimer = timer;
 }
+
 
 function hasItem(itemName) { for (let i = 0; i < playerStatus.inventory.length; i++) { if (playerStatus.inventory[i].name === itemName) return true; } return false; }
 
@@ -596,37 +612,37 @@ window.lastActionTime = 0;
 
 const msgBox = document.getElementById('message-box'); 
 if (msgBox) { 
-    window.tapMessage = function(e) { 
+        window.tapMessage = function(e) { 
+        if (e && e.target && e.target.classList && e.target.classList.contains('d-btn')) return;
         if (e) e.preventDefault(); 
         if (isCutscene) return; 
 
-                if (isMessageActive) {
+        const now = Date.now();
+        if (now - window.lastTapTime < 100) return; 
+        window.lastTapTime = now;
+
+        if (isMessageActive) {
             if (messageTimer || bMsgTimer) return; 
             if (isWaitingForPage) {
-                if (currentMsgPage < msgPages.length - 1) {
-                    isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
-                } else {
-                    isWaitingForPage = false; isMessageActive = false; 
-                    window.lastActionTime = Date.now(); 
-                    msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
-                    
-                    // 💥【NEW】ウィンドウが閉じると同時に、中身のテキストも綺麗に消し去る！
-                    const boxText = document.getElementById('msg-text');
-                    if (boxText) boxText.innerHTML = ""; 
-                    
-                    if (pendingAction) { 
-                        let action = pendingAction; pendingAction = null; action(); 
-                    }
-                }
+                // 次のページがある場合は進める
+                isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
+            } else {
+                // 💥【NEW】最後のページ（1.5秒の自動待機中）にタップされたら、待たずに即閉じる！
+                isMessageActive = false; 
+                window.lastMessageCloseTime = now; 
+                msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
+                const boxText = document.getElementById('msg-text');
+                if (boxText) boxText.innerHTML = ""; 
+                if (pendingAction) { let action = pendingAction; pendingAction = null; action(); }
             }
             return;
         }
-
-        // 💥 0.5秒のクールダウン（連打ループ防止）
-        if (!isBattle && Date.now() - window.lastActionTime > 500) {
+        
+        if (!isBattle && (now - window.lastMessageCloseTime > 800)) {
             tryAction(); 
         }
     }; 
+
     msgBox.addEventListener('touchstart', window.tapMessage, {passive: false}); 
     msgBox.addEventListener('mousedown', window.tapMessage); 
 }
