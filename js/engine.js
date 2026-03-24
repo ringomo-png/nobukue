@@ -1,5 +1,5 @@
 // ==========================================
-// 🧠 engine.js (関数連携ミス修正・完全スマートタップ版)
+// 🧠 engine.js (シンプル＆鉄壁のメッセージ管理版)
 // ==========================================
 
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
@@ -614,46 +614,24 @@ if (msgBox) {
     const tapMessage = function(e) { 
         e.preventDefault(); 
         if (isCutscene) return; 
-        
-        // 💥【超絶進化】空っぽページへの無限ループを完全にシャットアウト＆安全な経験値呼び出し！
-        if (isBattle) {
-            if (bMsgTimer) return; 
-            if (isWaitingForPage) { 
-                if (currentMsgPage >= msgPages.length - 1) { 
-                    // これが最後のページの場合
-                    isWaitingForPage = false; 
-                    if (window.isWaitingForExp) {
-                        // 💥 ここが原因だったわ！「window.proceedToExp」としっかり明記して確実に呼び出す！
-                        if (typeof window.proceedToExp === 'function') window.proceedToExp();
-                    } else {
-                        // 経験値も表示し終わった完全な最後なら、戦闘を終わらせる！
-                        if (window.justCleared) {
-                            window.justCleared = false; 
-                            if(typeof window.startEndingCutscene === 'function') window.startEndingCutscene();
-                        } else {
-                            if(typeof window.endBattle === 'function') window.endBattle(); 
-                        }
-                    }
-                    return; 
-                } 
-                isWaitingForPage = false; 
-                currentMsgPage++; playMsgPage(true); 
-                return; 
-            }
-            return;
-        }
 
+        // 💥【超絶シンプル化】どんな状態でも、メッセージが残っていれば次に進め、終わっていればpendingActionを実行するだけ！
         if (isMessageActive) {
-            if (messageTimer) return; 
+            if (messageTimer || bMsgTimer) return; // 💥 文字がポポポポと出ている最中は反応しない（安全）
             if (isWaitingForPage) {
                 if (currentMsgPage < msgPages.length - 1) {
-                    isWaitingForPage = false; currentMsgPage++; playMsgPage(false); 
+                    // 次のページがあるなら進む
+                    isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
                 } else {
+                    // 最後のページを読み終えたら、メッセージボックスを閉じて pendingAction を実行！
                     isWaitingForPage = false; isMessageActive = false; 
                     msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
                     const boxText = document.getElementById('msg-text'); 
                     if (boxText) boxText.innerHTML = "現在地: MAP " + currentMapKey + " (X:" + player.x + " Y:" + player.y + ")"; 
-                    if (pendingAction) { let action = pendingAction; pendingAction = null; action(); }
+                    
+                    if (pendingAction) { 
+                        let action = pendingAction; pendingAction = null; action(); 
+                    }
                 }
             }
             return;
