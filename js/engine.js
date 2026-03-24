@@ -609,21 +609,19 @@ function startGameLoop() {
 window.addEventListener('keydown', function(e) { if (isCutscene) return; if (e.key === 'ArrowUp') keys.up = true; if (e.key === 'ArrowDown') keys.down = true; if (e.key === 'ArrowLeft') keys.left = true; if (e.key === 'ArrowRight') keys.right = true; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') { if (!keys.action && !isMessageActive) tryAction(); keys.action = true; } }); window.addEventListener('keyup', function(e) { if (e.key === 'ArrowUp') keys.up = false; if (e.key === 'ArrowDown') keys.down = false; if (e.key === 'ArrowLeft') keys.left = false; if (e.key === 'ArrowRight') keys.right = false; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') keys.action = false; });
 const dpad = document.getElementById('d-pad'); if (dpad) { let activeTouchId = null; let isTouchDevice = false; const resetKeys = function() { keys.up = keys.down = keys.left = keys.right = false; document.querySelectorAll('.d-btn').forEach(function(b) { b.classList.remove('active'); }); }; const handleMove = function(clientX, clientY) { if(isCutscene) return; resetKeys(); const rect = dpad.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const dx = clientX - centerX; const dy = clientY - centerY; if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0) { keys.right = true; document.getElementById('btn-right').classList.add('active'); } else { keys.left = true; document.getElementById('btn-left').classList.add('active'); } } else { if (dy > 0) { keys.down = true; document.getElementById('btn-down').classList.add('active'); } else { keys.up = true; document.getElementById('btn-up').classList.add('active'); } } }; dpad.addEventListener('touchstart', function(e) { e.preventDefault(); isTouchDevice = true; const touch = e.changedTouches[0]; activeTouchId = touch.identifier; handleMove(touch.clientX, touch.clientY); }, {passive: false}); dpad.addEventListener('touchmove', function(e) { e.preventDefault(); for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === activeTouchId) { handleMove(e.touches[i].clientX, e.touches[i].clientY); break; } } }, {passive: false}); const endTouch = function(e) { e.preventDefault(); for (let i = 0; i < e.changedTouches.length; i++) { if (e.changedTouches[i].identifier === activeTouchId) { activeTouchId = null; resetKeys(); break; } } }; dpad.addEventListener('touchend', endTouch); dpad.addEventListener('touchcancel', endTouch); let isDragging = false; dpad.addEventListener('mousedown', function(e) { if (isTouchDevice) return; isDragging = true; handleMove(e.clientX, e.clientY); }); window.addEventListener('mousemove', function(e) { if (isTouchDevice || !isDragging) return; handleMove(e.clientX, e.clientY); }); window.addEventListener('mouseup', function() { if (isTouchDevice || !isDragging) return; isDragging = false; resetKeys(); }); }
 
+// 💥 修正箇所：engine.js の下の方（tapMessageの中身）
 const msgBox = document.getElementById('message-box'); 
 if (msgBox) { 
     const tapMessage = function(e) { 
         e.preventDefault(); 
         if (isCutscene) return; 
 
-        // 💥【超絶シンプル化】どんな状態でも、メッセージが残っていれば次に進め、終わっていればpendingActionを実行するだけ！
         if (isMessageActive) {
-            if (messageTimer || bMsgTimer) return; // 💥 文字がポポポポと出ている最中は反応しない（安全）
+            if (messageTimer || bMsgTimer) return; 
             if (isWaitingForPage) {
                 if (currentMsgPage < msgPages.length - 1) {
-                    // 次のページがあるなら進む
                     isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
                 } else {
-                    // 最後のページを読み終えたら、メッセージボックスを閉じて pendingAction を実行！
                     isWaitingForPage = false; isMessageActive = false; 
                     msgBox.classList.remove('active'); msgBox.style.transform = 'translateY(0)'; 
                     const boxText = document.getElementById('msg-text'); 
@@ -636,7 +634,11 @@ if (msgBox) {
             }
             return;
         }
-        tryAction(); 
+        
+        // 💥 ここが原因！ 戦闘中（isBattle）じゃない時だけ調べるようにガード！
+        if (!isBattle) {
+            tryAction(); 
+        }
     }; 
     msgBox.addEventListener('touchstart', tapMessage, {passive: false}); msgBox.addEventListener('mousedown', tapMessage); 
 }
