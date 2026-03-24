@@ -319,6 +319,8 @@
                                 await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
                             }
 
+                            // 💥【ここから削除！】エンディング後の強制オートセーブを削る！
+                            /*
                             try {
                                 let saveData = JSON.parse(localStorage.getItem("nobuMonSave"));
                                 if (!saveData) {
@@ -328,6 +330,8 @@
                                 }
                                 localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
                             } catch(e) { console.error("オートセーブ失敗", e); }
+                            */
+                            // 💥【ここまで削除！】e) { console.error("オートセーブ失敗", e); }
 
                             if (typeof gameState !== 'undefined') gameState = 'TITLE';
                             
