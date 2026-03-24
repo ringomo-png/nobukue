@@ -1,5 +1,5 @@
 // ==========================================
-// ⚔️ battle.js (快適自動クローズ＆安定版)
+// ⚔️ battle.js (ダサいボタン完全消去・快適スムーズ版)
 // ==========================================
 
 function triggerEncounterEffect(callback) {
@@ -290,8 +290,12 @@ function shakeEnemy() {
 
 function endPlayerTurn() { battleBlock = false; const cmdArea = document.getElementById('battle-command'); if (cmdArea) { cmdArea.classList.remove('invisible'); } }
 
-window.proceedToExp = function(btn) {
-    if (btn) { btn.onclick = null; btn.ontouchstart = null; btn.style.display = 'none'; }
+
+// 💥【NEW】完全スマート化！経験値処理と画面遷移（ダサいボタン完全消去！）
+window.proceedToExp = function() {
+    if (!window.isWaitingForExp) return; 
+    window.isWaitingForExp = false; 
+    if (window.autoProceedTimer) { clearTimeout(window.autoProceedTimer); window.autoProceedTimer = null; }
     
     let getExp = currentEnemy.exp * 3;
     let getGold = Math.floor(currentEnemy.gold * 4.5); 
@@ -317,8 +321,6 @@ window.proceedToExp = function(btn) {
         playerStatus.mp += (nextLevelData.mp - oldMaxMp);
     }
 
-    const tapBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); closeLevelUpMsg(this)' ontouchstart='event.stopPropagation(); closeLevelUpMsg(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
-
     if (leveledUp) { 
         setTimeout(function() {
             if(typeof Sound !== 'undefined' && Sound.levelUp) Sound.levelUp();
@@ -335,37 +337,27 @@ window.proceedToExp = function(btn) {
                 upMsg += "<page>のぶゆき は 「" + nextLevelData.spell.name + "」 の プログラム を おぼえた！"; 
             } 
             
-            // レベルアップした時は必ずTAPボタンで終わらせる！
-            battleLevelUpWait = true; 
-            showBattleMsg(upMsg + tapBtn); 
+            showBattleMsg(upMsg); 
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         }, 800); 
     } else { 
-        // 💥【NEW】レベルアップしない時はTAPボタンを出さず、文字が出終わったら1.2秒後に自動で閉じる！
+        // 💥 レベルアップしない時は、経験値だけ表示して自動クローズ待機！
         let msg = getExp + " EX と " + getGold + " G を てにいれた！";
         showBattleMsg(msg);
         if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         
-        // 💥 engine.js のタイマーと干渉しない独自の安全な自動クローズ
-        setTimeout(() => {
-            if (window.justCleared) {
-                window.justCleared = false; 
-                startEndingCutscene();
-            } else {
-                if(typeof endBattle === 'function') endBattle(); 
+        // 文字が出終わった後、プレイヤーが何もしなくても1.5秒後にスマートに閉じる！
+        // プレイヤーがタップしたら即座に閉じることもできる！
+        window.battleEndTimer = setTimeout(() => {
+            if (isBattle && !bMsgTimer && !window.isWaitingForExp) {
+                if (window.justCleared) {
+                    window.justCleared = false; 
+                    if(typeof window.startEndingCutscene === 'function') window.startEndingCutscene();
+                } else {
+                    if(typeof window.endBattle === 'function') window.endBattle(); 
+                }
             }
-        }, 2200); // メッセージが表示される時間(約1秒) + 1.2秒の余韻
-    }
-};
-
-window.closeLevelUpMsg = function(btn) {
-    if (btn) { btn.onclick = null; btn.ontouchstart = null; btn.style.display = 'none'; }
-    if (window.justCleared) {
-        window.justCleared = false; 
-        startEndingCutscene();
-    } else {
-        if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-        endBattle(); 
+        }, 1500);
     }
 };
 
@@ -373,39 +365,37 @@ function winBattle() {
     if(typeof Sound !== 'undefined' && Sound.defeat) Sound.defeat();
     const es = document.getElementById('enemy-img'); if (es) es.classList.add('enemy-defeat');
 
-    const nextBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; box-shadow: 2px 2px 0px #888; letter-spacing:2px;'>TAP</span></div>";
     let autoProceed = true; 
+    window.isWaitingForExp = true; 
 
+    // 💥 ダサいHTMLボタン(nextBtn)はすべて撤去！画面をタップするだけでサクサク進むわ！
     if (currentEnemy.id === "tanaka") {
         playerStatus.flags.defeatedTanaka = true;
-        showBattleMsg("たなか を ぶっとばした！<page>たなか「ぐあぁっ！ ま、まさか……<br>この俺が……ただのプログラマーに……！」<page>たなか「おぼえてろよ、のぶゆき……！<br>俺の 白バイのローンは……まだ……！」<page>たなか は 泡を吹いて 気絶した！" + nextBtn);
+        showBattleMsg("たなか を ぶっとばした！<page>たなか「ぐあぁっ！ ま、まさか……<br>この俺が……ただのプログラマーに……！」<page>たなか「おぼえてろよ、のぶゆき……！<br>俺の 白バイのローンは……まだ……！」<page>たなか は 泡を吹いて 気絶した！");
         autoProceed = false;
         
     } else if (currentEnemy.id === "robber") {
         playerStatus.flags.defeatedRobber = true;
-        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの ゲーマーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。" + nextBtn);
+        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの ゲーマーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。");
         autoProceed = false;
         
     } else if (currentEnemy.id === "golem") {
         playerStatus.flags.defeatedGolem = true;
-        showBattleMsg("すろっとまじん を たおした！<page>すろっとまじん「ギャオオオン！！<br>バ、バカな……！ 俺様が 四街道の<br>養分どもから 巻き上げた コインが……！！」<page>すろっとまじん「た、頼む！ 命だけは！<br>ご主人様から 預かっている<br>キーコードを 教えるから 助けてー！！」<page>すろっとまじん は 命乞いをしながら<br>大量のメダルを ばらまいて<br>爆発して 消え去った！" + nextBtn);
+        showBattleMsg("すろっとまじん を たおした！<page>すろっとまじん「ギャオオオン！！<br>バ、バカな……！ 俺様が 四街道の<br>養分どもから 巻き上げた コインが……！！」<page>すろっとまじん「た、頼む！ 命だけは！<br>ご主人様から 預かっている<br>キーコードを 教えるから 助けてー！！」<page>すろっとまじん は 命乞いをしながら<br>大量のメダルを ばらまいて<br>爆発して 消え去った！");
         autoProceed = false;
         
     } else if (currentEnemy.id === "mochida_boss") {
         playerStatus.flags.defeatedMochida = true;
         window.nextBossToFight = "ryuou_final"; 
         
-        const mochidaBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#400; color:#fff; border:2px solid #f88; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
-        showBattleMsg("もちだ を 倒した！<page>もちだ「ぐああぁぁっ！！」<page>もちだ「ハァ……ハァ……黒ちゃん……<br>ごめん……俺、操られて……」<page>もちだ「逃げろ……黒ちゃん……<br>あいつは……魔王は……ヤバい……！」<page>もちだ は その場に 倒れ込んだ！<page>どこからともなく 邪悪な声が 響き渡る！<page>謎の声「ふん……もちだ は 使えないわね。<br>くもひとつ ないわ……」" + mochidaBtn);
+        showBattleMsg("もちだ を 倒した！<page>もちだ「ぐああぁぁっ！！」<page>もちだ「ハァ……ハァ……黒ちゃん……<br>ごめん……俺、操られて……」<page>もちだ「逃げろ……黒ちゃん……<br>あいつは……魔王は……ヤバい……！」<page>もちだ は その場に 倒れ込んだ！<page>どこからともなく 邪悪な声が 響き渡る！<page>謎の声「ふん……もちだ は 使えないわね。<br>くもひとつ ないわ……」");
         autoProceed = false;
         
     } else if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
         playerStatus.flags.gameClear = true; 
         window.justCleared = true; 
         
-        const endBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); proceedToExp(this)' ontouchstart='event.stopPropagation(); proceedToExp(this)' style='display:inline-block; padding:10px 20px; background:#004; color:#fff; border:2px solid #88f; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
-        
-        showBattleMsg(currentEnemy.name + " を たおした！<page>魔王「グアアアアアッ！！<br>バカな……この私が……！<br>ただの プログラマーごときに……！！」<page>魔王「ガアアアァァァァァッ！！」<page>消えゆく 魔王の ノイズの 向こう側に、<br>四街道を さまよっていた あの『幻影』が 重なって 見えた。<page>幻影は、のぶゆき に 向かって 小さく うなずき……<br>そのまま 光の 中へと 溶けていった。<page>魔王の ウイルス侵食から サーバーを 守るため、<br>ずっと 裏で 戦い続けていたのは……。<page>四街道の メインサーバーは 浄化され、<br>街に 平和が 戻った……！！" + endBtn);
+        showBattleMsg(currentEnemy.name + " を たおした！<page>魔王「グアアアアアッ！！<br>バカな……この私が……！<br>ただの プログラマーごときに……！！」<page>魔王「ガアアアァァァァァッ！！」<page>消えゆく 魔王の ノイズの 向こう側に、<br>四街道を さまよっていた あの『幻影』が 重なって 見えた。<page>幻影は、のぶゆき に 向かって 小さく うなずき……<br>そのまま 光の 中へと 溶けていった。<page>魔王の ウイルス侵食から サーバーを 守るため、<br>ずっと 裏で 戦い続けていたのは……。<page>四街道の メインサーバーは 浄化され、<br>街に 平和が 戻った……！！");
         autoProceed = false;
         
     } else {
@@ -417,7 +407,12 @@ function winBattle() {
         if (window.FirebaseHub) window.FirebaseHub.incrementBossDefeat(currentEnemy.id);
     }
 
-    if (autoProceed) { setTimeout(window.proceedToExp, 1500); }
+    if (autoProceed) { 
+        // 💥 通常の敵なら、タップしなくても1.5秒で勝手に経験値へ進む！
+        window.autoProceedTimer = setTimeout(() => {
+            if (window.isWaitingForExp) { window.proceedToExp(); }
+        }, 1500); 
+    }
 }
 
 window.startEndingCutscene = function() {
@@ -432,13 +427,13 @@ window.startEndingCutscene = function() {
     fadeAlpha = 1.0; 
     if(typeof draw === 'function') draw(); 
     
-    endBattle(); 
+    if (typeof window.endBattle === 'function') window.endBattle(); 
     if (typeof playMapBGM === 'function') playMapBGM(); 
     
     setTimeout(() => {
-        const tapMovieBtn = "<page><div style='text-align:center; margin-top:15px;'><span onclick='event.stopPropagation(); document.getElementById(\"message-box\").classList.remove(\"active\"); if(typeof showEndRoll === \"function\") showEndRoll();' ontouchstart='event.stopPropagation(); document.getElementById(\"message-box\").classList.remove(\"active\"); if(typeof showEndRoll === \"function\") showEndRoll();' style='display:inline-block; padding:10px 20px; background:#111; color:#fff; border:2px solid #fff; border-radius:6px; cursor:pointer; font-weight:bold; letter-spacing:2px;'>TAP</span></div>";
-
-        showMessage("親父「おぉ、のぶゆき！<br>よくぞ 四街道を 救ってくれた！<br>本当に ありがとう。<page>……なんじゃ、その顔は。<br>もう 次の冒険に 行ってしまうんじゃろ？<page>お前の ハッカー魂は 誰にも 止められんからな。<br>いつでも 応援しておるぞ！<br>気をつけてな！」" + tapMovieBtn);
+        // 💥 エンディング行きもダサいボタンは消去！画面タップで流れるように！
+        showMessage("親父「おぉ、のぶゆき！<br>よくぞ 四街道を 救ってくれた！<br>本当に ありがとう。<page>……なんじゃ、その顔は。<br>もう 次の冒険に 行ってしまうんじゃろ？<page>お前の ハッカー魂は 誰にも 止められんからな。<br>いつでも 応援しておるぞ！<br>気をつけてな！」");
+        pendingAction = () => { if(typeof showEndRoll === 'function') showEndRoll(); };
     }, 1000);
 };
 
@@ -460,7 +455,7 @@ function loseBattle() {
             playerStatus.flags.defeatedMochida = false;
         }
 
-        endBattle(); 
+        if (typeof window.endBattle === 'function') window.endBattle(); 
         
         playerStatus.gold = Math.floor(playerStatus.gold * 0.75);
         
@@ -485,7 +480,8 @@ function loseBattle() {
 }
 
 function endBattle() {
-    isBattle = false; battleBlock = false; battleLevelUpWait = false;
+    if (!isBattle) return; // 💥 二重に終了処理が走らないようにガード！
+    isBattle = false; battleBlock = false;
     
     if (typeof isMessageActive !== 'undefined') isMessageActive = false;
     const msgBox = document.getElementById('message-box');
