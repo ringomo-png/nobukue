@@ -524,26 +524,17 @@ if (msgBox) {
             return;
         }
         
-        // 💥【朝の改善】0.8秒のクールダウンで「無限話しかけ」をブロック！
+        // メッセージ枠の中をタップした時だけアクション（調べる）
         if (!isBattle && (now - window.lastMessageCloseTime > 800)) {
             tryAction(); 
         }
     }; 
     
+    // 💥 メッセージボックス（下の黒い枠）へのタップ時のみ機能するように戻したわ！
     msgBox.addEventListener('touchstart', window.tapMessage, {passive: false}); 
     msgBox.addEventListener('mousedown', window.tapMessage); 
     
-    // 💥【朝の改善】スマホで画面全体をタップして話しかけられるようにする！
-    const viewArea = document.getElementById('view-area');
-    if (viewArea) {
-        viewArea.addEventListener('mousedown', function(e) { window.tapMessage(e); });
-        viewArea.addEventListener('touchstart', function(e) { window.tapMessage(e); }, {passive: false});
-    }
-    const msgArea = document.getElementById('msg-area');
-    if (msgArea) {
-        msgArea.addEventListener('mousedown', function(e) { window.tapMessage(e); });
-        msgArea.addEventListener('touchstart', function(e) { window.tapMessage(e); }, {passive: false});
-    }
+    // 💥 ここにあった「viewArea」や「msgArea」への勝手なタッチ判定追加を完全に消去！！
 }
 
 window.addEventListener('keydown', function(e) { 
