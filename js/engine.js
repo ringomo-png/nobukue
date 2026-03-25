@@ -1,5 +1,5 @@
 // ==========================================
-// 🧠 engine.js (シンプル＆鉄壁のメッセージ管理・完全版)
+// 🧠 engine.js (サクサク快適UI ＆ NPC完全動作版)
 // ==========================================
 
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
@@ -140,23 +140,19 @@ function draw() {
 var msgPages = []; var currentMsgPage = 0; var isWaitingForPage = false; 
 var isMessageActive = false; var pendingAction = null;    
 
+// 💥【NEW】タイマーが残らない完璧な自動クローズ
 function showMessage(text) { 
     if (text === undefined || text === null) text = "";
-    // 💥【NEW】前の自動消去タイマーが残っていたら確実にキルする！
     if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
-    
     msgPages = String(text).split("<page>"); currentMsgPage = 0; isWaitingForPage = false; isMessageActive = true; playMsgPage(false); 
     const box = document.getElementById('message-box'); if(box){ box.classList.add('active'); box.style.transform = 'translateY(0)'; }
 }
 
 function showBattleMsg(text) { 
     if (text === undefined || text === null) text = "";
-    // 💥【NEW】前の自動消去タイマーが残っていたら確実にキルする！
     if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
-    
     msgPages = String(text).split("<page>"); currentMsgPage = 0; isWaitingForPage = false; isMessageActive = true; playMsgPage(true); 
 }
-
 
 function playMsgPage(isBattleMode) {
     const box = document.getElementById('msg-text'); if (!box) return; box.innerHTML = ""; 
@@ -170,12 +166,10 @@ function playMsgPage(isBattleMode) {
             clearInterval(timer);
             if (isBattleMode) bMsgTimer = null; else messageTimer = null; 
             
-            // 💥【NEW】バトル中、または続きのページがある場合は「▼」を出してタップを待つ！
             if (currentMsgPage < msgPages.length - 1 || isBattleMode) {
                 box.innerHTML += "<span class='blink-arrow'>▼</span>"; 
                 isWaitingForPage = true; 
             } else {
-                // 💥 フィールド会話の最後だけ、1.5秒後に自動でスッと消える
                 isWaitingForPage = false; 
                 window.msgCloseTimer = setTimeout(() => {
                     if (isMessageActive) {
@@ -186,7 +180,7 @@ function playMsgPage(isBattleMode) {
                         box.innerHTML = "";
                         if (pendingAction) { let action = pendingAction; pendingAction = null; action(); }
                     }
-                }, 1500);
+                }, 1500); // フィールドの会話は1.5秒でスッと消える！
             }
             return;
         }
@@ -203,8 +197,6 @@ function playMsgPage(isBattleMode) {
     }, isBattleMode ? 25 : 35);
     if (isBattleMode) bMsgTimer = timer; else messageTimer = timer;
 }
-
-
 
 function hasItem(itemName) { for (let i = 0; i < playerStatus.inventory.length; i++) { if (playerStatus.inventory[i].name === itemName) return true; } return false; }
 
@@ -233,85 +225,47 @@ function interactWithTile(targetX, targetY) {
                 
                 if (npc.isOyajiStart) {
                     showMessage(npc.message);
-                    if (playerStatus.flags.gameClear) {
-                        pendingAction = () => {
-                            if (typeof playFinalMovie === 'function') playFinalMovie();
-                        };
-                    }
+                    if (playerStatus.flags.gameClear) { pendingAction = () => { if (typeof playFinalMovie === 'function') playFinalMovie(); }; }
                     return true;
                 }
 
-                if (npc.isOyajiPre) {
-                    if (!playerStatus.flags.defeatedRobber) { showMessage(npc.message); } return true;
-                }
+                if (npc.isOyajiPre) { if (!playerStatus.flags.defeatedRobber) { showMessage(npc.message); } return true; }
 
                 if (npc.isOyajiInn) {
                     if (!playerStatus.flags.bossKey1) {
-                        if (!playerStatus.flags.hasMFA) {
-                            showMessage("親父「おお、のぶゆき！<br>さっきは 助けてくれて ありがとうな。<page>あのままだったら、ワシ、<br>ネギと一緒に 刻まれるところじゃったわい！<page>お礼に ボスのキーコード1を<br>渡したいんじゃが……<page>お前、MFAを持っておらんのか。<page>MFAを手に入れたら<br>また 後で来なさい。」");
-                        } else {
-                            playerStatus.flags.bossKey1 = true;
-                            if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
+                        if (!playerStatus.flags.hasMFA) { showMessage("親父「おお、のぶゆき！<br>さっきは 助けてくれて ありがとうな。<page>あのままだったら、ワシ、<br>ネギと一緒に 刻まれるところじゃったわい！<page>お礼に ボスのキーコード1を<br>渡したいんじゃが……<page>お前、MFAを持っておらんのか。<page>MFAを手に入れたら<br>また 後で来なさい。」"); } 
+                        else {
+                            playerStatus.flags.bossKey1 = true; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
                             showMessage("親父「おお、のぶゆき！<br>さっきは 助けてくれて ありがとうな。<page>あのままだったら、ワシ、<br>ネギと一緒に 刻まれるところじゃったわい！<page>お礼に ワシが隠し持っていた ボスのキーコード1を<br>お前のMFAに 書き込んでおいたぞ！<page>それと、ここは<br>ワシが仕切ってる 秘密の宿屋じゃ。<page>お前なら 通常価格の 50G で<br>泊めてやるぞ！<page>どうじゃ？ 泊まっていくか？」");
                             pendingAction = () => { if(typeof openInn === 'function') openInn(npc.innPrice); };
                         }
-
                     } else {
-                        pendingAction = () => { if(typeof openInn === 'function') openInn(npc.innPrice); }; 
-                        showMessage(npc.message);
+                        pendingAction = () => { if(typeof openInn === 'function') openInn(npc.innPrice); }; showMessage(npc.message);
                     }
                     return true;
                 }
 
                 if (npc.shopId) { pendingAction = () => { if(typeof openShop === 'function') openShop(npc.shopId); }; showMessage(npc.message || "いらっしゃい！"); return true; }
                 if (npc.innPrice) { pendingAction = () => { if(typeof openInn === 'function') openInn(npc.innPrice); }; showMessage(npc.message); return true; }
+                if (npc.isBank) { pendingAction = () => { if(typeof openBank === 'function') openBank(); }; showMessage(npc.message); return true; }
 
-                if (npc.isBank) { 
-                    pendingAction = () => { if(typeof openBank === 'function') openBank(); }; 
-                    showMessage(npc.message); 
-                    return true; 
+                if (npc.isDoor) { 
+                    if (npc.requiredEquip) { 
+                        if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } 
+                        else { showMessage(npc.message); return true; }                
+                    } else if (npc.requiredKey) { 
+                        if (hasItem(npc.requiredKey)) { npc.hidden = true; if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); showMessage(npc.requiredKey + " を つかった！<br>とびらが ひらいた！"); draw(); return true; } 
+                        else { if (npc.requiredKey === "家の鍵") showMessage("おかしいな、ゲオに 落としてきたかな……？<page>カギが かかっている。"); else showMessage(npc.message); return true; } 
+                    }
                 }
-
-                if (npc.isDoor) { if (npc.requiredEquip) { if (playerStatus.equipment.accessory && playerStatus.equipment.accessory.name === npc.requiredEquip) { npc.hidden = true; showMessage("セキュリティを 解除しました！<br>とびらが ひらいた！"); draw(); return true; } else { showMessage(npc.message); return true; }                } else if (npc.requiredKey) { 
-                    if (hasItem(npc.requiredKey)) { 
-                        npc.hidden = true; 
-                        if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
-                        showMessage(npc.requiredKey + " を つかった！<br>とびらが ひらいた！"); 
-                        draw(); 
-                        return true; 
-                    } else { 
-                        if (npc.requiredKey === "家の鍵") {
-                            showMessage("おかしいな、ゲオに 落としてきたかな……？<page>カギが かかっている。");
-                        } else {
-                            showMessage(npc.message); 
-                        }
-                        return true; 
-                    } 
-                }
-}
                 
                 if (npc.isRandomChest) {
                     if (!npc.opened) {
-                        npc.opened = true;
-                        let rand = Math.random(); 
-                        
-                        if (rand < 0.333) {
-                            const itemData = itemMaster.items[0]; 
-                            playerStatus.inventory.push(JSON.parse(JSON.stringify(itemData)));
-                            if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                            showMessage("たからばこ を あけた！<page>なんと しゃんてぃ を てにいれた！");
-                        } else if (rand < 0.666) {
-                            playerStatus.gold += 1000;
-                            if (typeof updateMiniStatus === 'function') updateMiniStatus();
-                            if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                            showMessage("たからばこ を あけた！<page>やった！ 1000 ゴールド を てにいれた！");
-                        } else {
-                            showMessage("たからばこ を あけた！<page>しかし なかみは でびっと だった！");
-                            pendingAction = () => { setTimeout(() => startBattle("mimic"), 500); };
-                        }
-                    } else {
-                        showMessage("たからばこ は からっぽ だ。");
-                    }
+                        npc.opened = true; let rand = Math.random(); 
+                        if (rand < 0.333) { const itemData = itemMaster.items[0]; playerStatus.inventory.push(JSON.parse(JSON.stringify(itemData))); if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage("たからばこ を あけた！<page>なんと しゃんてぃ を てにいれた！"); } 
+                        else if (rand < 0.666) { playerStatus.gold += 1000; if (typeof updateMiniStatus === 'function') updateMiniStatus(); if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage("たからばこ を あけた！<page>やった！ 1000 ゴールド を てにいれた！"); } 
+                        else { showMessage("たからばこ を あけた！<page>しかし なかみは でびっと だった！"); pendingAction = () => { setTimeout(() => startBattle("mimic"), 500); }; }
+                    } else { showMessage("たからばこ は からっぽ だ。"); }
                     return true;
                 }
 
@@ -319,57 +273,22 @@ function interactWithTile(targetX, targetY) {
 
                 if (npc.chestItem) { 
                     if (!npc.opened) { 
-                        npc.opened = true; 
-                        const itemData = itemMaster[npc.chestItem.type][npc.chestItem.index]; 
-                        playerStatus.inventory.push(JSON.parse(JSON.stringify(itemData))); 
-                        
-                        if (itemData.name === "黄金剣" || itemData.name === "黄金スーツ") {
-                            if (typeof Sound !== 'undefined' && Sound.densetsu) Sound.densetsu(); 
-                        } else {
-                            if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
-                        }
+                        npc.opened = true; const itemData = itemMaster[npc.chestItem.type][npc.chestItem.index]; playerStatus.inventory.push(JSON.parse(JSON.stringify(itemData))); 
+                        if (itemData.name === "黄金剣" || itemData.name === "黄金スーツ") { if (typeof Sound !== 'undefined' && Sound.densetsu) Sound.densetsu(); } 
+                        else { if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); }
 
-                        if (npc.isMFA) {
-                            playerStatus.flags.hasMFA = true; 
-                            showMessage("たからばこ を あけた！<page>" + itemData.name + " を てにいれた！<page>MFA……どうやら『もっちー・フライ・アウェイ』の 略らしい。<page>このアイテムを持っていれば、外（フィールド）で メニューの「MFA」を使うことで、一瞬で 自宅へ ワープできるぞ！");
-                        } else {
-                            showMessage("たからばこ を あけた！<page>" + itemData.name + " を てにいれた！"); 
-                        }
-                    } else { 
-                        showMessage("たからばこ は からっぽ だ。"); 
-                    } 
-                    return true; 
-                }
-                                 if (npc.isMFAUpgrade) { 
-                    if (!npc.opened) { 
-                        npc.opened = true; playerStatus.flags.mfaVersion = 2; 
-                        if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); 
-                        showMessage(npc.message); 
-                    } else { 
-                        showMessage("もちだ「これで どこでも いける もちね！」"); 
-                    } 
+                        if (npc.isMFA) { playerStatus.flags.hasMFA = true; showMessage("たからばこ を あけた！<page>" + itemData.name + " を てにいれた！<page>MFA……どうやら『もっちー・フライ・アウェイ』の 略らしい。<page>このアイテムを持っていれば、外（フィールド）で メニューの「MFA」を使うことで、一瞬で 自宅へ ワープできるぞ！"); } 
+                        else { showMessage("たからばこ を あけた！<page>" + itemData.name + " を てにいれた！"); }
+                    } else { showMessage("たからばこ は からっぽ だ。"); } 
                     return true; 
                 }
 
+                if (npc.isMFAUpgrade) { if (!npc.opened) { npc.opened = true; playerStatus.flags.mfaVersion = 2; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message); } else { showMessage("もちだ「これで どこでも いける もちね！」"); } return true; }
                 if (npc.isGeouKey) { if (!npc.opened) { npc.opened = true; playerStatus.inventory.push({ name: "家の鍵", type: "item", price: 0 }); if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message + "<page>家の鍵 を てにいれた！"); } else { showMessage("昔、ここのアダルトコーナーには たいへん お世話になったんじゃ……。"); } return true; }
-
                 if (npc.isRobberEvent) { if (!playerStatus.flags.defeatedRobber) { showMessage(npc.message); pendingAction = () => { setTimeout(() => startBattle("robber"), 500); }; } return true; }
-                
                 if (npc.isBossKey2) { if (!playerStatus.flags.hasMFA) { showMessage("裏サーバーの 端末がある。<page>しかし MFAがないため アクセスできない！"); } else if (!npc.opened) { npc.opened = true; playerStatus.flags.bossKey2 = true; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message); } else { showMessage("サーバーの データは すでに ダウンロード済みだ。"); } return true; }
-
-                if (npc.isBossKey3) { 
-                    if (!playerStatus.flags.hasMFA) { 
-                        showMessage("あの インド人みたいな男に<br>監禁されていたの……。<page>助けてくれて ありがとう。<br>お礼をしたいけど、あなた MFAを<br>持っていないのね……。<page>MFAを手に入れたら<br>また 後で来なさい。"); 
-                    } else if (!npc.opened) { 
-                        npc.opened = true; playerStatus.flags.bossKey3 = true; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message); 
-                    } else { 
-                        showMessage("無事に 逃げ出せそうよ。ありがとう！<page>そうだ、魔王を 倒すつもりなら、<br>南西の街にある『黄金スーツ』が<br>絶対に 必要よ。<page>でも 気をつけて。<br>最近、あやしい男が その街に<br>住み着いている らしいわ……。"); 
-                    } 
-                    return true; 
-                }
-
+                if (npc.isBossKey3) { if (!playerStatus.flags.hasMFA) { showMessage("あの インド人みたいな男に<br>監禁されていたの……。<page>助けてくれて ありがとう。<br>お礼をしたいけど、あなた MFAを<br>持っていないのね……。<page>MFAを手に入れたら<br>また 後で来なさい。"); } else if (!npc.opened) { npc.opened = true; playerStatus.flags.bossKey3 = true; if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(npc.message); } else { showMessage("無事に 逃げ出せそうよ。ありがとう！<page>そうだ、魔王を 倒すつもりなら、<br>南西の街にある『黄金スーツ』が<br>絶対に 必要よ。<page>でも 気をつけて。<br>最近、あやしい男が その街に<br>住み着いている らしいわ……。"); } return true; }
                 if (npc.isMochidaBoss) { if (!playerStatus.flags.defeatedMochida) { showMessage(npc.message); pendingAction = () => { setTimeout(() => startBattle("mochida_boss"), 500); }; } return true; }
-                
                 if (npc.isTanakaEvent) { if (!playerStatus.flags.defeatedTanaka) { showMessage(npc.message); pendingAction = () => { if(confirm("罰金(1000G)を払いますか？ キャンセルで戦闘！")) { if(playerStatus.gold >= 1000) { playerStatus.gold -= 1000; updateMiniStatus(); showMessage("まいどあり！ 次からは 気をつけな！"); draw(); } else { showMessage("金がねえなら 痛い目みてもらうぜ！"); setTimeout(() => startBattle("tanaka"), 1000); } } else { setTimeout(() => startBattle("tanaka"), 500); } }; } return true; }
                 if (npc.isTrueBoss) { showMessage(npc.message); pendingAction = () => { setTimeout(() => startBattle("true_boss"), 500); }; return true; }
                 
@@ -377,23 +296,13 @@ function interactWithTile(targetX, targetY) {
                     showMessage(npc.message); 
                     pendingAction = () => { 
                         if (typeof Sound !== 'undefined' && Sound.heal) Sound.heal(); 
-                        playerStatus.mp = playerStatus.maxMp; 
-                        if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
-                        
+                        playerStatus.mp = playerStatus.maxMp; if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
                         const container = document.getElementById('game-container'); 
                         if (container) {
-                            const flash = document.createElement('div'); 
-                            flash.style.position = 'absolute'; flash.style.inset = '0'; 
-                            flash.style.background = 'rgba(50, 255, 50, 0.4)'; 
-                            flash.style.zIndex = '999'; flash.style.pointerEvents = 'none'; 
-                            flash.style.transition = 'opacity 0.4s ease-out'; 
-                            container.appendChild(flash); 
+                            const flash = document.createElement('div'); flash.style.position = 'absolute'; flash.style.inset = '0'; flash.style.background = 'rgba(50, 255, 50, 0.4)'; flash.style.zIndex = '999'; flash.style.pointerEvents = 'none'; flash.style.transition = 'opacity 0.4s ease-out'; container.appendChild(flash); 
                             setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => { if(container.contains(flash)) container.removeChild(flash); }, 400); }, 50);
                         }
-                        
-                        setTimeout(() => { 
-                            showMessage("のぶゆき は バナナらっしー を 飲んだ！<page>あまくて おいしい！<br>のぶゆき の MP が まんたんに なった！"); 
-                        }, 100); 
+                        setTimeout(() => { showMessage("のぶゆき は バナナらっしー を 飲んだ！<page>あまくて おいしい！<br>のぶゆき の MP が まんたんに なった！"); }, 100); 
                     }; 
                     return true; 
                 }
@@ -401,21 +310,11 @@ function interactWithTile(targetX, targetY) {
                 if (npc.isMochidaHouseInn) {
                     showMessage(npc.message);
                     pendingAction = () => {
-                        const container = document.getElementById('game-container');
-                        const fade = document.createElement('div');
-                        fade.style.position = 'absolute'; fade.style.inset = '0'; fade.style.background = '#000';
-                        fade.style.zIndex = '999'; fade.style.opacity = '0'; fade.style.transition = 'opacity 1s';
-                        container.appendChild(fade);
-                        
+                        const container = document.getElementById('game-container'); const fade = document.createElement('div'); fade.style.position = 'absolute'; fade.style.inset = '0'; fade.style.background = '#000'; fade.style.zIndex = '999'; fade.style.opacity = '0'; fade.style.transition = 'opacity 1s'; container.appendChild(fade);
                         setTimeout(() => fade.style.opacity = '1', 50); 
-                        
                         setTimeout(() => {
                             if (typeof Sound !== 'undefined' && Sound.heal) Sound.heal();
-                            playerStatus.hp = playerStatus.maxHp;
-                            playerStatus.mp = playerStatus.maxMp;
-                            if(typeof updateMiniStatus === 'function') updateMiniStatus();
-                            fade.style.opacity = '0'; 
-                            
+                            playerStatus.hp = playerStatus.maxHp; playerStatus.mp = playerStatus.maxMp; if(typeof updateMiniStatus === 'function') updateMiniStatus(); fade.style.opacity = '0'; 
                             setTimeout(() => {
                                 if (container.contains(fade)) container.removeChild(fade);
                                 showMessage("翌朝……。<page>もちだ「おはよう。<br>特製の バナナらっしー だ。<br>飲んでいきな。」<page>のぶゆき は バナナらっしー を 飲んだ！<br>あまくて おいしい！<page>のぶゆき の HP と MP が<br>まんたんに なった！");
@@ -437,7 +336,6 @@ function flashPoison() { const container = document.getElementById('game-contain
 function tryMove(dx, dy) {
     let targetDir = player.dir;
     if (dy === 1) targetDir = 0; else if (dx === -1) targetDir = 1; else if (dx === 1) targetDir = 2; else if (dy === -1) targetDir = 3; 
-    
     if (player.dir !== targetDir) { player.dir = targetDir; draw(); }
     player.anim = (player.anim === 0) ? 1 : 0;
     
@@ -452,37 +350,27 @@ function tryMove(dx, dy) {
             if (npc.isOyajiPre && playerStatus.flags.defeatedRobber) continue;
             if (npc.isOyajiInn && !playerStatus.flags.defeatedRobber) continue;
             if (npc.isEventBoss && playerStatus.flags.defeatedGolem) continue; 
-
             if (npc.map === currentMapKey && npc.x === nextX && npc.y === nextY && !npc.hidden && !npc.isStepEvent) return; 
         } 
     }
     
     if (currentMapKey === "0" && nextX === 35 && nextY === 76) { 
         if (!playerStatus.flags.bridgeUnlocked) {
-            if (!playerStatus.flags.bossKey1 || !playerStatus.flags.bossKey2 || !playerStatus.flags.bossKey3) { 
-                showMessage("MFAキーコードが 不足しています。(キーコード1,2,3が必要)<page>通行する 資格が ありません。"); return; 
-            } else {
+            if (!playerStatus.flags.bossKey1 || !playerStatus.flags.bossKey2 || !playerStatus.flags.bossKey3) { showMessage("MFAキーコードが 不足しています。(キーコード1,2,3が必要)<page>通行する 資格が ありません。"); return; } 
+            else {
                 if (typeof Sound !== 'undefined' && Sound.magic) Sound.magic(); 
                 showMessage("セキュリティゲート に アクセス中……<page>キーコード1…… 認証完了。<br>キーコード2…… 認証完了。<br>キーコード3…… 認証完了。<page>MFA フル・アクセス 承認。<br>魔王城への ルートを 解放します！");
-                pendingAction = () => { playerStatus.flags.bridgeUnlocked = true; };
-                return; 
+                pendingAction = () => { playerStatus.flags.bridgeUnlocked = true; }; return; 
             }
         }
     }
 
-        if (nextX < 0 || nextX >= MAP_W || nextY < 0 || nextY >= MAP_H) { 
+    if (nextX < 0 || nextX >= MAP_W || nextY < 0 || nextY >= MAP_H) { 
         if (currentMapKey !== "0") { 
             let rx = 19, ry = 37; 
             if (worldReturn) { rx = worldReturn.x; ry = worldReturn.y; }
-            else if (currentMapKey === "1") { rx = 32; ry = 50; } 
-            else if (currentMapKey === "2") { rx = 27; ry = 29; } 
-            else if (currentMapKey === "4") { rx = 105; ry = 14; } 
-            else if (currentMapKey === "5") { rx = 54; ry = 24; } 
-            else if (currentMapKey === "6") { rx = 81; ry = 77; } 
-            else if (currentMapKey === "17") { rx = 54; ry = 97; } 
-            else if (currentMapKey === "18") { rx = 38; ry = 80; }
-            
-            // 💥【NEW】無駄なメッセージを削除！画面がフェードしてスッとフィールドに出る！
+            else if (currentMapKey === "1") { rx = 32; ry = 50; } else if (currentMapKey === "2") { rx = 27; ry = 29; } else if (currentMapKey === "4") { rx = 105; ry = 14; } else if (currentMapKey === "5") { rx = 54; ry = 24; } else if (currentMapKey === "6") { rx = 81; ry = 77; } else if (currentMapKey === "17") { rx = 54; ry = 97; } else if (currentMapKey === "18") { rx = 38; ry = 80; }
+            // 💥【朝の改善】「外に出た！」を削除してシームレスに！
             loadMap("0"); player.x = rx; player.y = ry; fadeAlpha = 1.0; draw(); 
         } 
         return; 
@@ -496,24 +384,13 @@ function tryMove(dx, dy) {
         if (typeof npcs !== 'undefined') { 
             for (let i = 0; i < npcs.length; i++) { 
                 const stepNpc = npcs[i]; 
-
                 if (stepNpc.map === currentMapKey && stepNpc.x === player.x && stepNpc.y === player.y) {
                     if (stepNpc.isStepEvent) {
                         if (stepNpc.isEventBoss) {
-                            if (!playerStatus.flags.defeatedGolem) {
-                                showMessage(stepNpc.message);
-                                pendingAction = () => { setTimeout(() => startBattle(stepNpc.bossId), 500); };
-                            }
+                            if (!playerStatus.flags.defeatedGolem) { showMessage(stepNpc.message); pendingAction = () => { setTimeout(() => startBattle(stepNpc.bossId), 500); }; }
                         } else if (stepNpc.isGoldBall) {
-                            if (!stepNpc.opened) {
-                                stepNpc.opened = true;
-                                playerStatus.inventory.push({ name: "黄金球", type: "accessory", atk: 0, def: 0, price: 10000 });
-                                if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                                showMessage(stepNpc.message + "<page>なんと 黄金球 を てにいれた！");
-                            }
-                        } else {
-                            showMessage(stepNpc.message);
-                        }
+                            if (!stepNpc.opened) { stepNpc.opened = true; playerStatus.inventory.push({ name: "黄金球", type: "accessory", atk: 0, def: 0, price: 10000 }); if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet(); showMessage(stepNpc.message + "<page>なんと 黄金球 を てにいれた！"); }
+                        } else { showMessage(stepNpc.message); }
                     }
                 }
             } 
@@ -523,64 +400,33 @@ function tryMove(dx, dy) {
             for (let i = 0; i < warpZones.length; i++) {
                 const w = warpZones[i];
                 if (w.fromMap === currentMapKey && w.fromX === player.x && w.fromY === player.y) {
-                    if (w.isWorldReturn) { 
-                        if (worldReturn) { loadMap(worldReturn.map); player.x = worldReturn.x; player.y = worldReturn.y; }
-                        else { loadMap("0"); player.x = 19; player.y = 37; } 
-                        fadeAlpha = 1.0; 
-                    } 
-                    else if (w.isDynamicReturn) { 
-                        if (returnStack.length > 0) { let ret = returnStack.pop(); loadMap(ret.map); player.x = ret.x; player.y = ret.y; }
-                        else { loadMap("0"); player.x = 19; player.y = 37; } 
-                        fadeAlpha = 1.0; 
-                    } 
-                    else { 
-                        lastWarpId = w.id || "unknown"; 
-                        if (currentMapKey === "0") worldReturn = { map: "0", x: player.x, y: player.y }; 
-                        if (w.saveReturn) returnStack.push({ map: currentMapKey, x: player.x, y: player.y }); 
-                        loadMap(w.toMap); player.x = w.toX; player.y = w.toY; fadeAlpha = 1.0; 
-                    }
+                    if (w.isWorldReturn) { if (worldReturn) { loadMap(worldReturn.map); player.x = worldReturn.x; player.y = worldReturn.y; } else { loadMap("0"); player.x = 19; player.y = 37; } fadeAlpha = 1.0; } 
+                    else if (w.isDynamicReturn) { if (returnStack.length > 0) { let ret = returnStack.pop(); loadMap(ret.map); player.x = ret.x; player.y = ret.y; } else { loadMap("0"); player.x = 19; player.y = 37; } fadeAlpha = 1.0; } 
+                    else { lastWarpId = w.id || "unknown"; if (currentMapKey === "0") worldReturn = { map: "0", x: player.x, y: player.y }; if (w.saveReturn) returnStack.push({ map: currentMapKey, x: player.x, y: player.y }); loadMap(w.toMap); player.x = w.toX; player.y = w.toY; fadeAlpha = 1.0; }
                     warped = true; break;
                 }
             }
         }
         
-        if (!warped && currentMapKey === "13" && player.x === 5 && player.y === 9) {
-            loadMap("12"); player.x = 5; player.y = 5; fadeAlpha = 1.0; warped = true;
-        }
+        if (!warped && currentMapKey === "13" && player.x === 5 && player.y === 9) { loadMap("12"); player.x = 5; player.y = 5; fadeAlpha = 1.0; warped = true; }
 
         draw();
         
-        if (!warped && window.amuletSteps > 0) {
-            window.amuletSteps--;
-            if (window.amuletSteps === 0) {
-                showMessage("インド魔除け の スパイスの香りが<br>きえてしまった……。(効果切れ)");
-            }
-        }
+        if (!warped && window.amuletSteps > 0) { window.amuletSteps--; if (window.amuletSteps === 0) { showMessage("インド魔除け の スパイスの香りが<br>きえてしまった……。(効果切れ)"); } }
 
         const encounterMaps = ["0", "3", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
 
         if (!warped && encounterMaps.includes(currentMapKey)) { 
             let encRate = (currentMapKey === "0") ? window.encounterRate : (window.encounterRate <= 0 ? 0 : 0.04);
-            
+            // 💥【朝の改善】魔除けはフィールドのみ有効！
             if (currentMapKey === "0" && window.amuletSteps > 0) { encRate = 0; }
-            
-            if (encRate > 0 && Math.random() < encRate) { 
-                if(typeof startBattle === 'function') startBattle(); 
-                return; 
-            }
+            if (encRate > 0 && Math.random() < encRate) { if(typeof startBattle === 'function') startBattle(); return; }
         }
 
         if (!warped) {
             let hasGoldenSuit = (playerStatus.equipment.armor && playerStatus.equipment.armor.name === "黄金スーツ");
-            
-            if (currentMapKey === "0" && topTile === 4) { 
-                if (!hasGoldenSuit) { playerStatus.hp -= 2; if (playerStatus.hp <= 0) playerStatus.hp = 1; flashPoison(); }
-            }
-            
-            if (hasGoldenSuit && playerStatus.hp > 0 && playerStatus.hp < playerStatus.maxHp) {
-                playerStatus.hp += 1; if (playerStatus.hp > playerStatus.maxHp) playerStatus.hp = playerStatus.maxHp;
-            }
-            
+            if (currentMapKey === "0" && topTile === 4) { if (!hasGoldenSuit) { playerStatus.hp -= 2; if (playerStatus.hp <= 0) playerStatus.hp = 1; flashPoison(); } }
+            if (hasGoldenSuit && playerStatus.hp > 0 && playerStatus.hp < playerStatus.maxHp) { playerStatus.hp += 1; if (playerStatus.hp > playerStatus.maxHp) playerStatus.hp = playerStatus.maxHp; }
             if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
         }
     }
@@ -592,38 +438,63 @@ function startGameLoop() {
     if(typeof updateMiniStatus === 'function') updateMiniStatus(); 
     draw();
     
-    if(currentMapKey === "0" || window.returnStack.length > 0) {
-        showMessage("全システム オンライン。<br>広大な よつかいどう を歩き回れ！");
-    }
+    if(currentMapKey === "0" || window.returnStack.length > 0) { showMessage("全システム オンライン。<br>広大な よつかいどう を歩き回れ！"); }
 
     setInterval(function() {
         if (isMenuOpen || isBattle || isCutscene) return; 
         if (fadeAlpha > 0) { fadeAlpha -= 0.05; if (fadeAlpha < 0) fadeAlpha = 0; draw(); }
         frameCount++;
         
+        // 💥【バグ完治】NPCの足踏みと移動を絶対に止めない処理
         if (frameCount % 20 === 0) { 
-            // （中略：NPCの移動処理など）
+            if (typeof npcs !== 'undefined') {
+                for (let i = 0; i < npcs.length; i++) {
+                    let n = npcs[i];
+                    if (n.map === currentMapKey && !n.hidden && !n.noDraw) {
+                        n.anim = (n.anim === 0) ? 1 : 0; // 全員必ず足踏みする！
+                        if (!n.isStatic && Math.random() < 0.2) {
+                            let d = Math.floor(Math.random() * 4);
+                            let nx = n.x, ny = n.y;
+                            if (d===0) ny++; else if (d===1) nx--; else if (d===2) nx++; else if (d===3) ny--;
+                            let canMove = true;
+                            if (nx < 0 || nx >= MAP_W || ny < 0 || ny >= MAP_H) canMove = false;
+                            else {
+                                let t = getTilesAt(nx, ny); let top = t[t.length-1];
+                                let unwalk = (currentMapKey === "0") ? unWalkMain : unWalkMachi;
+                                if (unwalk.includes(top)) canMove = false;
+                                if (player.x === nx && player.y === ny) canMove = false;
+                                for(let j=0; j<npcs.length; j++){
+                                    if(i!==j && npcs[j].map === currentMapKey && npcs[j].x === nx && npcs[j].y === ny && !npcs[j].hidden && !npcs[j].noDraw){
+                                        canMove = false; break;
+                                    }
+                                }
+                            }
+                            if (canMove) { n.x = nx; n.y = ny; n.dir = d; }
+                            else { n.dir = d; } 
+                        }
+                    }
+                }
+                draw();
+            }
         }
-        if (walkTimer > 0) { walkTimer--; return; }
         
-        if (isMessageActive) return; // 💥 メッセージ中の移動ロック
+        if (walkTimer > 0) { walkTimer--; return; }
+        if (isMessageActive) return; 
         
         let speed = 10; 
         let walkDx = 0, walkDy = 0; 
         if (keys.up) walkDy = -1; else if (keys.down) walkDy = 1; else if (keys.left) walkDx = -1; else if (keys.right) walkDx = 1;
-        
         if (walkDx !== 0 || walkDy !== 0) { tryMove(walkDx, walkDy); walkTimer = speed; }
     }, 16); 
 }
 
 const dpad = document.getElementById('d-pad'); if (dpad) { let activeTouchId = null; let isTouchDevice = false; const resetKeys = function() { keys.up = keys.down = keys.left = keys.right = false; document.querySelectorAll('.d-btn').forEach(function(b) { b.classList.remove('active'); }); }; const handleMove = function(clientX, clientY) { if(isCutscene) return; resetKeys(); const rect = dpad.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const dx = clientX - centerX; const dy = clientY - centerY; if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0) { keys.right = true; document.getElementById('btn-right').classList.add('active'); } else { keys.left = true; document.getElementById('btn-left').classList.add('active'); } } else { if (dy > 0) { keys.down = true; document.getElementById('btn-down').classList.add('active'); } else { keys.up = true; document.getElementById('btn-up').classList.add('active'); } } }; dpad.addEventListener('touchstart', function(e) { e.preventDefault(); isTouchDevice = true; const touch = e.changedTouches[0]; activeTouchId = touch.identifier; handleMove(touch.clientX, touch.clientY); }, {passive: false}); dpad.addEventListener('touchmove', function(e) { e.preventDefault(); for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === activeTouchId) { handleMove(e.touches[i].clientX, e.touches[i].clientY); break; } } }, {passive: false}); const endTouch = function(e) { e.preventDefault(); for (let i = 0; i < e.changedTouches.length; i++) { if (e.changedTouches[i].identifier === activeTouchId) { activeTouchId = null; resetKeys(); break; } } }; dpad.addEventListener('touchend', endTouch); dpad.addEventListener('touchcancel', endTouch); let isDragging = false; dpad.addEventListener('mousedown', function(e) { if (isTouchDevice) return; isDragging = true; handleMove(e.clientX, e.clientY); }); window.addEventListener('mousemove', function(e) { if (isTouchDevice || !isDragging) return; handleMove(e.clientX, e.clientY); }); window.addEventListener('mouseup', function() { if (isTouchDevice || !isDragging) return; isDragging = false; resetKeys(); }); }
 
-// 💥【NEW】連打防止タイマーと新しいタップ＆キーボード処理
-window.lastActionTime = 0;
+window.lastMessageCloseTime = 0;
+window.lastTapTime = 0;
 
 const msgBox = document.getElementById('message-box'); 
 if (msgBox) { 
-        
     window.tapMessage = function(e) { 
         if (e && e.target && e.target.classList && e.target.classList.contains('d-btn')) return;
         if (e) e.preventDefault(); 
@@ -635,12 +506,9 @@ if (msgBox) {
 
         if (isMessageActive) {
             if (messageTimer || bMsgTimer) return; 
-            
             if (currentMsgPage < msgPages.length - 1) {
-                // 💥 次のページへ進む
                 isWaitingForPage = false; currentMsgPage++; playMsgPage(isBattle); 
             } else {
-                // 💥 最後のページならウィンドウを閉じる（自動消去タイマーもキルする）
                 if (window.msgCloseTimer) { clearTimeout(window.msgCloseTimer); window.msgCloseTimer = null; }
                 isWaitingForPage = false; 
                 isMessageActive = false; 
@@ -653,13 +521,26 @@ if (msgBox) {
             return;
         }
         
+        // 💥【朝の改善】0.8秒のクールダウンで「無限話しかけ」をブロック！
         if (!isBattle && (now - window.lastMessageCloseTime > 800)) {
             tryAction(); 
         }
     }; 
-
+    
     msgBox.addEventListener('touchstart', window.tapMessage, {passive: false}); 
     msgBox.addEventListener('mousedown', window.tapMessage); 
+    
+    // 💥【朝の改善】スマホで画面全体をタップして話しかけられるようにする！
+    const viewArea = document.getElementById('view-area');
+    if (viewArea) {
+        viewArea.addEventListener('mousedown', function(e) { window.tapMessage(e); });
+        viewArea.addEventListener('touchstart', function(e) { window.tapMessage(e); }, {passive: false});
+    }
+    const msgArea = document.getElementById('msg-area');
+    if (msgArea) {
+        msgArea.addEventListener('mousedown', function(e) { window.tapMessage(e); });
+        msgArea.addEventListener('touchstart', function(e) { window.tapMessage(e); }, {passive: false});
+    }
 }
 
 window.addEventListener('keydown', function(e) { 
@@ -669,7 +550,7 @@ window.addEventListener('keydown', function(e) {
         if (!keys.action) {
             if (isMessageActive && typeof window.tapMessage === 'function') {
                 window.tapMessage();
-            } else if (!isMessageActive && Date.now() - (window.lastActionTime || 0) > 500) {
+            } else if (!isMessageActive && Date.now() - (window.lastMessageCloseTime || 0) > 800) {
                 tryAction(); 
             }
         }
