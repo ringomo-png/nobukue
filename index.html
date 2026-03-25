@@ -8,25 +8,74 @@
     <link rel="stylesheet" href="css/style.css?v=reset1">
     
     <style>
-        .hidden { display: none !important; }
+        /* ==========================================
+           🧠 UIコンポーネント (style.cssと協調)
+           ========================================== */
 
-        /* レトロウィンドウの共通スタイル（角を丸めない！） */
-        .retro-window {
-            background: #000;
-            border: 4px solid #fff;
-            box-shadow: 4px 4px 0 #000;
-            color: #fff;
-            font-family: 'DotGothic16', sans-serif;
-            box-sizing: border-box;
+        /* 💥 渋いレトロイエローの重厚ドットロゴ */
+        .title-logo {
+            font-size: 36px; 
+            font-weight: bold; 
+            color: #ffe080; 
+            text-shadow: 
+                -2px -2px 0 #000,  2px -2px 0 #000,
+                -2px  2px 0 #000,  2px  2px 0 #000,
+                 4px  4px 0 #444; 
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
-        /* タイトルロゴのスタイル（せきばんと同じゴールドに統一！） */
-        #title-screen svg text {
-            fill: #ffd700;
-            stroke: #fff;
-            stroke-width: 1px;
-            filter: drop-shadow(4px 4px 0px #555);
-            text-shadow: none; 
+                        /* 💥【真・純粋フェードイン】下からの移動を完全に消去！ */
+        @keyframes pureFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .fade-in-all {
+            opacity: 0; 
+            /* 💥 1秒間の完全な暗寂のあと、4秒かけてその場にジワァァァッと浮かび上がる！ */
+            animation: pureFadeIn 4s ease-in-out 1s forwards; 
+        }
+
+
+
+        /* メニュー全体を完璧にど真ん中に配置 */
+        .title-menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            gap: 15px; 
+            padding: 10px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        /* 完璧なセンタリングを実現するボタン設計 */
+        .title-btn {
+            cursor: pointer;
+            font-size: 22px;
+            position: relative;
+            transition: color 0.2s;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
+            display: inline-block; 
+        }
+        .title-btn:hover, .title-btn:active {
+            color: #ffd700;
+        }
+        
+        /* ホバー時に「>」のカーソルが文字の"外側"に出現する */
+        .title-btn::before {
+            content: '>';
+            position: absolute;
+            left: -25px; 
+            opacity: 0;
+            color: #fff;
+            transition: opacity 0.2s;
+        }
+        .title-btn:hover::before, .title-btn:active::before {
+            opacity: 1;
         }
     </style>
 </head>
@@ -34,86 +83,89 @@
 <body>
     <div id="game-container">
 
-        <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
-            
-            <svg viewBox="0 0 400 130" style="width: 95%; max-width: 450px; overflow: visible;">
-                <path id="archPath" d="M 10,120 Q 200,-30 390,120" fill="transparent" />
-                <text font-family="'DotGothic16', sans-serif" font-size="52" font-weight="bold">
-                    <textPath href="#archPath" startOffset="50%" text-anchor="middle">
+        <div id="ui-layer" style="position:absolute; inset:0; z-index:200;">
+
+            <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+                
+                <div class="fade-in-all" style="display:flex; flex-direction:column; align-items:center;">
+                    
+                    <div class="title-logo">
                         ノブユキクエスト
-                    </textPath>
-                </text>
-            </svg>
+                    </div>
+                    
+                    <div id="title-text" style="font-size:18px; margin-bottom:10px; text-align:center; letter-spacing:4px; color:#aaa; text-shadow: 2px 2px 0 #000;">
+                        〜 四街道の幻影 〜
+                    </div>
+
+                    <div id="title-buttons" class="title-menu-container">
+                        <div class="title-btn" onclick="launchGame(false)">NEW GAME</div>
+                        <div class="title-btn" onclick="launchGame(true)">CONTINUE</div>
+                        <div class="title-btn" onclick="showRanking()">RECORDS</div>
+                    </div>
+                </div>
+
+                <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
+                    <div style="color:#ffd700; font-size:18px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 RECORDS 】</div>
+                    <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:55vh; overflow-y:auto; color:#fff;">
+                    </div>
+                    <div class="title-btn" style="font-size:20px; padding:10px 20px; margin-top:10px; text-align:center;" onclick="hideRanking()">CLOSE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-playing-area" class="hidden" style="position:absolute; inset:0; z-index:100; display:flex; flex-direction:column;">
             
-            <div id="title-text" style="font-size:20px; margin-top:-10px; margin-bottom:50px; text-align:center; letter-spacing:2px; color:#fff; text-shadow: 2px 2px 0 #000;">
-                〜 四街道の幻影 〜
-            </div>
-
-            <div id="title-buttons" class="hidden retro-window" style="flex-direction:column; gap:20px; padding:25px 40px; text-align:left;">
-                <div style="cursor:pointer; font-size:24px;" onclick="startGame(false)">▶ はじめから</div>
-                <div style="cursor:pointer; font-size:24px;" onclick="startGame(true)">▶ つづきから</div>
-                <div style="cursor:pointer; font-size:24px;" onclick="showRanking()">▶ せきばん</div>
-            </div>
-
-            <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
-                <div style="color:#ffd700; font-size:18px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 えいゆう の せきばん 】</div>
-                <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:55vh; overflow-y:auto; color:#fff;">
+            <div id="view-area">
+                <canvas id="map-canvas" width="480" height="352"></canvas>
+                <div id="battle-enemy-area" class="hidden"><img id="enemy-img" src="" alt="enemy"></div>
+                <div id="battle-sub-window" class="hidden retro-window"></div>
+                
+                <div id="mini-status" class="retro-window" style="position:absolute; top:10px; left:10px; z-index:45; pointer-events:none; font-size:14px; line-height:1.5;">
+                    <span id="mini-lv">LV: 1</span><br>
+                    <span id="mini-hp">HP: 15/15</span><br>
+                    <span id="mini-mp">MP:  5/ 5</span><br>
+                    <span id="mini-g">G : 100</span>
                 </div>
-                <div style="cursor:pointer; font-size:20px; padding:10px 20px; border:1px solid #fff; background:#333; color:#fff;" onclick="hideRanking()">もどる</div>
+                <div id="menu-btn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:#444; border:2px solid #fff; color:#fff; border-radius:4px; font-size:16px; cursor:pointer; z-index:65;" onmousedown="openMenu()" ontouchstart="openMenu()">MENU</div>
             </div>
-        </div>
 
-        <div id="view-area">
-            <canvas id="map-canvas" width="480" height="352"></canvas>
-            <div id="battle-enemy-area" class="hidden"><img id="enemy-img" src="" alt="enemy"></div>
-            <div id="battle-sub-window" class="hidden retro-window"></div>
+            <div id="menu-screen" class="hidden">
+                <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
+                    <div id="menu-stats">のぶゆき LV: 1 ...</div>
+                                  <div id="menu-tabs">
+                        <div class="menu-tab" onclick="showStatus()">つよさ</div>
+                        <div class="menu-tab" onclick="showEquip()">そうび</div>
+                        <div class="menu-tab" onclick="showItems()">どうぐ</div>
+                        <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
+                        <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
+                        <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
+                        <div class="menu-tab hidden" style="background:#444;" onclick="showSettings()">せってい</div>
+                        <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
+                        <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
+                    </div>
+                </div>
+                <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
+            </div>
+
+            <div id="msg-area" style="flex-shrink:0; width:100%; padding:5px; background:#000;">
+                <div id="message-box" class="retro-window" style="width:100%; height:100px; padding:15px; z-index:45;">
+                    <div id="msg-text" style="font-size:16px; line-height:1.6; word-wrap:break-word; overflow-wrap:break-word;"></div>
+                </div>
+            </div>
             
-            <div id="mini-status" class="retro-window" style="position:absolute; top:10px; left:10px; z-index:45; pointer-events:none; font-size:14px; line-height:1.5;">
-                <span id="mini-lv">LV: 1</span><br>
-                <span id="mini-hp">HP: 15/15</span><br>
-                <span id="mini-mp">MP:  5/ 5</span><br>
-                <span id="mini-g">G : 100</span>
-            </div>
-            <div id="menu-btn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:#444; border:2px solid #fff; color:#fff; border-radius:4px; font-size:16px; cursor:pointer; z-index:65;" onmousedown="openMenu()" ontouchstart="openMenu()">MENU</div>
-        </div>
-
-        <div id="menu-screen" class="hidden">
-            <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
-                <div id="menu-stats">のぶゆき LV: 1 ...</div>
-                              <div id="menu-tabs">
-                    <div class="menu-tab" onclick="showStatus()">つよさ</div>
-                    <div class="menu-tab" onclick="showEquip()">そうび</div>
-                    <div class="menu-tab" onclick="showItems()">どうぐ</div>
-                    <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
-                    <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
-                    <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
-                    <div class="menu-tab hidden" style="background:#444;" onclick="showSettings()">せってい</div>
-                    <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
-                    <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
+            <div id="controller-area" style="flex:1; position:relative; width:100%;">
+                <div id="d-pad-container">
+                    <div id="d-pad">
+                        <div class="btn d-btn" id="btn-up">▲</div><div class="btn d-btn" id="btn-down">▼</div>
+                        <div class="btn d-btn" id="btn-left">◀</div><div class="btn d-btn" id="btn-right">▶</div>
+                    </div>
                 </div>
-
-            </div>
-            <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
-        </div>
-
-        <div id="msg-area" style="flex-shrink:0; width:100%; padding:5px; background:#000;">
-            <div id="message-box" class="retro-window" style="width:100%; height:100px; padding:15px; z-index:45;">
-                <div id="msg-text" style="font-size:16px; line-height:1.6; word-wrap:break-word; overflow-wrap:break-word;"></div>
-            </div>
-        </div>
-        
-        <div id="controller-area" style="flex:1; position:relative; width:100%;">
-            <div id="d-pad-container">
-                <div id="d-pad">
-                    <div class="btn d-btn" id="btn-up">▲</div><div class="btn d-btn" id="btn-down">▼</div>
-                    <div class="btn d-btn" id="btn-left">◀</div><div class="btn d-btn" id="btn-right">▶</div>
+                <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
+                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
+                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">はっく</div>
+                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
+                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
                 </div>
-            </div>
-            <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
-                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
-                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">はっく</div>
-                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
-                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
             </div>
         </div>
     </div>
@@ -138,11 +190,11 @@
     <script src="maps/18.mochike.js"></script>
     <script src="maps/17.tanaka.js"></script>
 
-    <script src="js/sound.js?v=sound1"></script>
-    <script src="js/game_data.js"></script>
-    <script src="js/engine.js"></script>
-    <script src="js/battle.js"></script>
-    <script src="js/menu.js"></script>
+    <script src="js/sound.js?v=title4"></script>
+    <script src="js/game_data.js?v=title4"></script>
+    <script src="js/engine.js?v=title4"></script>
+    <script src="js/battle.js?v=title4"></script>
+    <script src="js/menu.js?v=title4"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -161,7 +213,78 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.FirebaseHub = {
+                // ==========================================
+        // 🎭 タイトルBGM＆演出ロジック（Sound.js連携版）
+        // ==========================================
+        
+        // 💥【NEW】直書きのAudioオブジェクトを削除し、Sound.jsのフラグを使用！
+        let isTitleBgmPlaying = false;
+
+        // スマホ対応：画面のどこかをタップ・クリック・タッチしたらSound.js経由でBGM着火！
+        const initTitleBGM = () => {
+            if (!isTitleBgmPlaying) {
+                // 💥 Sound.js の機能を使って 'end' (end.mp3) を再生！
+                if (typeof Sound !== 'undefined' && Sound.playBGM) {
+                    Sound.playBGM('end');
+                    isTitleBgmPlaying = true;
+                }
+            }
+            document.removeEventListener('click', initTitleBGM);
+            document.removeEventListener('touchstart', initTitleBGM);
+        };
+        
+        // 画面全体へのイベントリスナー（1回発動したら消える）
+        document.addEventListener('click', initTitleBGM, { once: true });
+        document.addEventListener('touchstart', initTitleBGM, { once: true });
+
+        // engine.jsのstartGameを呼ぶ前に、プレイ画面を表示させるラッパー
+        window.launchGame = function(isLoad) {
+            
+            // NEW GAME誤爆防止のセーフティ
+            if (!isLoad) {
+                const isConfirmed = confirm("はじめから 冒険を はじめますか？\n（※これまでの セーブデータ は 消去されます）");
+                if (!isConfirmed) return; // キャンセルした場合はここでストップ
+            }
+
+            if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
+
+            // 💥 ゲーム開始時に Sound.js の機能でBGMを確実に止める！
+            if (typeof Sound !== 'undefined' && Sound.stopBGM) {
+                Sound.stopBGM();
+                isTitleBgmPlaying = false; // フラグもリセット
+            }
+
+            // タイトル画面をフェードアウト
+            const titleScreen = document.getElementById('title-screen');
+            if (titleScreen) {
+                titleScreen.style.transition = 'opacity 0.8s'; 
+                titleScreen.style.opacity = '0';
+                setTimeout(() => {
+                    titleScreen.classList.add('hidden');
+                    const uiLayer = document.getElementById('ui-layer');
+                    if(uiLayer) uiLayer.classList.add('hidden'); 
+                }, 800);
+            }
+
+            // プレイ層（ゲーム画面）を表示！
+            const gamePlayingArea = document.getElementById('game-playing-area');
+            if (gamePlayingArea) {
+                gamePlayingArea.classList.remove('hidden');
+            }
+            
+            // engine.js の本家 startGame を呼び出し、ゲームスタート！
+            if (window.startGame) {
+                window.startGame(isLoad);
+            }
+        };
+
+        // ==========================================
+        // 📊 Firebase / ランキング / EDロジック
+        // ==========================================
+        // （ここは前回と同じなので省略せずにそのまま残しておいてね！）
+
+
+                window.FirebaseHub = {
             loadRanking: async function() {
                 const listDiv = document.getElementById('ranking-list');
                 if (!listDiv) return;
@@ -182,12 +305,17 @@
                         let rank = idx + 1;
                         let safeName = data.name.replace(/</g, "&lt;").replace(/>/g, "&gt;").substring(0, 8);
                         let rankColor = rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#aaffaa";
-                        html += `<div style="border-bottom: 1px dashed #555; padding: 8px 0; display:flex; justify-content:space-between; color:#fff;">`;
-                        html += `<span><span style="color:${rankColor}; font-weight:bold; margin-right:10px; font-size:18px;">${rank}位</span> ${safeName}</span>`;
-                        html += `<span style="color:#aaa; font-size:14px;">(Death:${data.deathCount} / Lv:${data.level})</span>`;
+                        
+                        // 💥【NEW】「Rank 1」表記に変更！
+                        let rankLabel = "Rank " + rank; 
+                        
+                        // 💥【NEW】monospaceを削除し、ドットフォント(DotGothic16)を強制適用！
+                        html += `<div style="border-bottom: 1px dashed #555; padding: 8px 0; display:flex; justify-content:space-between; color:#fff; font-family: 'DotGothic16', sans-serif;">`;
+                        html += `<span><span style="color:${rankColor}; font-weight:bold; margin-right:10px; font-size:17px;">${rankLabel}</span> ${safeName}</span>`;
+                        html += `<span style="color:#aaa; font-size:13px;">(Death:${data.deathCount} / Lv:${data.level})</span>`;
                         html += `</div>`;
                     });
-                    if (html === "") html = "<div style='text-align:center; margin-top:20px; color:#fff;'>まだ 誰も 魔王を 倒していないようだ……。</div>";
+                    if (html === "") html = "<div style='text-align:center; margin-top:20px; color:#fff; font-size:14px; font-family: \"DotGothic16\", sans-serif;'>まだ 誰も 魔王を 倒していないようだ……。</div>";
 
                     let localFlags = {};
                     try {
@@ -202,7 +330,8 @@
                     let bossDataMap = {};
                     bossSnap.forEach(doc => { bossDataMap[doc.id] = doc.data(); });
 
-                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold;'>【 BOSS STATS 】</div>";
+                    // 💥【NEW】BOSS STATSの見出しもドットフォントに！
+                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold; font-family: \"DotGothic16\", sans-serif;'>【 BOSS STATS 】</div>";
                     
                     const bossOrder = [
                         { id: "robber", trueName: "強盗", flag: "defeatedRobber" },
@@ -222,19 +351,20 @@
                             
                             let displayName = localFlags[boss.flag] ? boss.trueName : "？？？";
                             
-                            // 💥【Win Rate】に変更！
-                            bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px;"><span>${displayName}</span><span>Death:${kills} / Win Rate:${winRate}%</span></div>`;
+                            // 💥【NEW】ボスの戦績リストもドットフォントに！
+                            bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px; font-family: 'DotGothic16', sans-serif;"><span>${displayName}</span><span>Death:${kills} / Win Rate:${winRate}%</span></div>`;
                         }
                     });
 
                     listDiv.innerHTML = html + bossHtml;
                 } catch(e) {
-                    listDiv.innerHTML = "<div style='color:#f55; text-align:center;'>通信エラーだわ！<br>ハッカーに連絡しなさい！</div>";
+                    listDiv.innerHTML = "<div style='color:#f55; text-align:center; font-size:14px; font-family: \"DotGothic16\", sans-serif;'>通信エラーだわ！<br>ハッカーに連絡しなさい！</div>";
                     console.error(e);
                 }
             },
 
             saveClearData: async function(playerName, playerLevel, playerDeathCount) {
+
                 try {
                     await addDoc(collection(db, "cleared_players"), {
                         name: playerName, level: playerLevel, deathCount: playerDeathCount, timestamp: serverTimestamp()
@@ -265,120 +395,75 @@
             const container = document.getElementById('game-container');
             const endScreen = document.createElement('div');
             endScreen.id = 'ending-screen';
-            endScreen.style.position = 'absolute';
-            endScreen.style.inset = '0';
-            endScreen.style.backgroundColor = '#000'; 
-            endScreen.style.color = '#fff';
-            endScreen.style.zIndex = '9999';
-            endScreen.style.display = 'flex';
-            endScreen.style.flexDirection = 'column';
-            endScreen.style.justifyContent = 'center';
-            endScreen.style.alignItems = 'center';
-            endScreen.style.opacity = '0';
-            endScreen.style.transition = 'opacity 2s ease-in-out';
-            endScreen.style.textAlign = 'center';
-            endScreen.style.lineHeight = '2.2';
-            endScreen.style.fontSize = '18px';
-            endScreen.style.fontFamily = "'DotGothic16', sans-serif"; 
-            endScreen.style.textShadow = "2px 2px 0px #444"; 
-            endScreen.style.padding = '20px';
-            
+            endScreen.style.position = 'absolute'; endScreen.style.inset = '0'; endScreen.style.backgroundColor = '#000'; endScreen.style.color = '#fff'; endScreen.style.zIndex = '9999'; endScreen.style.display = 'flex'; endScreen.style.flexDirection = 'column'; endScreen.style.justifyContent = 'center'; endScreen.style.alignItems = 'center'; endScreen.style.opacity = '0'; endScreen.style.transition = 'opacity 2s ease-in-out'; endScreen.style.textAlign = 'center'; endScreen.style.lineHeight = '2.2'; endScreen.style.fontSize = '18px'; endScreen.style.fontFamily = "'DotGothic16', sans-serif"; endScreen.style.textShadow = "2px 2px 0px #444"; endScreen.style.padding = '20px';
             container.appendChild(endScreen);
             
             setTimeout(() => { endScreen.style.opacity = '1'; }, 500);
             
-                        // 💥【NEW】匂わせエンドロール！「幻影」と「バナナらっしー」を繋げる
             const messages = [
                 "四街道の メインサーバーから<br>邪悪な プログラムは 完全に 消え去った……",
                 "暴走していた 魔物たちは 姿を消し<br>人々は ついに 正気を 取り戻した。",
                 "『げぇお』には 再び ゲーマーが 集い<br>蕎麦屋には 平和な 笑い声が 響く。",
                 "あの 幻影 も 今頃 どこかで<br>大好きな バナナらっしー を 飲んで 笑っているだろうか。",
                 "ありがとう、のぶゆき。<br>君の ハッキングスキルが、世界を 救ったのだ。",
-                "<span style='font-size:26px; color:#ffffaa; font-weight:bold;'>〜 のぶゆきクエスト　完 〜</span><br><br><span style='font-size:14px; color:#aaa; line-height: 1.8;'>Executive Producer : MORI<br>Character Design Support : KAIRI<br>Special Game Freak : BORI<br>Special Thanks : NOBUYUKI<br>Programming & Design Assistant : AI</span>"
+                "<span style='font-size:26px; color:#ffffaa; font-weight:bold;'>〜 のぶゆきクエスト　完 〜</span><br><br><span style='font-size:14px; color:#aaa; line-height: 1.8; text-shadow:none;'>Executive Producer : MORI<br>Character Design Support : KAIRI<br>Special Game Freak : BORI<br>Special Thanks : NOBUYUKI<br>Programming & Design Assistant : AI</span>"
             ];
-
             
             let msgIndex = 0;
-            
             function showNextMessage() {
                 if (msgIndex >= messages.length) {
                     endScreen.innerHTML = "<div style='font-size:40px; font-weight:bold; letter-spacing:8px; opacity:0; transition:opacity 2s ease;' id='final-end-text'>END</div>";
                     setTimeout(() => {
                         const finalEnd = document.getElementById('final-end-text');
                         if (finalEnd) finalEnd.style.opacity = '1';
-
                         setTimeout(async () => {
                             let playerName = prompt("四街道に 平和が 戻った……！\nせきばんに 英雄の名前を 刻もう！(8文字まで)", "のぶゆき");
                             if (playerName === null) playerName = "のぶゆき";
-                            let cleanName = playerName.replace(/　/g, " ").trim();
-                            if (cleanName === "") cleanName = "のぶゆき";
-                            playerName = cleanName.substring(0, 8);
-
+                            let cleanName = playerName.replace(/　/g, " ").trim(); if (cleanName === "") cleanName = "のぶゆき"; playerName = cleanName.substring(0, 8);
                             if (window.FirebaseHub) {
                                 let dCount = (typeof playerStatus !== 'undefined' && playerStatus.flags && typeof playerStatus.flags.deathCount !== 'undefined') ? playerStatus.flags.deathCount : 0;
                                 await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
                             }
-
-                            // 💥【ここから削除！】エンディング後の強制オートセーブを削る！
-                            /*
-                            try {
-                                let saveData = JSON.parse(localStorage.getItem("nobuMonSave"));
-                                if (!saveData) {
-                                    saveData = { playerStatus: playerStatus, player: player, currentMapKey: currentMapKey };
-                                } else {
-                                    saveData.playerStatus = playerStatus; 
-                                }
-                                localStorage.setItem("nobuMonSave", JSON.stringify(saveData));
-                            } catch(e) { console.error("オートセーブ失敗", e); }
-                            */
-                            // 💥【ここまで削除！】
-
                             if (typeof gameState !== 'undefined') gameState = 'TITLE';
-                            
-                            const titleScreen = document.getElementById('title-screen');
-                            if (titleScreen) {
-                                titleScreen.style.display = 'flex';
-                                titleScreen.classList.remove('hidden');
-                            }
-                            if (typeof showRanking === 'function') showRanking(); 
-                            
-                            if (container.contains(endScreen)) container.removeChild(endScreen);
+                            location.reload(); 
                         }, 4000);
                     }, 100);
                     return;
                 }
-                
                 endScreen.innerHTML = "<div id='end-text' style='opacity:0; transition:opacity 2s ease-in-out;'>" + messages[msgIndex] + "</div>";
-                
                 setTimeout(() => {
                     const textEl = document.getElementById('end-text');
                     if(textEl) textEl.style.opacity = '1';
-                    
                     setTimeout(() => {
                         if(textEl) textEl.style.opacity = '0';
                         setTimeout(() => { msgIndex++; showNextMessage(); }, 2000); 
                     }, 4000); 
-                    
                 }, 100);
             }
-            
             setTimeout(showNextMessage, 3500); 
         };
 
-        window.showRanking = function() {
-            if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
+                window.showRanking = function() {
+            if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
+            
+            // 💥 BGMをタップで鳴らす仕様にしたため、ランキングを開いたタイミングでも鳴るように補填！
+            // ここも Sound.js の機能を使うわ！
+            if (!isTitleBgmPlaying && typeof Sound !== 'undefined' && Sound.playBGM) {
+                Sound.playBGM('end');
+                isTitleBgmPlaying = true;
+            }
+
             document.getElementById('title-buttons').classList.add('hidden');
             document.getElementById('ranking-screen').classList.remove('hidden');
-            document.getElementById('ranking-list').innerHTML = "<div style='text-align:center; margin-top:20px; color:#aaa;'>通信中……しばらく またれよ……</div>";
+            document.getElementById('ranking-list').innerHTML = "<div style='text-align:center; margin-top:20px; color:#aaa; font-size:14px; font-family: \"DotGothic16\", sans-serif;'>通信中……しばらく またれよ……</div>";
             window.FirebaseHub.loadRanking();
         };
 
+
         window.hideRanking = function() {
             if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
-            
-            // 💥【NEW】変数の初期化漏れを完全に防ぐため、ブラウザごとクリーンリロード！
-            // リロードすればタイトル画面から始まり、メモリは完全に真っ更になるわ。
-            location.reload(); 
+            document.getElementById('ranking-screen').classList.add('hidden');
+            document.getElementById('title-buttons').classList.remove('hidden');
         };
     </script>
 </body>
