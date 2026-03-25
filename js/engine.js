@@ -445,14 +445,16 @@ function startGameLoop() {
         if (fadeAlpha > 0) { fadeAlpha -= 0.05; if (fadeAlpha < 0) fadeAlpha = 0; draw(); }
         frameCount++;
         
-        // 💥【バグ完治】NPCの足踏みと移動を絶対に止めない処理
-        if (frameCount % 20 === 0) { 
+        // 💥【バグ完治】足踏み（約0.5秒ごと）と、移動判定（約1秒ごと）にペースを分割！
+        if (frameCount % 30 === 0) { 
             if (typeof npcs !== 'undefined') {
                 for (let i = 0; i < npcs.length; i++) {
                     let n = npcs[i];
                     if (n.map === currentMapKey && !n.hidden && !n.noDraw) {
-                        n.anim = (n.anim === 0) ? 1 : 0; // 全員必ず足踏みする！
-                        if (!n.isStatic && Math.random() < 0.2) {
+                        n.anim = (n.anim === 0) ? 1 : 0; // 約0.5秒ごとに足踏み
+                        
+                        // 💥 移動判定はさらに倍（約1秒ごと）にして、確率も20%に抑える！
+                        if (frameCount % 60 === 0 && !n.isStatic && Math.random() < 0.2) {
                             let d = Math.floor(Math.random() * 4);
                             let nx = n.x, ny = n.y;
                             if (d===0) ny++; else if (d===1) nx--; else if (d===2) nx++; else if (d===3) ny--;
@@ -487,6 +489,7 @@ function startGameLoop() {
         if (walkDx !== 0 || walkDy !== 0) { tryMove(walkDx, walkDy); walkTimer = speed; }
     }, 16); 
 }
+
 
 const dpad = document.getElementById('d-pad'); if (dpad) { let activeTouchId = null; let isTouchDevice = false; const resetKeys = function() { keys.up = keys.down = keys.left = keys.right = false; document.querySelectorAll('.d-btn').forEach(function(b) { b.classList.remove('active'); }); }; const handleMove = function(clientX, clientY) { if(isCutscene) return; resetKeys(); const rect = dpad.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const dx = clientX - centerX; const dy = clientY - centerY; if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0) { keys.right = true; document.getElementById('btn-right').classList.add('active'); } else { keys.left = true; document.getElementById('btn-left').classList.add('active'); } } else { if (dy > 0) { keys.down = true; document.getElementById('btn-down').classList.add('active'); } else { keys.up = true; document.getElementById('btn-up').classList.add('active'); } } }; dpad.addEventListener('touchstart', function(e) { e.preventDefault(); isTouchDevice = true; const touch = e.changedTouches[0]; activeTouchId = touch.identifier; handleMove(touch.clientX, touch.clientY); }, {passive: false}); dpad.addEventListener('touchmove', function(e) { e.preventDefault(); for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === activeTouchId) { handleMove(e.touches[i].clientX, e.touches[i].clientY); break; } } }, {passive: false}); const endTouch = function(e) { e.preventDefault(); for (let i = 0; i < e.changedTouches.length; i++) { if (e.changedTouches[i].identifier === activeTouchId) { activeTouchId = null; resetKeys(); break; } } }; dpad.addEventListener('touchend', endTouch); dpad.addEventListener('touchcancel', endTouch); let isDragging = false; dpad.addEventListener('mousedown', function(e) { if (isTouchDevice) return; isDragging = true; handleMove(e.clientX, e.clientY); }); window.addEventListener('mousemove', function(e) { if (isTouchDevice || !isDragging) return; handleMove(e.clientX, e.clientY); }); window.addEventListener('mouseup', function() { if (isTouchDevice || !isDragging) return; isDragging = false; resetKeys(); }); }
 
