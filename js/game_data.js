@@ -217,15 +217,15 @@ var npcs = [
     { map: "4", x: 23, y: 7, noDraw: true, isDoor: true, requiredEquip: "がんぐのおめん", message: "『セキュリティーエラー！』<page>素顔のままでは 通れません。" },
     { map: "4", x: 23, y: 5, noDraw: true, isStepEvent: true, isEventBoss: true, bossId: "golem", message: "暗がりから いきなり 魔物が おそいかかってきた！" }, 
     { map: "4", x: 23, y: 3, noDraw: true, isBossKey2: true, message: "繁華街の 裏サーバーに アクセスした！<page>ボスのキーコード2 を MFAに ダウンロードした！" }, 
-    { map: "4", x: 23, y: 22, imgId: 6, dir: 0, anim: 0, message: "砂漠を抜けて南にいくと 最後の街があるんだが、魔物的せいで 完全に孤立してしまっているんだ……。" },
+    { map: "4", x: 23, y: 22, imgId: 6, dir: 0, anim: 0, message: "砂漠を抜けて南にいくと 最後の街があるんだが、魔物のせいで 完全に孤立してしまっているんだ……。" },
     
     { map: "4", x: 21, y: 22, imgId: 5, dir: 0, anim: 0, message: "ボスの城にいくには「３つのキーコード」が<br>必要なんじゃ。<page>そのうちの １つは、代々 四街道に 伝わる<br>メッセージじゃよ。<page>『最後の街』にいる 娘さんが<br>知っているはずじゃ！" },
-    { map: "4", x: 3, y: 17, imgId: 1, dir: 0, anim: 0, message: "この辺りは 財布をとられるから 注意してね。<page>そうそう、最近 怪しいインド人みたいな男が、奥の部屋に コソコソ入ったりしてるのよ。" },
+    { map: "4", x: 3, y: 17, imgId: 1, dir: 0, anim: 0, message: "あの インド人みたいな男が<br>この街に 来てから……<br>なんだか 空気が おかしいのよね。<page>彼が 配ってまわっている<br>『バナナらっしー』って 飲み物……<br>すごく おいしい らしいんだけど。<page>飲んだ人が みんな……<br>虚ろな目に なってる 気がするの。<br>……私は 怖くて 飲めないわ。" },
     { map: "4", x: 10, y: 14, imgId: 2, dir: 0, anim: 0, message: "おい！<br>この台は俺のだからな！取るなよ！" },
     
     { map: "4", x: 17, y: 16, imgId: 3, dir: 0, anim: 0, message: "はぁ……最近 全然パチンコが 当たらなくなったよ……<page>そういえば、最近 北東の洞窟 に<br>怪しいインド人が 入っていくのを<br>見たんだ……。<page>あいつ、絶対 なにか ヤバいものを<br>隠し持ってるぜ。" },
 
-    { map: "4", x: 11, y: 25, imgId: 1, dir: 0, anim: 0, message: "ここは 夜の街、繁華街よ。<page>この街の 連中は、<br>  よそ者に 敏感なの。<page>でも、話しかければ<br>色々 教えてくれるはずよ。<br>どんどん 喋りかけてみてね。" },
+    { map: "4", x: 11, y: 25, imgId: 1, dir: 0, anim: 0, message: "ここは 夜の街、繁華街よ。<page>この街の 連中は、<br>よそ者に 敏感なの。<page>でも、話しかければ<br>色々 教えてくれるはずよ。<br>どんどん 喋りかけてみてね。" },
 
     { map: "4", x: 24, y: 10, imgId: 2, dir: 0, anim: 0, message: "もちだ：おい 黒ちゃん……この奥の部屋、なんか すげぇあやしいぜ。<page>プンプン匂うぞ……強烈な スパイスと 血の匂いが 混ざってやがる……。" },
     
@@ -324,14 +324,14 @@ var npcs = [
     
     { map: "6", x: 6, y: 16, imgId: 4, dir: 0, anim: 0, isStatic: true, message: "魔獣がでてから この街から<br>でれなくなってしまい 困っています……。<page>そういえば、この街には 代々<br>重要なキーコードを 受け継いでいる<br>娘さんが いるんですが……<page>最近、怪しい インド人みたいな男が<br>現れてから 姿を 見ていないんです。" },
 
-
     { map: "6", x: 10, y: 14, imgId: 6, dir: 0, anim: 0, message: "ターバンを巻いた男が、地下へ 女の人を 引きずっていくのを 見たぞ……！" },
     { map: "6", x: 27, y: 3, imgId: 3, dir: 0, anim: 0, message: "この奥は 秘密の通路だ。<br>誰にも 言うなよ？" },
-    { map: "6", x: 6, y: 11, imgId: 4, dir: 0, anim: 0, message: "この街は 迷路みたいで 迷ってしまいましたわ……。" },
     
-    // 💥【NEW】伝説の装備のヒント変更（親父のトンネルと南西の街）
-    { map: "6", x: 2, y: 26, imgId: 5, dir: 0, anim: 0, message: "四街道には 伝説の装備が<br>隠されておる。<page>北西のどうくつは、蕎麦屋の北に<br>お前の親父さんが<br>トンネルを 掘ってたんじゃ。<page>南西の街は ここから<br>歩いていけるんじゃが……<br>毒に覆われている上に<br>周辺の魔物は かなり強い。<page>しっかりと 準備を していくんじゃぞ。" },
+    // 💥【NEW】迷っている女とその横のもちだ（座標を隣接させた完全版）
+    { map: "6", x: 6, y: 11, imgId: 4, dir: 0, anim: 0, isStatic: true, message: "この街は 迷路みたいで<br>完全に 迷ってしまったわ。<page>そこの インド人みたいな人に<br>道を 聞こうとしたんだけど……<page>『もーちーもちもち』しか<br>言わないから、本当に 困ってるのよ。" },
+    { map: "6", x: 13, y: 11, imgId: 2, dir: 0, anim: 0, isStatic: true, message: "もちだ「おっ、黒ちゃん……。<br>よくぞ この 最後の街まで<br>たどり着いたな……。」<page>「実はな、ここに 俺の<br>隠し武器庫が あるんだ……<br>うっ！ 頭が……！」<page>「ぜったいに……<br>はいるん じゃない ぞ……！！」<page>「……ここで 装備を 揃えるのも いいし、<br>伝説の武器を 探し出してから<br>魔王に 挑むのも アリだ。」<page>「すべては お前の 自由だ。<br>後悔のない 選択を……<br>もっちー……もちもち……！」" },
 
+    { map: "6", x: 2, y: 26, imgId: 5, dir: 0, anim: 0, message: "四街道には 伝説の装備が<br>隠されておる。<page>北西のどうくつは 歩くと<br>かなり 遠いんじゃが……<page>蕎麦屋の北に 親父さんが<br>掘った トンネルを使えば<br>すぐ たどり着けるぞい。<page>南西の街は ここから<br>歩いていけるんじゃが……<page>毒に覆われている上に<br>周辺の魔物は かなり強い。<page>しっかりと 準備を<br>していくんじゃぞ。" },
     { map: "6", x: 25, y: 20, imgId: 3, dir: 0, anim: 0, message: "近くに 四街道ゴルフクラブが あるぞ。<page>かつて、Par4の2打目を 直接叩き込んだ<br>天才プレーヤーが いたんだ。<page>その時 使われた 伝説のボールは、<br>ものすごく 高く売れる みたいだぜ！" },
 
     { map: "3", x: 4, y: 4, noDraw: true, chestItem: { type: "items", index: 3 }, isMFA: true }, 
@@ -340,12 +340,7 @@ var npcs = [
     
     { map: "16", x: 7, y: 2, imgId: 1, dir: 0, anim: 0, isStatic: true, isBossKey3: true, message: "あの インド人みたいな男に 監禁されていたの……。<page>助けてくれて ありがとう。<br>お礼に キーコード3 を MFAに 書き込んであげる！" },
 
-       // 💥【NEW】最後の街のもちだ（武器を揃えるヒント復活 ＆ 操られ風の演出！）
-    { map: "6", x: 13, y: 11, imgId: 2, dir: 0, anim: 0, isStatic: true, message: "もちだ「おっ、黒ちゃん……。<br>よくぞ この 最後の街まで<br>たどり着いたな……。」<page>「実はな、ここに 俺の<br>隠し武器庫が あるんだ……<br>うっ！ 頭が……！」<page>「ぜったいに……<br>はいるん じゃない ぞ……！！」<page>「……ここで 装備を 揃えるのも いいし、<br>伝説の武器を 探し出してから<br>魔王に 挑むのも アリだ。」<page>「すべては お前の 自由だ。<br>後悔のない 選択を……<br>もっちー……もちもち……！」" },
-
-    
     { map: "12", x: 5, y: 3, noDraw: true, chestItem: { type: "weapons", index: 6 } }, 
-    
     { map: "10", x: 4, y: 3, noDraw: true, chestItem: { type: "items", index: 0 } }, 
     { map: "10", x: 5, y: 3, noDraw: true, chestItem: { type: "weapons", index: 5 } }, 
     { map: "11", x: 5, y: 5, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaBoss: true, message: "もちだ「やあ黒ちゃん……。<br>いっしょに あそぼうよ……フフフ……。」" },
