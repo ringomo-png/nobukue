@@ -288,35 +288,10 @@ function showMap() {
 function showSettings() {
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
     const details = document.getElementById('menu-details');
+
+    // 💥 サウンド設定のUIを跡形もなく消去！ いきなりシステム（デバッグ）設定から始まるわ！
+    let html = "<div style='color:#aaffaa; margin-bottom:10px;'>【システム設定】</div>";
     
-    let bgmBtnColor = (typeof Sound !== 'undefined' && Sound.bgmMuted) ? "#800" : "#282";
-    let bgmBtnText = (typeof Sound !== 'undefined' && Sound.bgmMuted) ? "OFF" : "ON";
-    let seBtnColor = (typeof Sound !== 'undefined' && Sound.seMuted) ? "#800" : "#282";
-    let seBtnText = (typeof Sound !== 'undefined' && Sound.seMuted) ? "OFF" : "ON";
-    let curBgmVol = (typeof Sound !== 'undefined') ? Sound.bgmVolume : 0.4;
-    let curSeVol = (typeof Sound !== 'undefined') ? Sound.seVolume : 1.0;
-
-    let html = "<div style='color:#aaffaa; margin-bottom:15px; font-size:18px; text-align:center;'>【サウンド設定】</div>";
-    
-    html += "<div style='background:#111; padding:10px; border-radius:4px; margin-bottom:15px;'>";
-    html += "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>";
-    html += "<span>BGM音量</span>";
-    html += "<span id='bgm-toggle-btn' style='cursor:pointer; background:" + bgmBtnColor + "; padding:4px 12px; border-radius:4px; border:1px solid #fff;' onclick='toggleBgmMuteMenu()'>" + bgmBtnText + "</span>";
-    html += "</div>";
-    html += "<input type='range' id='bgm-slider' min='0' max='1' step='0.05' value='" + curBgmVol + "' style='width:100%;' onchange='changeBgmVolMenu(this.value)' oninput='changeBgmVolMenu(this.value)'>";
-    html += "</div>";
-
-    html += "<div style='background:#111; padding:10px; border-radius:4px; margin-bottom:20px;'>";
-    html += "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>";
-    html += "<span>SE(効果音)</span>";
-    html += "<span id='se-toggle-btn' style='cursor:pointer; background:" + seBtnColor + "; padding:4px 12px; border-radius:4px; border:1px solid #fff;' onclick='toggleSeMuteMenu()'>" + seBtnText + "</span>";
-    html += "</div>";
-    html += "<input type='range' id='se-slider' min='0' max='1' step='0.05' value='" + curSeVol + "' style='width:100%;' onchange='changeSeVolMenu(this.value)' oninput='changeSeVolMenu(this.value)'>";
-    html += "</div>";
-
-    html += "<hr style='border:none; border-top:1px dashed #555; margin:15px 0;'>";
-
-    html += "<div style='color:#aaffaa; margin-bottom:10px;'>【システム設定】</div>";
     html += "<div style='margin-bottom:20px;'>敵の出現率: <select id='encRate' onchange='changeEncRate(this.value)' style='background:#222; color:#fff; padding:5px; font-size:16px;'>";
     let rates = [0.00, 0.03, 0.10, 0.20]; let rateLabels = ["出ない (0%)", "普通 (3%)", "多い (10%)", "地獄 (20%)"];
     for(let i=0; i<rates.length; i++) { let sel = (window.encounterRate === rates[i]) ? "selected" : ""; html += "<option value='" + rates[i] + "' " + sel + ">" + rateLabels[i] + "</option>"; }
@@ -335,6 +310,7 @@ function showSettings() {
 
     details.innerHTML = html;
 }
+
 
 window.returnToTitleFromMenu = function() {
     if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
@@ -757,13 +733,8 @@ function loadGameData() {
         playerStatus = data.playerStatus; player = data.player; currentMapKey = data.currentMapKey;
         window.returnStack = data.returnStack; window.worldReturn = data.worldReturn;
         
-        if (data.soundSettings && typeof Sound !== 'undefined') {
-            Sound.bgmVolume = data.soundSettings.bgmVolume;
-            Sound.seVolume = data.soundSettings.seVolume;
-            Sound.bgmMuted = data.soundSettings.bgmMuted;
-            Sound.seMuted = data.soundSettings.seMuted;
-            if (Sound.bgmPlayer) Sound.bgmPlayer.volume = Sound.bgmMuted ? 0 : Sound.bgmVolume;
-        }
+        // 💥 ここにあった「過去の音量設定を復元する処理」を跡形もなく削除！
+        // これで、ゲーム起動時もコンティニュー時も sound.js の「0.0」が絶対的に守られるわ！
 
         if (data.npcStates && typeof npcs !== 'undefined' && npcs !== null) {
             data.npcStates.forEach((state, idx) => { if (npcs[idx]) { npcs[idx].opened = state.opened; npcs[idx].hidden = state.hidden; } });
