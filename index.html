@@ -8,25 +8,30 @@
     <link rel="stylesheet" href="css/style.css?v=reset1">
     
     <style>
-        /* ==========================================
-           🧠 UIコンポーネント (style.cssと協調)
-           ========================================== */
+        .hidden { display: none !important; }
 
-        /* 💥 渋いレトロイエローの重厚ドットロゴ */
-        .title-logo {
-            font-size: 36px; 
-            font-weight: bold; 
-            color: #ffe080; 
-            text-shadow: 
-                -2px -2px 0 #000,  2px -2px 0 #000,
-                -2px  2px 0 #000,  2px  2px 0 #000,
-                 4px  4px 0 #444; 
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            text-align: center;
+        /* レトロウィンドウの共通スタイル */
+        .retro-window {
+            background: #000;
+            border: 4px solid #fff;
+            box-shadow: 4px 4px 0 #000;
+            color: #fff;
+            font-family: 'DotGothic16', sans-serif;
+            box-sizing: border-box;
         }
 
-        /* 💥【真・純粋フェードイン】暗闇のタメ ＋ その場に浮かび上がる */
+        /* 💥 タイトルロゴ */
+        .title-logo {
+            font-size: 38px; 
+            font-weight: bold; 
+            color: #ffe080; /* 薄い黄色 */
+            text-shadow: 2px 2px 0 #000, 4px 4px 0 #444; 
+            margin-bottom: 5px;
+            text-align: center;
+            font-family: 'DotGothic16', sans-serif;
+        }
+
+        /* 💥 ゆっくり浮かび上がるアニメーション */
         @keyframes pureFadeIn {
             0% { opacity: 0; }
             100% { opacity: 1; }
@@ -34,135 +39,121 @@
         
         .fade-in-all {
             opacity: 0; 
-            animation: pureFadeIn 4.5s ease-in-out 1s forwards; 
+            animation: pureFadeIn 3.5s ease-in-out 0.5s forwards; 
         }
 
-        /* メニュー全体を完璧にど真ん中に配置 */
-        .title-menu-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center; 
-            gap: 15px; 
-            padding: 10px;
-            margin-top: 30px;
-            width: 100%;
-        }
-
-        /* 完璧なセンタリングを実現するボタン設計 */
-        .title-btn {
-            cursor: pointer;
-            font-size: 22px;
-            position: relative;
+        /* 💥 ボタンを枠の中でセンターに！ */
+        .center-btn {
+            cursor: pointer; 
+            font-size: 24px; 
+            text-align: center;
+            margin: 5px 0;
             transition: color 0.2s;
-            color: #fff;
-            text-shadow: 2px 2px 0 #000;
-            display: inline-block; 
+            position: relative;
+            display: block; 
         }
-        .title-btn:hover, .title-btn:active {
+        .center-btn:hover, .center-btn:active {
             color: #ffd700;
         }
-        
-        /* ホバー時に「>」のカーソルが文字の"外側"に出現する */
-        .title-btn::before {
+
+        /* 💥 ホバー時に文字の左に「>」を出す */
+        .center-btn::before {
             content: '>';
             position: absolute;
-            left: -25px; 
+            left: -35px; /* 枠がなくなったのでカーソル位置を調整 */
             opacity: 0;
             color: #fff;
             transition: opacity 0.2s;
         }
-        .title-btn:hover::before, .title-btn:active::before {
+        .center-btn:hover::before, .center-btn:active::before {
             opacity: 1;
         }
+        
+        @media screen and (max-width: 400px) {
+            .center-btn::before { left: -25px; }
+        }
+
     </style>
 </head>
 
 <body>
     <div id="game-container">
 
-        <div id="ui-layer" style="position:absolute; inset:0; z-index:200;">
-
-            <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+        <div id="title-screen" style="position:absolute; inset:0; z-index:200; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+            
+            <div class="fade-in-all" style="display:flex; flex-direction:column; align-items:center; width: 100%;">
                 
-                <div class="fade-in-all" style="display:flex; flex-direction:column; align-items:center;">
-                    
-                    <div class="title-logo">
-                        ノブユキクエスト
-                    </div>
-                    
-                    <div id="title-text" style="font-size:18px; margin-bottom:10px; text-align:center; letter-spacing:4px; color:#aaa; text-shadow: 2px 2px 0 #000;">
-                        〜 四街道の幻影 〜
-                    </div>
-
-                    <div id="title-buttons" class="title-menu-container">
-                        <div class="title-btn" onclick="launchGame(false)">NEW GAME</div>
-                        <div class="title-btn" onclick="launchGame(true)">CONTINUE</div>
-                        <div class="title-btn" onclick="showRanking()">RECORDS</div>
-                    </div>
+                <div class="title-logo">ノブユキクエスト</div>
+                
+                <div id="title-text" style="font-size:18px; margin-bottom:50px; text-align:center; letter-spacing:2px; color:#aaa; text-shadow: 2px 2px 0 #000;">
+                    〜 四街道の幻影 〜
                 </div>
 
-                <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
-                    <div style="color:#ffd700; font-size:18px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 RECORDS 】</div>
-                    <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:55vh; overflow-y:auto; color:#fff;">
-                    </div>
-                    <div class="title-btn" style="font-size:20px; padding:10px 20px; margin-top:10px; text-align:center;" onclick="hideRanking()">CLOSE</div>
+                <div id="title-buttons" class="hidden" style="display:flex; flex-direction:column; align-items:center; gap:20px; padding:10px;">
+                    <div class="center-btn" onclick="launchGame(false)">NEW GAME</div>
+                    <div class="center-btn" onclick="launchGame(true)">CONTINUE</div>
+                    <div class="center-btn" onclick="showRanking()">RECORDS</div>
                 </div>
+            </div>
+
+            <div id="ranking-screen" class="hidden retro-window" style="position:absolute; top:10%; left:50%; transform:translateX(-50%); width:85%; max-width:400px; padding:20px; z-index:210; display:flex; flex-direction:column; align-items:center;">
+                <div style="color:#ffd700; font-size:18px; margin-bottom:15px; font-weight:bold; text-shadow: 2px 2px 0 #000;">【 RECORDS 】</div>
+                <div id="ranking-list" style="width:100%; text-align:left; font-size:16px; line-height:1.8; margin-bottom:20px; min-height:200px; max-height:55vh; overflow-y:auto; color:#fff;">
+                </div>
+                <div style="cursor:pointer; font-size:20px; padding:10px 20px; border:1px solid #fff; background:#333; color:#fff; transition:color 0.2s;" onmouseover="this.style.color='#ffd700'" onmouseout="this.style.color='#fff'" onclick="hideRanking()">CLOSE</div>
             </div>
         </div>
 
-        <div id="game-playing-area" class="hidden" style="display:flex; flex-direction:column; width:100%; height:100%;">
+        <div id="view-area">
+            <canvas id="map-canvas" width="480" height="352"></canvas>
+            <div id="battle-enemy-area" class="hidden"><img id="enemy-img" src="" alt="enemy"></div>
+            <div id="battle-sub-window" class="hidden retro-window"></div>
             
-            <div id="view-area">
-                <canvas id="map-canvas" width="480" height="352"></canvas>
-                <div id="battle-enemy-area" class="hidden"><img id="enemy-img" src="" alt="enemy"></div>
-                <div id="battle-sub-window" class="hidden retro-window"></div>
-                
-                <div id="mini-status" class="retro-window" style="position:absolute; top:10px; left:10px; z-index:45; pointer-events:none; font-size:14px; line-height:1.5;">
-                    <span id="mini-lv">LV: 1</span><br>
-                    <span id="mini-hp">HP: 15/15</span><br>
-                    <span id="mini-mp">MP:  5/ 5</span><br>
-                    <span id="mini-g">G : 100</span>
-                </div>
-                <div id="menu-btn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:#444; border:2px solid #fff; color:#fff; border-radius:4px; font-size:16px; cursor:pointer; z-index:65;" onmousedown="openMenu()" ontouchstart="openMenu()">MENU</div>
+            <div id="mini-status" class="retro-window" style="position:absolute; top:10px; left:10px; z-index:45; pointer-events:none; font-size:14px; line-height:1.5;">
+                <span id="mini-lv">LV: 1</span><br>
+                <span id="mini-hp">HP: 15/15</span><br>
+                <span id="mini-mp">MP:  5/ 5</span><br>
+                <span id="mini-g">G : 100</span>
             </div>
+            <div id="menu-btn" style="position:absolute; top:10px; right:10px; padding:6px 12px; background:#444; border:2px solid #fff; color:#fff; border-radius:4px; font-size:16px; cursor:pointer; z-index:65;" onmousedown="openMenu()" ontouchstart="openMenu()">MENU</div>
+        </div>
 
-            <div id="menu-screen" class="hidden">
-                <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
-                    <div id="menu-stats">のぶゆき LV: 1 ...</div>
-                                  <div id="menu-tabs">
-                        <div class="menu-tab" onclick="showStatus()">つよさ</div>
-                        <div class="menu-tab" onclick="showEquip()">そうび</div>
-                        <div class="menu-tab" onclick="showItems()">どうぐ</div>
-                        <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
-                        <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
-                        <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
-                        <div class="menu-tab hidden" style="background:#444;" onclick="showSettings()">せってい</div>
-                        <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
-                        <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
-                    </div>
+        <div id="menu-screen" class="hidden">
+            <div id="menu-header" class="retro-window" style="width:96%; margin-bottom:10px;">
+                <div id="menu-stats">のぶゆき LV: 1 ...</div>
+                              <div id="menu-tabs">
+                    <div class="menu-tab" onclick="showStatus()">つよさ</div>
+                    <div class="menu-tab" onclick="showEquip()">そうび</div>
+                    <div class="menu-tab" onclick="showItems()">どうぐ</div>
+                    <div class="menu-tab" style="background:#228;" onclick="showMFA()">MFA</div>
+                    <div class="menu-tab" style="background:#828;" onclick="showHack()">はっく</div>
+                    <div class="menu-tab" style="background:#282;" onclick="showMap()">ちず</div>
+                    <div class="menu-tab hidden" style="background:#444;" onclick="showSettings()">せってい</div>
+                    <div class="menu-tab" style="background:#882;" onclick="saveGameData()">セーブ</div>
+                    <div class="menu-tab close-btn" onclick="closeMenu()">とじる</div>
                 </div>
-                <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
             </div>
+            <div id="menu-details" class="retro-window" style="width:96%; flex:1; overflow-y:auto; margin-bottom:10px;">ここに詳細が表示されます。</div>
+        </div>
 
-            <div id="msg-area" style="flex-shrink:0; width:100%; padding:5px; background:#000;">
-                <div id="message-box" class="retro-window" style="width:100%; height:100px; padding:15px; z-index:45;">
-                    <div id="msg-text" style="font-size:16px; line-height:1.6; word-wrap:break-word; overflow-wrap:break-word;"></div>
+        <div id="msg-area" style="flex-shrink:0; width:100%; padding:5px; background:#000;">
+            <div id="message-box" class="retro-window" style="width:100%; height:100px; padding:15px; z-index:45;">
+                <div id="msg-text" style="font-size:16px; line-height:1.6; word-wrap:break-word; overflow-wrap:break-word;"></div>
+            </div>
+        </div>
+        
+        <div id="controller-area" style="flex:1; position:relative; width:100%;">
+            <div id="d-pad-container">
+                <div id="d-pad">
+                    <div class="btn d-btn" id="btn-up">▲</div><div class="btn d-btn" id="btn-down">▼</div>
+                    <div class="btn d-btn" id="btn-left">◀</div><div class="btn d-btn" id="btn-right">▶</div>
                 </div>
             </div>
-            
-            <div id="controller-area" style="flex:1; position:relative; width:100%;">
-                <div id="d-pad-container">
-                    <div id="d-pad">
-                        <div class="btn d-btn" id="btn-up">▲</div><div class="btn d-btn" id="btn-down">▼</div>
-                        <div class="btn d-btn" id="btn-left">◀</div><div class="btn d-btn" id="btn-right">▶</div>
-                    </div>
-                </div>
-                <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
-                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
-                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">はっく</div>
-                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
-                    <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
-                </div>
+            <div id="battle-command" class="hidden retro-window" style="position:absolute; top:0px; right:20px; width:170px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; padding:10px; z-index:50;">
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdAttack()">たたかう</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdMagic()">はっく</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdItem()">どうぐ</div>
+                <div class="b-cmd" style="width:calc(50% - 3px); cursor:pointer; text-align:center; font-size:16px; padding:8px 0; border:1px solid #fff; border-radius:2px; background:#111;" onclick="cmdRun()">にげる</div>
             </div>
         </div>
     </div>
@@ -187,11 +178,11 @@
     <script src="maps/18.mochike.js"></script>
     <script src="maps/17.tanaka.js"></script>
 
-    <script src="js/sound.js?v=fixed1"></script>
-    <script src="js/game_data.js?v=fixed1"></script>
-    <script src="js/engine.js?v=fixed1"></script>
-    <script src="js/battle.js?v=fixed1"></script>
-    <script src="js/menu.js?v=fixed1"></script>
+    <script src="js/sound.js?v=noframes"></script>
+    <script src="js/game_data.js?v=noframes"></script>
+    <script src="js/engine.js?v=noframes"></script>
+    <script src="js/battle.js?v=noframes"></script>
+    <script src="js/menu.js?v=noframes"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -211,7 +202,7 @@
         const db = getFirestore(app);
 
         // ==========================================
-        // 🎭 タイトルBGM＆演出ロジック
+        // 🎭 タイトルBGM＆演出ロジック（Sound.js連携版）
         // ==========================================
         
         let isTitleBgmPlaying = false;
@@ -232,6 +223,7 @@
 
         window.launchGame = function(isLoad) {
             
+            // 💥 NEW GAME誤爆防止のセーフティ
             if (!isLoad) {
                 const isConfirmed = confirm("はじめから 冒険を はじめますか？\n（※これまでの セーブデータ は 消去されます）");
                 if (!isConfirmed) return; 
@@ -250,16 +242,10 @@
                 titleScreen.style.opacity = '0';
                 setTimeout(() => {
                     titleScreen.classList.add('hidden');
-                    const uiLayer = document.getElementById('ui-layer');
-                    if(uiLayer) uiLayer.classList.add('hidden'); 
                 }, 800);
             }
-
-            const gamePlayingArea = document.getElementById('game-playing-area');
-            if (gamePlayingArea) {
-                gamePlayingArea.classList.remove('hidden');
-            }
             
+            // 本家 startGame を呼び出し！
             if (window.startGame) {
                 window.startGame(isLoad);
             }
@@ -439,7 +425,11 @@
         window.hideRanking = function() {
             if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
             document.getElementById('ranking-screen').classList.add('hidden');
-            document.getElementById('title-buttons').classList.remove('hidden');
+            
+            // 💥 CLOSEした後に再び枠なしメニューを表示する！
+            const titleBtns = document.getElementById('title-buttons');
+            titleBtns.classList.remove('hidden');
+            titleBtns.style.display = 'flex'; // hidden解除時の復元を補強
         };
     </script>
 </body>
