@@ -1,5 +1,5 @@
 // ==========================================
-// 🎵 sound.js (バックグラウンド再生防止・安定版)
+// 🎵 sound.js (バックグラウンド再生防止・個別音量チューニング版)
 // ==========================================
 
 window.Sound = {
@@ -9,12 +9,12 @@ window.Sound = {
     unlocked: false,
 
     // 音量とミュート設定のプロパティ
-    bgmVolume: 0.4,
+    bgmVolume: 0.05, // 全体BGM音量
     seVolume: 1.0,
     bgmMuted: false,
     seMuted: false,
     
-    // 💥【NEW】裏画面にいった時にBGMが鳴っていたかを記憶するフラグ
+    // 裏画面にいった時にBGMが鳴っていたかを記憶するフラグ
     _wasPlayingOnHide: false,
 
     init: function() {
@@ -38,7 +38,13 @@ window.Sound = {
         this.bgmPlayer.currentTime = 0;
 
         let src = "";
-        if (type === 'field') src = "bgm/field.mp3";
+        let trackVol = 1.0; // 💥 曲ごとの個別音量（基本は1.0）
+
+        // 💥 マップ0（field）の時だけ、音量をさらに半分(0.5)に抑える！
+        if (type === 'field') { 
+            src = "bgm/field.mp3"; 
+            trackVol = 0.01; 
+        }
         else if (type === 'battle') src = "bgm/battle.mp3";
         else if (type === 'boss') src = "bgm/boss.mp3";
         else if (type === 'maou') src = "bgm/maou.mp3";
@@ -54,8 +60,8 @@ window.Sound = {
             this.bgmPlayer.src = src;
             this.bgmPlayer.loop = true;
             
-            // ミュートなら0、それ以外は設定音量にする
-            this.bgmPlayer.volume = this.bgmMuted ? 0 : this.bgmVolume; 
+            // 💥 全体音量(0.2) × 曲ごとの個別音量(fieldなら0.5) を掛け合わせる！
+            this.bgmPlayer.volume = this.bgmMuted ? 0 : (this.bgmVolume * trackVol); 
 
             let playPromise = this.bgmPlayer.play();
             if (playPromise !== undefined) {
@@ -75,17 +81,19 @@ window.Sound = {
     stopBGM: function() {
         this.bgmPlayer.pause();
         this.currentBgm = null;
-        this._wasPlayingOnHide = false; // 止めた時はフラグもリセット
+        this._wasPlayingOnHide = false; 
     },
 
     // BGM/SEの設定変更メソッド
     changeBgmVolume: function(val) {
         this.bgmVolume = parseFloat(val);
-        if (!this.bgmMuted && this.bgmPlayer) this.bgmPlayer.volume = this.bgmVolume;
+        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; // 💥 設定変更時も個別音量を考慮
+        if (!this.bgmMuted && this.bgmPlayer) this.bgmPlayer.volume = this.bgmVolume * trackVol;
     },
     toggleBgmMute: function() {
         this.bgmMuted = !this.bgmMuted;
-        if (this.bgmPlayer) this.bgmPlayer.volume = this.bgmMuted ? 0 : this.bgmVolume;
+        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; // 💥 ミュート解除時も考慮
+        if (this.bgmPlayer) this.bgmPlayer.volume = this.bgmMuted ? 0 : (this.bgmVolume * trackVol);
         return this.bgmMuted;
     },
     changeSeVolume: function(val) {
@@ -97,18 +105,18 @@ window.Sound = {
     },
 
     playSE: function(fileName, vol=1.0) {
-        if (this.seMuted) return; // ミュート時は再生しない
+        if (this.seMuted) return; 
         let se = new Audio("se/" + fileName);
-        se.volume = vol * this.seVolume; // マスター音量を掛け合わせる
+        se.volume = vol * this.seVolume; 
         se.play().catch(e => console.log("SE再生エラー(" + fileName + "):", e));
     },
 
-    // 効果音メソッド群（全部1.0でフラットに鳴らす安定版）
-    hit: function() { this.playSE('hit.mp3', 1.0); },
+    // あんたのチューニングをそのまま活かした効果音メソッド群！
+    hit: function() { this.playSE('hit.mp3', 0.6); },
     ougon: function() { this.playSE('ougon.mp3', 1.0); },
     majin: function() { this.playSE('majin.mp3', 1.0); },
-    damage: function() { this.playSE('damage.mp3', 1.0); },
-    defeat: function() { this.playSE('defeat.mp3', 1.0); },
+    damage: function() { this.playSE('damage.mp3', 0.6); },
+    defeat: function() { this.playSE('defeat.mp3', 0.6); },
     decide: function() { this.playSE('cursor.mp3', 0.8); },
     cursor: function() { this.playSE('cursor.mp3', 0.8); },
     cursor2: function() { this.playSE('cursor2.mp3', 0.8); },
@@ -120,7 +128,7 @@ window.Sound = {
     
     enc: function() {
         this.stopBGM();
-        this.playSE('enc.mp3', 1.0);
+        this.playSE('enc.mp3', 0.1); // 💥 ビクッとするエンカウント音を極小に！
     },
     
     levelUp: function() {
@@ -152,15 +160,12 @@ window.Sound = {
     }
 };
 
-// ユーザーのアクションでオーディオを初期化
 window.addEventListener('mousedown', () => Sound.init());
 window.addEventListener('touchstart', () => Sound.init(), {passive: true});
 window.addEventListener('keydown', () => Sound.init());
 
-// 💥【NEW】タブの切り替えや最小化を検知してBGMを一時停止・再開する処理
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // 画面が隠れた時：もしBGMが鳴っていれば一時停止し、鳴っていたことを記憶する
         if (Sound.bgmPlayer && !Sound.bgmPlayer.paused && Sound.currentBgm) {
             Sound._wasPlayingOnHide = true;
             Sound.bgmPlayer.pause();
@@ -168,7 +173,6 @@ document.addEventListener('visibilitychange', () => {
             Sound._wasPlayingOnHide = false;
         }
     } else {
-        // 画面が戻ってきた時：隠れる前に鳴っていたなら、再生を再開する
         if (Sound._wasPlayingOnHide && Sound.bgmPlayer && Sound.currentBgm) {
             let playPromise = Sound.bgmPlayer.play();
             if (playPromise !== undefined) {
