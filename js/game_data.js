@@ -24,7 +24,7 @@ var itemMaster = {
     shields: [
         { name: "かわのねくたい", type: "shield", def: 4, price: 90 },
         { name: "てつのねくたい", type: "shield", def: 10, price: 800 },
-        { name: "天逆鉾「四街」)", type: "shield", def: 20, price: 14800 }
+        { name: "天逆鉾「四街」", type: "shield", def: 20, price: 14800 }
     ],
     accessories: [
         { name: "満留賀の印", type: "accessory", def: 2, price: 20 }, 
