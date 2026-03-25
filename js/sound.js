@@ -1,5 +1,5 @@
 // ==========================================
-// 🎵 sound.js (バックグラウンド再生防止・個別音量チューニング版)
+// 🎵 sound.js (バックグラウンド再生防止・完全無音対応版)
 // ==========================================
 
 window.Sound = {
@@ -8,13 +8,12 @@ window.Sound = {
     ctx: null, 
     unlocked: false,
 
-    // 音量とミュート設定のプロパティ
-    bgmVolume: 0.05, // 全体BGM音量
-    seVolume: 1.0,
+    // 💥 0.0 だとブラウザが誤作動することがあるので、明示的に極小値かミュートフラグで管理する
+    bgmVolume: 0.01, 
+    seVolume: 0.8,
     bgmMuted: false,
     seMuted: false,
     
-    // 裏画面にいった時にBGMが鳴っていたかを記憶するフラグ
     _wasPlayingOnHide: false,
 
     init: function() {
@@ -38,9 +37,8 @@ window.Sound = {
         this.bgmPlayer.currentTime = 0;
 
         let src = "";
-        let trackVol = 1.0; // 💥 曲ごとの個別音量（基本は1.0）
+        let trackVol = 0.05; 
 
-        // 💥 マップ0（field）の時だけ、音量をさらに半分(0.5)に抑える！
         if (type === 'field') { 
             src = "bgm/field.mp3"; 
             trackVol = 0.01; 
@@ -60,8 +58,14 @@ window.Sound = {
             this.bgmPlayer.src = src;
             this.bgmPlayer.loop = true;
             
-            // 💥 全体音量(0.2) × 曲ごとの個別音量(fieldなら0.5) を掛け合わせる！
-            this.bgmPlayer.volume = this.bgmMuted ? 0 : (this.bgmVolume * trackVol); 
+            // 💥 音量が 0 以下の場合は、再生自体を止める強力なガード！
+            let finalVol = this.bgmMuted ? 0 : (this.bgmVolume * trackVol);
+            if (finalVol <= 0) {
+                this.bgmPlayer.volume = 0;
+                return; // 💥 再生処理（playPromise）に進まない！
+            }
+            
+            this.bgmPlayer.volume = finalVol; 
 
             let playPromise = this.bgmPlayer.play();
             if (playPromise !== undefined) {
@@ -84,15 +88,14 @@ window.Sound = {
         this._wasPlayingOnHide = false; 
     },
 
-    // BGM/SEの設定変更メソッド
     changeBgmVolume: function(val) {
         this.bgmVolume = parseFloat(val);
-        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; // 💥 設定変更時も個別音量を考慮
+        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; 
         if (!this.bgmMuted && this.bgmPlayer) this.bgmPlayer.volume = this.bgmVolume * trackVol;
     },
     toggleBgmMute: function() {
         this.bgmMuted = !this.bgmMuted;
-        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; // 💥 ミュート解除時も考慮
+        let trackVol = (this.currentBgm === 'field') ? 0.5 : 1.0; 
         if (this.bgmPlayer) this.bgmPlayer.volume = this.bgmMuted ? 0 : (this.bgmVolume * trackVol);
         return this.bgmMuted;
     },
@@ -106,12 +109,16 @@ window.Sound = {
 
     playSE: function(fileName, vol=1.0) {
         if (this.seMuted) return; 
+        
+        // 💥 SE音量が 0 以下の場合は、Audioオブジェクトすら作らずに即リターン！
+        let finalVol = vol * this.seVolume;
+        if (finalVol <= 0) return; 
+        
         let se = new Audio("se/" + fileName);
-        se.volume = vol * this.seVolume; 
+        se.volume = finalVol; 
         se.play().catch(e => console.log("SE再生エラー(" + fileName + "):", e));
     },
 
-    // あんたのチューニングをそのまま活かした効果音メソッド群！
     hit: function() { this.playSE('hit.mp3', 0.6); },
     ougon: function() { this.playSE('ougon.mp3', 1.0); },
     majin: function() { this.playSE('majin.mp3', 1.0); },
@@ -128,7 +135,7 @@ window.Sound = {
     
     enc: function() {
         this.stopBGM();
-        this.playSE('enc.mp3', 0.1); // 💥 ビクッとするエンカウント音を極小に！
+        this.playSE('enc.mp3', 0.1); 
     },
     
     levelUp: function() {
@@ -138,7 +145,7 @@ window.Sound = {
     },
 
     msgTick: function() {
-        if (this.seMuted) return; 
+        if (this.seMuted || this.seVolume <= 0) return; // 💥 ここにもガードを追加！
         if (!this.ctx || !this.unlocked || this.ctx.state === 'suspended') return;
         try {
             let osc = this.ctx.createOscillator();
@@ -173,7 +180,7 @@ document.addEventListener('visibilitychange', () => {
             Sound._wasPlayingOnHide = false;
         }
     } else {
-        if (Sound._wasPlayingOnHide && Sound.bgmPlayer && Sound.currentBgm) {
+        if (Sound._wasPlayingOnHide && Sound.bgmPlayer && Sound.currentBgm && Sound.bgmVolume > 0) { // 💥 音量が0なら復帰時も鳴らさない！
             let playPromise = Sound.bgmPlayer.play();
             if (playPromise !== undefined) {
                 playPromise.catch(e => { console.log("復帰時のBGM自動再生がブロックされました:", e); });
