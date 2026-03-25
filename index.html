@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOBU KUE - Master Engine -</title>
+    <title>NOBU-MON - Master Engine -</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=reset1">
     
@@ -26,7 +26,7 @@
             text-align: center;
         }
 
-                        /* 💥【真・純粋フェードイン】下からの移動を完全に消去！ */
+        /* 💥【真・純粋フェードイン】暗闇のタメ ＋ その場に浮かび上がる */
         @keyframes pureFadeIn {
             0% { opacity: 0; }
             100% { opacity: 1; }
@@ -34,11 +34,8 @@
         
         .fade-in-all {
             opacity: 0; 
-            /* 💥 1秒間の完全な暗寂のあと、4秒かけてその場にジワァァァッと浮かび上がる！ */
-            animation: pureFadeIn 4s ease-in-out 1s forwards; 
+            animation: pureFadeIn 4.5s ease-in-out 1s forwards; 
         }
-
-
 
         /* メニュー全体を完璧にど真ん中に配置 */
         .title-menu-container {
@@ -113,7 +110,7 @@
             </div>
         </div>
 
-        <div id="game-playing-area" class="hidden" style="position:absolute; inset:0; z-index:100; display:flex; flex-direction:column;">
+        <div id="game-playing-area" class="hidden" style="display:flex; flex-direction:column; width:100%; height:100%;">
             
             <div id="view-area">
                 <canvas id="map-canvas" width="480" height="352"></canvas>
@@ -190,11 +187,11 @@
     <script src="maps/18.mochike.js"></script>
     <script src="maps/17.tanaka.js"></script>
 
-    <script src="js/sound.js?v=title4"></script>
-    <script src="js/game_data.js?v=title4"></script>
-    <script src="js/engine.js?v=title4"></script>
-    <script src="js/battle.js?v=title4"></script>
-    <script src="js/menu.js?v=title4"></script>
+    <script src="js/sound.js?v=fixed1"></script>
+    <script src="js/game_data.js?v=fixed1"></script>
+    <script src="js/engine.js?v=fixed1"></script>
+    <script src="js/battle.js?v=fixed1"></script>
+    <script src="js/menu.js?v=fixed1"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -213,17 +210,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-                // ==========================================
-        // 🎭 タイトルBGM＆演出ロジック（Sound.js連携版）
+        // ==========================================
+        // 🎭 タイトルBGM＆演出ロジック
         // ==========================================
         
-        // 💥【NEW】直書きのAudioオブジェクトを削除し、Sound.jsのフラグを使用！
         let isTitleBgmPlaying = false;
 
-        // スマホ対応：画面のどこかをタップ・クリック・タッチしたらSound.js経由でBGM着火！
         const initTitleBGM = () => {
             if (!isTitleBgmPlaying) {
-                // 💥 Sound.js の機能を使って 'end' (end.mp3) を再生！
                 if (typeof Sound !== 'undefined' && Sound.playBGM) {
                     Sound.playBGM('end');
                     isTitleBgmPlaying = true;
@@ -233,28 +227,23 @@
             document.removeEventListener('touchstart', initTitleBGM);
         };
         
-        // 画面全体へのイベントリスナー（1回発動したら消える）
         document.addEventListener('click', initTitleBGM, { once: true });
         document.addEventListener('touchstart', initTitleBGM, { once: true });
 
-        // engine.jsのstartGameを呼ぶ前に、プレイ画面を表示させるラッパー
         window.launchGame = function(isLoad) {
             
-            // NEW GAME誤爆防止のセーフティ
             if (!isLoad) {
                 const isConfirmed = confirm("はじめから 冒険を はじめますか？\n（※これまでの セーブデータ は 消去されます）");
-                if (!isConfirmed) return; // キャンセルした場合はここでストップ
+                if (!isConfirmed) return; 
             }
 
             if (typeof Sound !== 'undefined' && Sound.decide) Sound.decide();
 
-            // 💥 ゲーム開始時に Sound.js の機能でBGMを確実に止める！
             if (typeof Sound !== 'undefined' && Sound.stopBGM) {
                 Sound.stopBGM();
-                isTitleBgmPlaying = false; // フラグもリセット
+                isTitleBgmPlaying = false; 
             }
 
-            // タイトル画面をフェードアウト
             const titleScreen = document.getElementById('title-screen');
             if (titleScreen) {
                 titleScreen.style.transition = 'opacity 0.8s'; 
@@ -266,13 +255,11 @@
                 }, 800);
             }
 
-            // プレイ層（ゲーム画面）を表示！
             const gamePlayingArea = document.getElementById('game-playing-area');
             if (gamePlayingArea) {
                 gamePlayingArea.classList.remove('hidden');
             }
             
-            // engine.js の本家 startGame を呼び出し、ゲームスタート！
             if (window.startGame) {
                 window.startGame(isLoad);
             }
@@ -281,10 +268,8 @@
         // ==========================================
         // 📊 Firebase / ランキング / EDロジック
         // ==========================================
-        // （ここは前回と同じなので省略せずにそのまま残しておいてね！）
 
-
-                window.FirebaseHub = {
+        window.FirebaseHub = {
             loadRanking: async function() {
                 const listDiv = document.getElementById('ranking-list');
                 if (!listDiv) return;
@@ -305,11 +290,8 @@
                         let rank = idx + 1;
                         let safeName = data.name.replace(/</g, "&lt;").replace(/>/g, "&gt;").substring(0, 8);
                         let rankColor = rank === 1 ? "#ffd700" : rank === 2 ? "#c0c0c0" : rank === 3 ? "#cd7f32" : "#aaffaa";
-                        
-                        // 💥【NEW】「Rank 1」表記に変更！
                         let rankLabel = "Rank " + rank; 
                         
-                        // 💥【NEW】monospaceを削除し、ドットフォント(DotGothic16)を強制適用！
                         html += `<div style="border-bottom: 1px dashed #555; padding: 8px 0; display:flex; justify-content:space-between; color:#fff; font-family: 'DotGothic16', sans-serif;">`;
                         html += `<span><span style="color:${rankColor}; font-weight:bold; margin-right:10px; font-size:17px;">${rankLabel}</span> ${safeName}</span>`;
                         html += `<span style="color:#aaa; font-size:13px;">(Death:${data.deathCount} / Lv:${data.level})</span>`;
@@ -330,7 +312,6 @@
                     let bossDataMap = {};
                     bossSnap.forEach(doc => { bossDataMap[doc.id] = doc.data(); });
 
-                    // 💥【NEW】BOSS STATSの見出しもドットフォントに！
                     let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold; font-family: \"DotGothic16\", sans-serif;'>【 BOSS STATS 】</div>";
                     
                     const bossOrder = [
@@ -351,7 +332,6 @@
                             
                             let displayName = localFlags[boss.flag] ? boss.trueName : "？？？";
                             
-                            // 💥【NEW】ボスの戦績リストもドットフォントに！
                             bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px; font-family: 'DotGothic16', sans-serif;"><span>${displayName}</span><span>Death:${kills} / Win Rate:${winRate}%</span></div>`;
                         }
                     });
@@ -364,7 +344,6 @@
             },
 
             saveClearData: async function(playerName, playerLevel, playerDeathCount) {
-
                 try {
                     await addDoc(collection(db, "cleared_players"), {
                         name: playerName, level: playerLevel, deathCount: playerDeathCount, timestamp: serverTimestamp()
@@ -443,11 +422,9 @@
             setTimeout(showNextMessage, 3500); 
         };
 
-                window.showRanking = function() {
+        window.showRanking = function() {
             if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
             
-            // 💥 BGMをタップで鳴らす仕様にしたため、ランキングを開いたタイミングでも鳴るように補填！
-            // ここも Sound.js の機能を使うわ！
             if (!isTitleBgmPlaying && typeof Sound !== 'undefined' && Sound.playBGM) {
                 Sound.playBGM('end');
                 isTitleBgmPlaying = true;
@@ -458,7 +435,6 @@
             document.getElementById('ranking-list').innerHTML = "<div style='text-align:center; margin-top:20px; color:#aaa; font-size:14px; font-family: \"DotGothic16\", sans-serif;'>通信中……しばらく またれよ……</div>";
             window.FirebaseHub.loadRanking();
         };
-
 
         window.hideRanking = function() {
             if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
