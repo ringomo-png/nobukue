@@ -74,7 +74,7 @@ var levelUpTable = [
     { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "魔法封じ顔", cost: 3, type: "silence", value: 0 } },
     { level: 11, exp: 2900, str: 33, agi: 31, hp: 62, mp: 50, spell: null },
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
-    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "はっく&ひーる", cost: 7, type: "drain", value: 20 } },
+    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく行動", cost: 7, type: "drain", value: 17 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
     { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 6, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
@@ -107,7 +107,7 @@ var enemiesMaster = [
     { id: "magician2", img: "monster (17).PNG", name: "あかまじっく", hp: 25, maxHp: 25, atk: 25, def: 20, agi: 22, exp: 15, gold: 25, spell: {name:"火の玉", type:"attack", value:12} },
     
     { id: "goldman", img: "monster (19).PNG", name: "ごーるど", hp: 130, maxHp: 130, atk: 48, def: 15, agi: 12, exp: 120, gold: 500, spell: null },
-    { id: "magician3", img: "monster (25).PNG", name: "あんこく", hp: 60, maxHp: 60, atk: 50, def: 40, agi: 40, exp: 180, gold: 60, spell: {name:"かえん", type:"attack", value:25} },
+    { id: "magician3", img: "monster (25).PNG", name: "あんこく", hp: 60, maxHp: 60, atk: 50, def: 40, agi: 40, exp: 180, gold: 60, spell: {name:"かえん", type:"attack", value:30} },
     { id: "rikanto2", img: "monster (13).PNG", name: "きんぐびーすと", hp: 70, maxHp: 70, atk: 72, def: 56, agi: 40, exp: 270, gold: 80, spell: {name:"じゅうおうのいかり", type:"attack", value:38} },
 
     { id: "metal_slime", img: "monster (24).PNG", name: "しろぱち", hp: 3, maxHp: 4, atk: 10, def: 250, agi: 255, exp: 800, gold: 6, spell: {name:"ひのたま", type:"attack", value:20} },
