@@ -309,7 +309,8 @@ var npcs = [
     { map: "5", x: 7, y: 22, imgId: 1, dir: 0, anim: 0, isStatic: true, shopId: "shop_item", message: "いらっしゃいませー。<br>しゃんてぃ ありますよー。" },
    { map: "5", x: 14, y: 6, imgId: 6, dir: 0, anim: 0, message: "あのインド人みたいな男、さっき<br>一人で ブツブツ言いながら<br>歩いてたぜ。<page>やばい奴なんじゃ<br>ねえか？<page>……でも、あいつの くれる<br>バナナらっしー は<br>最高なんだぜ。" },
 
-    { map: "5", x: 17, y: 6, imgId: 4, dir: 0, anim: 0, message: "この街の北東に 繫華街があるわ。<page>そこのカジノの奥には、顔を隠す『お面』がないと 入れないそうよ。" },
+  { map: "5", x: 17, y: 6, imgId: 4, dir: 0, anim: 0, message: "この街の北東に<br>繫華街があるわ。<page>そこのカジノの奥には、<br>顔を隠す『お面』がないと<br>入れないそうよ。<page>持っている だけじゃ だめで、<br>ちゃんと 装備している<br>必要が あるわ！" },
+
     { map: "5", x: 31, y: 30, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaLassi: true, message: "もちだ：うっ…頭が…！ 最近、記憶が飛ぶんだ。<page>でも、お前が 魔王のせいで 困ってるんなら、俺も協力するぜ……！<page>ほら、俺特製の『バナナらっしー』だ。<br>これ飲んで がんばれよ！<br>もっちー…もちもち……。" },
     { map: "5", x: 34, y: 5, imgId: 5, dir: 0, anim: 0, isStatic: true, isOyajiPre: true, message: "ひぃぃ！ たすけてくれぇ！" },
     { map: "5", x: 34, y: 6, imgId: 3, dir: 3, anim: 0, isStatic: true, isRobberEvent: true, message: "強盗「へっへっへ、親父！ 金目のものを 出しな！」<page>親父「ひぃぃ！ ワシは ただの雇われ店長じゃ！ 金なんてないわい！」<page>強盗「あ？ なんだテメェは！ すっこんでろ！」" },
