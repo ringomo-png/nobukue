@@ -310,7 +310,7 @@ function winBattle() {
     } else if (currentEnemy.id === "robber") {
         isBoss = true;
         playerStatus.flags.defeatedRobber = true;
-        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの ゲーマーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。");
+        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの プログラマーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。");
     } else if (currentEnemy.id === "golem") {
         isBoss = true;
         playerStatus.flags.defeatedGolem = true;
