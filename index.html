@@ -264,7 +264,7 @@
         // 📊 Firebase / ランキング / EDロジック
         // ==========================================
 
-        window.FirebaseHub = {
+                window.FirebaseHub = {
             loadRanking: async function() {
                 const listDiv = document.getElementById('ranking-list');
                 if (!listDiv) return;
@@ -307,7 +307,8 @@
                     let bossDataMap = {};
                     bossSnap.forEach(doc => { bossDataMap[doc.id] = doc.data(); });
 
-                    let bossHtml = "<div style='margin-top:20px; padding-top:10px; border-top:1px solid #555; color:#ffaaaa; font-size:14px; font-weight:bold; font-family: \"DotGothic16\", sans-serif;'>【 BOSS STATS 】</div>";
+                    // 💥 デザインを少し調整してタブ内に綺麗に収まるように変更
+                    let bossHtml = "<div style='color:#ffaaaa; font-size:14px; font-weight:bold; font-family: \"DotGothic16\", sans-serif; margin-bottom:10px; text-align:center;'>【 BOSS STATS 】</div>";
                     
                     const bossOrder = [
                         { id: "robber", trueName: "強盗", flag: "defeatedRobber" },
@@ -331,12 +332,30 @@
                         }
                     });
 
-                    listDiv.innerHTML = html + bossHtml;
+                    // 💥【NEW】ランキングとボス討伐を「タブ」で完璧に分離するハッキング！
+                    let finalUI = `
+                        <div style="display:flex; justify-content:space-around; margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:8px;">
+                            <div id="btn-rank" style="cursor:pointer; color:#ffd700; font-size:15px; transition:0.2s;" 
+                                 onclick="document.getElementById('view-rank').style.display='block'; document.getElementById('view-boss').style.display='none'; this.style.color='#ffd700'; document.getElementById('btn-boss').style.color='#aaa'; if(typeof Sound !== 'undefined' && Sound.cursor) Sound.cursor();">
+                                 ▶英雄たち
+                            </div>
+                            <div id="btn-boss" style="cursor:pointer; color:#aaa; font-size:15px; transition:0.2s;" 
+                                 onclick="document.getElementById('view-rank').style.display='none'; document.getElementById('view-boss').style.display='block'; this.style.color='#ffd700'; document.getElementById('btn-rank').style.color='#aaa'; if(typeof Sound !== 'undefined' && Sound.cursor) Sound.cursor();">
+                                 ▶ボス討伐
+                            </div>
+                        </div>
+                        <div id="view-rank" style="display:block;">${html}</div>
+                        <div id="view-boss" style="display:none;">${bossHtml}</div>
+                    `;
+
+                    listDiv.innerHTML = finalUI;
+
                 } catch(e) {
                     listDiv.innerHTML = "<div style='color:#f55; text-align:center; font-size:14px; font-family: \"DotGothic16\", sans-serif;'>通信エラーだわ！<br>ハッカーに連絡しなさい！</div>";
                     console.error(e);
                 }
             },
+
 
             saveClearData: async function(playerName, playerLevel, playerDeathCount) {
                 try {
