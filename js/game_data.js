@@ -348,10 +348,37 @@ var npcs = [
     
     { map: "17", x: 5, y: 5, imgId: 3, dir: 0, anim: 0, isStatic: true, isTanakaEvent: true, message: "オイオイ、俺は田中だ。<page>って……お前、のぶゆき じゃねぇか！<page>あの時、俺の白バイを奪って 逃走しやがって……！<br>おかげで クビ寸前なんだよ！<page>罰金払うか、ここで ぶっ殺されるか 選べ！" },
     
+    // ... 前のコード
     { map: "17", x: 5, y: 4, noDraw: true, chestItem: { type: "armors", index: 6 } },
     { map: "18", x: 14, y: 6, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaHouseInn: true, message: "もちだ「ここまで 来たか……。<br>もっちーもちもち……。<page>わけあって 俺が 力になれるのも<br>ここまでだ。<page>この先の 魔物は かなり 激辛だぜ。<br>今日は ゆっくり 休んでいけよ。」" },
     
     { map: "7", x: 4, y: 9, noDraw: true, isRandomChest: true },
     { map: "7", x: 10, y: 9, noDraw: true, isRandomChest: true },
-    { map: "7", x: 14, y: 5, noDraw: true, isRandomChest: true }
+    { map: "7", x: 14, y: 5, noDraw: true, isRandomChest: true }, // 💥【超重要】ここにカンマを追加！
+
+    // 💥【NEW】マップ9の宝箱イベント（もちだの過去のメモ）を追加！
+    { 
+        map: "9", x: 17, y: 2, noDraw: true, isStatic: true, 
+        get message() {
+            if (!this.opened) {
+                this.opened = true;
+                if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
+                return "たからばこ を あけた！<page>古いメモが 入っている……。<br>「〇月×日 調査記録：もちだ」<page>「ここの建物の サーバーの隠し方は<br>異常だ。ダミーの回線ばかりで、<br>本当の入り口が まったく わからない」<page>「だが、かすかな データの偏りからして<br>このエリアの『左下の 入り口』が<br>どうも あやしい。あとで 調べる」";
+            } else {
+                return "たからばこ は からっぽ だ。";
+            }
+        }
+    },
+    { 
+        map: "9", x: 16, y: 13, noDraw: true, isStatic: true, 
+        get message() {
+            if (!this.opened) {
+                this.opened = true;
+                if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
+                return "たからばこ を あけた！<page>くしゃくしゃの メモが 入っている……。<br>字が ひどく 乱れている。<page>「ここに 来てから ずっと<br>頭が クラクラする。<br>俺は いつから『もっちーもちもち』<br>なんて わけのわからない<br>独り言を 言っていた？」<page>「……とにかく、急いで<br>サーバー室の メンテに 向かわないと。<page>なんだか…… どこからか……<br>強烈で 危険な スパイスの<br>香りが する……。」";
+            } else {
+                return "たからばこ は からっぽ だ。";
+            }
+        }
+    }
 ];
