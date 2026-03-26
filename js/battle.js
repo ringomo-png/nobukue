@@ -442,10 +442,12 @@ window.startEndingCutscene = function() {
     if(typeof window.endBattle === 'function') window.endBattle(); 
     if (typeof playMapBGM === 'function') playMapBGM(); 
     
-    setTimeout(() => {
-        showMessage("親父「おぉ、のぶゆき！<br>よくぞ 四街道を 救ってくれた！<br>本当に ありがとう。<page>……なんじゃ、その顔は。<br>もう 次の冒険に 行ってしまうんじゃろ？<page>お前の ハッカー魂は 誰にも 止められんからな。<br>いつでも 応援しておるぞ！<br>気をつけてな！」");
+        setTimeout(() => {
+        // 💥【NEW】1行の文字数を極限まで減らして、絶対に3行以内に収まるように再構築！
+        showMessage("親父「おぉ、のぶゆき！<br>よくぞ 四街道を<br>救ってくれた！<page>本当に ありがとう。<br>……なんじゃ、その顔は。<page>もう 次の冒険に<br>行ってしまうんじゃろ？<page>お前の ハッカー魂は<br>誰にも 止められんからな。<page>いつでも 応援しておるぞ！<br>気をつけてな！」");
         pendingAction = () => { if(typeof showEndRoll === 'function') showEndRoll(); };
     }, 1000);
+
 };
 
 window.returnToWorld = null;
