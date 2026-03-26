@@ -75,8 +75,25 @@ function loadMap(mapKey) {
     currentMapKey = mapKey; currentMapData = TileMaps[mapKey]; 
     MAP_W = currentMapData.width; MAP_H = currentMapData.height; 
     if (["1", "2", "4", "5", "6", "17","18"].includes(mapKey)) { playerStatus.flags["visited_" + mapKey] = true; }
+
+    // 💥【NEW】NPCの座標をリセットするハッキング！
+    if (typeof npcs !== 'undefined') {
+        for (let i = 0; i < npcs.length; i++) {
+            let n = npcs[i];
+            // 1. 一番最初のオリジナル座標を「記憶」しておく（初回のみ実行）
+            if (n.startX === undefined) { 
+                n.startX = n.x; n.startY = n.y; n.startDir = n.dir || 0; 
+            }
+            // 2. 今から入るマップのNPCなら、記憶した定位置に強制的に戻す！
+            if (n.map === mapKey) { 
+                n.x = n.startX; n.y = n.startY; n.dir = n.startDir; 
+            }
+        }
+    }
+
     if (typeof playMapBGM === 'function') playMapBGM(); 
 }
+
 
 function getTilesAt(x, y) {
     let res = [0];
