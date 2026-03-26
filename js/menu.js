@@ -250,7 +250,7 @@ function showMFA() {
     
     if (playerStatus.flags.mfaVersion >= 2) {
         if (playerStatus.flags.visited_2) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"2\", 19, 39)'>▶ ゲオ周辺</li>";
-        if (playerStatus.flags.visited_5) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"5\", 39, 20)'>▶ 蕎麦屋</li>";
+        if (playerStatus.flags.visited_5) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"5\", 39, 19)'>▶ 蕎麦屋</li>";
         if (playerStatus.flags.visited_4) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"4\", 14, 29)'>▶ 繁華街</li>";
         if (playerStatus.flags.visited_6) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"6\", 29, 15)'>▶ 最後の街</li>";
         if (playerStatus.flags.visited_17) html += "<li style='cursor:pointer; padding:12px; border-bottom:1px dashed #555; background:#222; margin-bottom:5px; border-radius:4px;' onclick='executeMFA(\"17\", 9, 18)'>▶ 南西の街</li>";
