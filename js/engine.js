@@ -555,7 +555,18 @@ window.addEventListener('keyup', function(e) {
     if (e.key === 'ArrowUp') keys.up = false; if (e.key === 'ArrowDown') keys.down = false; if (e.key === 'ArrowLeft') keys.left = false; if (e.key === 'ArrowRight') keys.right = false; if (e.key === 'z' || e.key === 'Z' || e.key === ' ' || e.key === 'Enter') keys.action = false; 
 });
 
-document.addEventListener('touchmove', function(e) { if (!isMenuOpen && !isMessageActive) { e.preventDefault(); } }, { passive: false });
+// 💥【NEW】完璧なスクロール制御！ 戦闘ウィンドウの巻き添えフリーズを防止！
+document.addEventListener('touchmove', function(e) { 
+    // フィールドメニューやメッセージが開いている時はスクロールOK
+    if (isMenuOpen || isMessageActive) return; 
+
+    // 💥【ここが重要】触っている場所が「戦闘のサブウィンドウ内」なら絶対にスクロールを許可する！
+    if (e.target.closest('#battle-sub-window')) return;
+
+    // 上記以外の場所（フィールドの背景など）をスワイプした時だけ画面を固定する
+    e.preventDefault(); 
+}, { passive: false });
+
 window.loadMap = loadMap; window.draw = draw; window.showMessage = showMessage; window.showBattleMsg = showBattleMsg;
 
 window.playMapBGM = function() {
