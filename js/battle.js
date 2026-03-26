@@ -309,11 +309,20 @@ function winBattle() {
         isBoss = true;
         playerStatus.flags.defeatedGolem = true;
         showBattleMsg("すろっとまじん を たおした！<page>すろっとまじん「ギャオオオン！！<br>バ、バカな……！ 俺様が 四街道の<br>養分どもから 巻き上げた コインが……！！」<page>すろっとまじん「た、頼む！ 命だけは！<br>ご主人様から 預かっている<br>キーコードを 教えるから 助けてー！！」<page>すろっとまじん は 命乞いをしながら<br>大量のメダルを ばらまいて<br>爆発して 消え去った！");
-    } else if (currentEnemy.id === "mochida_boss") {
+       } else if (currentEnemy.id === "mochida_boss") {
         isBoss = true;
         playerStatus.flags.defeatedMochida = true;
         window.nextBossToFight = "ryuou_final"; 
-        showBattleMsg("もちだ を 倒した！<page>もちだ「ぐああぁぁっ！！」<page>もちだ「ハァ……ハァ……黒ちゃん……<br>ごめん……俺、操られて……」<page>もちだ「逃げろ……黒ちゃん……<br>あいつは……魔王は……ヤバい……！」<page>もちだ は その場に 倒れ込んだ！<page>どこからともなく 邪悪な声が 響き渡る！<page>謎の声「ふん……もちだ は 使えないわね。<br>くもひとつ ないわ……」");
+        showBattleMsg("もちだ を たおした！<page>" +
+                      "もちだ「ぐああぁぁっ！！」<page>" +
+                      "もちだ は 正気を 取り戻した！<page>" +
+                      "もちだ「ハァ……黒ちゃん……。<br>すまねえ、俺の システム（脳）……<br>ハックされてた みたいだ……」<page>" +
+                      "もちだ「逃げろ、黒ちゃん……！<br>あいつは…… 魔王の バグは……」<page>" +
+                      "もちだ「あまりにも……<br>辛（から）すぎる……！！」<page>" +
+                      "もちだ は その場に 倒れ込んだ！<page>" +
+                      "どこからともなく 邪悪な声が 響き渡る！<page>" +
+                      "謎の声「ふん……もちだ は 使えないわね。<br>くもひとつ ないわ……」");
+
     } else if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
         isBoss = true;
         playerStatus.flags.gameClear = true; 
