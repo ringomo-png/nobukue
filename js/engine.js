@@ -414,7 +414,7 @@ function tryMove(dx, dy) {
         
         if (!warped && window.amuletSteps > 0) { window.amuletSteps--; if (window.amuletSteps === 0) { showMessage("インド魔除け の スパイスの香りが<br>きえてしまった……。(効果切れ)"); } }
 
-        const encounterMaps = ["0", "3", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
+        const encounterMaps = ["0", "7", "8", "9", "10", "11", "12", "13", "14", "15"];
 
         if (!warped && encounterMaps.includes(currentMapKey)) { 
             let encRate = (currentMapKey === "0") ? window.encounterRate : (window.encounterRate <= 0 ? 0 : 0.04);
