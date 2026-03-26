@@ -159,16 +159,22 @@ function playerAction(type, data, next) {
                 if (currentEnemy.spell) { currentEnemy.spell = null; showBattleMsg(currentEnemy.name + " の プログラム（じゅもん）を ふうじこめた！");
                 } else { showBattleMsg("しかし なにも おきなかった！"); }
                 next();
-            } else if (data.type === 'majin') {
-                if (Math.random() < 0.35) { 
-                    let dmg = Math.floor(playerStatus.atk * 1.5); if(dmg < 1) dmg = 1;
+                     } else if (data.type === 'majin') {
+                // 💥 確率はドラクエ仕様（37.5%）、ダメージは攻撃力そのまま（防御無視）
+                if (Math.random() < 0.375) { 
+                    let dmg = playerStatus.atk; 
+                    if(dmg < 1) dmg = 1;
+
                     currentEnemy.hp -= dmg; shakeEnemy();
+                    // 文章はプロデューサーのオリジナル版をキープ！
                     showBattleMsg("イカレた まじん が あらわれた！<br>" + currentEnemy.name + " に " + dmg + " の ダメージ！");
                     if(typeof Sound !== 'undefined' && Sound.majin) Sound.majin();
                 } else { 
+                    // 外れた時のシュールなテキストもキープ！
                     showBattleMsg("しかし イカレ魔人 は どっかに いってしまった！"); 
                 }
                 next();
+
             } else if (data.type === 'drain') {
                 let dmg = data.value + Math.floor(Math.random() * 10);
                 let heal = Math.floor(dmg / 2); if (heal < 1) heal = 1;
