@@ -454,7 +454,7 @@ function startGameLoop() {
                         n.anim = (n.anim === 0) ? 1 : 0; // 約0.5秒ごとに足踏み
                         
                         // 💥 移動判定はさらに倍（約1秒ごと）にして、確率も20%に抑える！
-                        if (frameCount % 60 === 0 && !n.isStatic && Math.random() < 0.2) {
+                        if (frameCount % 60 === 0 && !n.isStatic && Math.random() < 0.05) {
                             let d = Math.floor(Math.random() * 4);
                             let nx = n.x, ny = n.y;
                             if (d===0) ny++; else if (d===1) nx--; else if (d===2) nx++; else if (d===3) ny--;
