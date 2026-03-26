@@ -356,29 +356,30 @@ var npcs = [
     { map: "7", x: 10, y: 9, noDraw: true, isRandomChest: true },
     { map: "7", x: 14, y: 5, noDraw: true, isRandomChest: true }, // 💥【超重要】ここにカンマを追加！
 
-    // 💥【NEW】マップ9の宝箱イベント（もちだの過去のメモ）を追加！
+       // 💥【NEW】マップ9の宝箱イベント（17, 2）
     { 
         map: "9", x: 17, y: 2, noDraw: true, isStatic: true, 
         get message() {
             if (!this.opened) {
                 this.opened = true;
                 if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                return "たからばこ を あけた！<page>古いメモが 入っている……。<br>「〇月×日 調査記録：もちだ」<page>「ここの建物の サーバーの隠し方は<br>異常だ。ダミーの回線ばかりで、<br>本当の入り口が まったく わからない」<page>「だが、かすかな データの偏りからして<br>このエリアの『左下の 入り口』が<br>どうも あやしい。あとで 調べる」";
+                return "たからばこ を あけた！<page>古いメモが 入っている……。<br>「〇月×日 調査記録：もちだ」<page>「ここの 建物の<br>サーバーの 隠し方は 異常だ。<br>ダミーの回線 ばかりで……」<page>「本当の 入り口が<br>まったく わからない」<page>「だが、かすかな<br>データの 偏りからして……」<page>「このエリアの<br>『左下の 入り口』が<br>どうも あやしい。あとで 調べる」";
             } else {
                 return "たからばこ は からっぽ だ。";
             }
         }
     },
+        // 💥【NEW】マップ9の宝箱イベント（16, 13）
     { 
         map: "9", x: 16, y: 13, noDraw: true, isStatic: true, 
         get message() {
             if (!this.opened) {
                 this.opened = true;
                 if (typeof Sound !== 'undefined' && Sound.itemGet) Sound.itemGet();
-                return "たからばこ を あけた！<page>くしゃくしゃの メモが 入っている……。<br>字が ひどく 乱れている。<page>「ここに 来てから ずっと<br>頭が クラクラする。<br>俺は いつから『もっちーもちもち』<br>なんて わけのわからない<br>独り言を 言っていた？」<page>「……とにかく、急いで<br>サーバー室の メンテに 向かわないと。<page>なんだか…… どこからか……<br>強烈で 危険な スパイスの<br>香りが する……。」";
+                return "たからばこ を あけた！<page>くしゃくしゃの メモが<br>入っている……。<br>字が ひどく 乱れている。<page>「ここに 来てから ずっと<br>頭が クラクラする。<br>俺は いつから……」<page>「『もっちーもちもち』なんて<br>わけのわからない 独り言を<br>言っていた？」<page>「……とにかく、急いで<br>サーバー室の メンテに<br>向かわないと。」<page>「なんだか…… どこからか……<br>強烈で 危険な スパイスの<br>香りが する……。」";
             } else {
                 return "たからばこ は からっぽ だ。";
             }
         }
     }
-];
+]; // 💥【超重要】この閉じカッコとセミコロンを追加！
