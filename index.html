@@ -326,7 +326,7 @@
                             let total = kills + defeats;
                             let winRate = total > 0 ? Math.floor((defeats / total) * 100) : 0;
                             
-                            let displayName = localFlags[boss.flag] ? boss.trueName : "？？？";
+                            let displayName = localFlags[boss.flag] ? boss.trueName : "[ PHNTM ]";
                             
                             bossHtml += `<div style="font-size:13px; color:#aaa; display:flex; justify-content:space-between; margin-top:4px; font-family: 'DotGothic16', sans-serif;"><span>${displayName}</span><span>Death:${kills} / Win Rate:${winRate}%</span></div>`;
                         }
@@ -417,30 +417,6 @@
                                 let dCount = (typeof playerStatus !== 'undefined' && playerStatus.flags && typeof playerStatus.flags.deathCount !== 'undefined') ? playerStatus.flags.deathCount : 0;
                                 await window.FirebaseHub.saveClearData(playerName, playerStatus.level, dCount);
                             }
-
-                            // 💥【NEW】過去の手動セーブデータに「クリアした記憶」だけを送り込むタイムリープ・パッチ！
-                            try {
-                                let savedStr = localStorage.getItem("nobuMonSave");
-                                if (savedStr) {
-                                    // 最後に手動セーブしたデータを展開（場所やアイテムは過去のまま）
-                                    let savedData = JSON.parse(savedStr);
-                                    if (!savedData.playerStatus.flags) savedData.playerStatus.flags = {};
-                                    
-                                    // 「もちだ」と「魔王」を倒したという記憶（フラグ）だけを、過去のデータに上書き！
-                                    savedData.playerStatus.flags.gameClear = true;
-                                    savedData.playerStatus.flags.defeatedMochida = true;
-                                    
-                                    // デスカウントも最新のものに更新しておく
-                                    savedData.playerStatus.flags.deathCount = playerStatus.flags.deathCount || 0;
-                                    
-                                    // 過去の自分（セーブデータ）に再保存（インジェクト）！
-                                    localStorage.setItem("nobuMonSave", JSON.stringify(savedData));
-                                } else {
-                                    // 万が一、一度も手動セーブせずにクリアした凄腕ゲーマー用の保険
-                                    let saveObj = { currentMapKey: "1", player: { x: 16, y: 7, dir: 3 }, playerStatus: playerStatus };
-                                    localStorage.setItem("nobuMonSave", JSON.stringify(saveObj));
-                                }
-                            } catch(e) { console.error("タイムリープセーブエラー", e); }
 
                             if (typeof gameState !== 'undefined') gameState = 'TITLE';
                             location.reload(); 
