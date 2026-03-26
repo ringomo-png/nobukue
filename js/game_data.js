@@ -76,11 +76,11 @@ var levelUpTable = [
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
     { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく行動", cost: 7, type: "drain", value: 17 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
-    { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 6, type: "heal", value: 85 } },
+    { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 8, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
-    { level: 17, exp: 17000, str: 68, agi: 64, hp: 100, mp: 100, spell: { name: "まぐま",  cost: 8, type: "attack", value: 65 } },
+    { level: 17, exp: 17000, str: 68, agi: 64, hp: 100, mp: 100, spell: { name: "まぐま",  cost:  10, type: "attack", value: 48 } },
     { level: 18, exp: 21000, str: 74, agi: 71, hp: 115, mp: 108, spell: null },
-    { level: 19, exp: 25000, str: 80, agi: 76, hp: 130, mp: 115, spell: { name: "大爆発", cost: 12, type: "explosion", value: 85 } },
+    { level: 19, exp: 25000, str: 80, agi: 76, hp: 130, mp: 115, spell: { name: "大爆発", cost: 12, type: "explosion", value: 70 } },
     { level: 20, exp: 29000, str: 85, agi: 82, hp: 138, mp: 128, spell: null },
     { level: 21, exp: 33000, str: 91, agi: 88, hp: 149, mp: 135, spell: null },
     { level: 22, exp: 37000, str: 97, agi: 94, hp: 158, mp: 146, spell: null },
@@ -182,14 +182,17 @@ var warpZones = [
 var npcs = [
     { map: "1", x: 15, y: 16, imgId: 4, dir: 0, anim: 0, isStatic: true, innPrice: 10, message: "あら、おかえりなさい。<page>長旅で 疲れたでしょう？<page>10ゴールド だけど 泊まっていく？" },
     
-    { 
+        { 
         map: "1", x: 16, y: 5, imgId: 5, dir: 0, anim: 0, isStatic: true, isOyajiStart: true, 
         get message() { 
             return playerStatus.flags.gameClear 
-            ? "親父「おぉ、のぶゆき！ よくぞ 四街道を 救ってくれた！<br>本当に ありがとう。<page>……なんじゃ、その顔は。<br>もう 次の冒険に 行ってしまうんじゃろ？<page>お前の ハッカー魂は 誰にも 止められんからな。<br>いつでも 応援しておるぞ！ 気をつけてな！」" 
+            // 💥【NEW】文字はみ出しを完全に防ぐ、究極の改行フォーマット！
+            ? "親父「おぉ、のぶゆき！<br>よくぞ 四街道を<br>救ってくれた！<page>本当に ありがとう。<br>……なんじゃ、その顔は。<page>もう 次の冒険に<br>行ってしまうんじゃろ？<page>お前の ハッカー魂は<br>誰にも 止められんからな。<page>いつでも 応援しておるぞ！<br>気をつけてな！」" 
+            // （以下はクリア前のセリフ。これも綺麗に整えてあるわ）
             : "のぶゆきよ、よく帰ってきたな。<page>四街道は今、魔物だらけの<br>狂った街に なってしまった。<page>とりあえず 昔お前が働いていた<br>北西の『げぇお』に いってみてくれ。<page>あそこの店長なら<br>なにか わかるかもしれんな。<page>わしは これから 蕎麦屋の方へ<br>出稼ぎに行ってくる。あとは 頼んだぞ。"; 
         } 
     },
+
 
     { map: "1", x: 24, y: 19, imgId: 2, dir: 0, anim: 0, isStatic: true, shopId: "shop_home", message: "おう、のぶゆきか！<page>外は危ねえから 武器くらい持っていけよ！" }, 
     
