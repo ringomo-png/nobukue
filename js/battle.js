@@ -244,7 +244,7 @@ function enemyTurn(next) {
             let orig = enemiesMaster.find(e => e.id === currentEnemy.id);
             if (orig && currentEnemy.def < orig.def) {
                 // 💥 防御が下がっている時は 7割（70%）でサイレン！
-                if (Math.random() < 0.7) action = "magic";
+                if (Math.random() < 0.4) action = "magic";
             } else {
                 // 💥 普段（下がっていない時）は 3割（30%）でサイレン（無駄撃ち）！
                 if (Math.random() < 0.3) action = "magic";
