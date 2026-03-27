@@ -111,7 +111,7 @@ var enemiesMaster = [
     { id: "rikanto2", img: "monster (13).PNG", name: "きんぐびーすと", hp: 70, maxHp: 70, atk: 72, def: 56, agi: 40, exp: 270, gold: 80, spell: {name:"じゅうおうのいかり", type:"attack", value:38} },
 
     { id: "metal_slime", img: "monster (24).PNG", name: "しろぱち", hp: 3, maxHp: 4, atk: 10, def: 250, agi: 255, exp: 800, gold: 6, spell: {name:"ひのたま", type:"attack", value:20} },
-        { id: "golem", img: "monster (26).PNG", name: "すろっとまじん", hp: 90, maxHp: 90, atk: 60, def: 60, agi: 47, exp: 100, gold: 1700, spell: {name:"ふらっしゅ", type:"attack", value:20} },
+        { id: "golem", img: "monster (26).PNG", name: "すろっとまじん", hp: 90, maxHp: 90, atk: 60, def: 60, agi: 47, exp: 100, gold: 1700, spell: {name:"ふらっしゅ", type:"attack", value:24} },
 
     { id: "golem2", img: "monster (10).PNG", name: "いわまじん", hp: 85, maxHp: 85, atk: 140, def: 80, agi: 50, exp: 80, gold: 100, spell: null }, 
     { id: "shinigami_knight", img: "monster (20).PNG", name: "だーくそるじゃー", hp: 96, maxHp: 66, atk: 82, def: 42, agi: 44, exp: 384, gold: 110, spell: {name:"かえん", type:"attack", value:62} },
