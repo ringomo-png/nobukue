@@ -155,10 +155,15 @@ function playerAction(type, data, next) {
                 if (currentEnemy.def <= 0) { showBattleMsg(currentEnemy.name + " の しゅびりょく は これ以上 さがらない！");
                 } else { currentEnemy.def = Math.floor(currentEnemy.def / 2); showBattleMsg(currentEnemy.name + " の しゅびりょくが 半分になった！"); }
                 next();
-            } else if (data.type === 'silence') {
-                if (currentEnemy.spell) { currentEnemy.spell = null; showBattleMsg(currentEnemy.name + " の プログラム（じゅもん）を ふうじこめた！");
-                } else { showBattleMsg("しかし なにも おきなかった！"); }
+                       } else if (data.type === 'silence') {
+                if (currentEnemy.spell) { 
+                    currentEnemy.isSilenced = true; // 💥 魔法は消さずに「封印フラグ」だけ立てる！
+                    showBattleMsg(currentEnemy.name + " の プログラム（じゅもん）を ふうじこめた！");
+                } else { 
+                    showBattleMsg("しかし なにも おきなかった！"); 
+                }
                 next();
+
                      } else if (data.type === 'majin') {
                 // 💥 確率はドラクエ仕様（37.5%）、ダメージは攻撃力そのまま（防御無視）
                 if (Math.random() < 0.375) { 
