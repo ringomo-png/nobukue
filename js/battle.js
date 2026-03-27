@@ -232,20 +232,24 @@ function enemyTurn(next) {
     }
     currentEnemy.lastTurnIdled = false;
 
-    // 💥【賢いAIパッチ（さいれんは適確に使う）】
+        // 💥【賢いAIパッチ（さいれんは適確に使う）】
     let action = "attack"; 
     if (currentEnemy.spell && currentEnemy.mp !== 0) {
         if (currentEnemy.spell.type === 'cure_debuff') {
             let orig = enemiesMaster.find(e => e.id === currentEnemy.id);
             if (orig && currentEnemy.def < orig.def) {
-                if (Math.random() < 0.8) action = "magic";
+                // 💥 防御が下がっている時は 7割（70%）でサイレン！
+                if (Math.random() < 0.7) action = "magic";
             } else {
-                if (Math.random() < 0.1) action = "magic";
+                // 💥 普段（下がっていない時）は 3割（30%）でサイレン（無駄撃ち）！
+                if (Math.random() < 0.3) action = "magic";
             }
         } else {
+            // 他の敵の魔法も今まで通り 3割（30%）
             if (Math.random() < 0.3) action = "magic";
         }
     }
+
 
     if (action === "attack") {
         showBattleMsg(currentEnemy.name + " の こうげき！");
