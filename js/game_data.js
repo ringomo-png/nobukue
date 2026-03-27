@@ -119,7 +119,9 @@ var enemiesMaster = [
     { id: "dragon2", img: "monster (7).PNG", name: "あんこくりゅう", hp: 90, maxHp: 90, atk: 100, def: 100, agi: 60, exp: 600, gold: 150, spell: {name:"はげしいほのお", type:"attack", value:45} },
     { id: "ryuou", img: "monster (8).PNG", name: "第一", hp: 130, maxHp: 130, atk: 140, def: 200, agi: 47, exp: 0, gold: 0, spell: {name:"はげしいほのお", type:"attack", value:40} },
     { id: "ryuou_final", img: "monster (3).PNG", name: "魔王", hp: 200, maxHp: 200, atk: 140, def: 220, agi: 65, exp: 0, gold: 0, spell: {name:"しゃくねつ", type:"attack", value:60} },
-    { id: "tanaka", img: "monster (9).PNG", name: "たなか", hp: 79, maxHp: 79, atk: 94, def: 92, agi: 53, exp: 130, gold: 300, spell: null }, 
+       // 💥 魔法のタイプに新しい「cure_debuff」を設定したわ！
+    { id: "tanaka", img: "monster (9).PNG", name: "たなか", hp: 79, maxHp: 79, atk: 94, def: 92, agi: 53, exp: 130, gold: 300, spell: {name:"さいれん", type:"cure_debuff", value:0} }, 
+
     { id: "mimic", img: "monster (4).PNG", name: "でびっと", hp: 45, maxHp: 45, atk: 65, def: 50, agi: 45, exp: 60, gold: 450, spell: {name:"へんさいきげん", type:"death", value:0} },
     { id: "robber", img: "monster (12).PNG", name: "凶悪な強盗", hp: 60, maxHp: 60, atk: 35, def: 15, agi: 20, exp: 200, gold: 200, spell: null },
     { id: "mochida_boss", img: "monster (8).PNG", name: "もちだ", hp: 240, maxHp: 180, atk: 100, def: 110, agi: 55, exp: 500, gold: 0, spell: {name:"もっちーもちもち", type:"attack", value:60} },
