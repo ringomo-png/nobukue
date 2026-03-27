@@ -24,7 +24,7 @@ var itemMaster = {
     shields: [
         { name: "かわのねくたい", type: "shield", def: 4, price: 90 },
         { name: "てつのねくたい", type: "shield", def: 10, price: 800 },
-        { name: "天逆鉾「四街」", type: "shield", def: 20, price: 14800 }
+        { name: "天逆鉾四街", type: "shield", def: 20, price: 14800 }
     ],
     accessories: [
         { name: "満留賀の印", type: "accessory", def: 2, price: 20 }, 
@@ -71,10 +71,10 @@ var levelUpTable = [
     { level: 7, exp: 450, str: 18, agi: 17, hp: 40, mp: 26, spell: { name: "スリープモード", cost: 2, type: "sleep", value: 0 } }, 
     { level: 8, exp: 800, str: 22, agi: 20, hp: 46, mp: 29, spell: null },
     { level: 9, exp: 1300, str: 25, agi: 22, hp: 50, mp: 36, spell: { name: "人工的ビブラート", cost: 3, type: "debuff_def", value: 0 } }, 
-    { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "魔法封じ顔", cost: 3, type: "silence", value: 0 } },
+    { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "呪文封じ顔", cost: 3, type: "silence", value: 0 } },
     { level: 11, exp: 2900, str: 33, agi: 31, hp: 62, mp: 50, spell: null },
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
-    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく行動", cost: 7, type: "drain", value: 17 } },
+    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく", cost: 7, type: "drain", value: 17 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
     { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 8, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
