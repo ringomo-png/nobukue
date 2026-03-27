@@ -247,13 +247,23 @@ function enemyTurn(next) {
             if (next) next(); else endPlayerTurn();
         }, 800);
     }
-    else {
+        else {
         showBattleMsg(currentEnemy.name + " は " + currentEnemy.spell.name + " を となえた！");
-        if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic();
 
         setTimeout(function() {
-                        if (currentEnemy.spell.type === 'heal') {
+            // 💥【NEW】魔法封じ状態なら、のぶゆきの顔圧でキャンセルさせる！
+            if (currentEnemy.isSilenced) {
+                showBattleMsg("しかし のぶゆきの 顔圧に 威圧され<br>プログラムを 取り消した！");
+                setTimeout(function() { if (next) next(); else endPlayerTurn(); }, 1500);
+                return; // 💥 ここで敵のターンを強制終了（無駄撃ち）！
+            }
+
+            // 封印されていなければ、通常通り魔法発動！
+            if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic();
+
+            if (currentEnemy.spell.type === 'heal') {
                 let heal = currentEnemy.spell.value + Math.floor(Math.random() * 5);
+
                 currentEnemy.hp += heal; if (currentEnemy.hp > currentEnemy.maxHp) currentEnemy.hp = currentEnemy.maxHp;
                 showBattleMsg(currentEnemy.name + " の HPが " + heal + " かいふくした！");
             
