@@ -221,13 +221,31 @@ function enemyTurn(next) {
         if(typeof Sound !== 'undefined' && Sound.cursor) Sound.cursor(); setTimeout(endBattle, 1500); return; 
     }
 
-    if (Math.random() < 0.15) {
+    // 💥【ボスもサボるけど、連続サボりだけは防止するパッチ】
+    if (!currentEnemy.lastTurnIdled && Math.random() < 0.15) {
+        currentEnemy.lastTurnIdled = true; 
         const idleMsgs = [ " ようすを うかがっている……。", " ぼーっとしている……。", " みがまえている！" ];
         const msg = idleMsgs[Math.floor(Math.random() * idleMsgs.length)];
-        showBattleMsg(currentEnemy.name + " は" + msg); setTimeout(function() { if (next) next(); else endPlayerTurn(); }, 1500); return;
+        showBattleMsg(currentEnemy.name + " は" + msg); 
+        setTimeout(function() { if (next) next(); else endPlayerTurn(); }, 1500); 
+        return;
     }
+    currentEnemy.lastTurnIdled = false;
 
-    let action = "attack"; if (currentEnemy.spell && currentEnemy.mp !== 0 && Math.random() < 0.3) action = "magic";
+    // 💥【賢いAIパッチ（さいれんは適確に使う）】
+    let action = "attack"; 
+    if (currentEnemy.spell && currentEnemy.mp !== 0) {
+        if (currentEnemy.spell.type === 'cure_debuff') {
+            let orig = enemiesMaster.find(e => e.id === currentEnemy.id);
+            if (orig && currentEnemy.def < orig.def) {
+                if (Math.random() < 0.8) action = "magic";
+            } else {
+                if (Math.random() < 0.1) action = "magic";
+            }
+        } else {
+            if (Math.random() < 0.3) action = "magic";
+        }
+    }
 
     if (action === "attack") {
         showBattleMsg(currentEnemy.name + " の こうげき！");
@@ -247,23 +265,21 @@ function enemyTurn(next) {
             if (next) next(); else endPlayerTurn();
         }, 800);
     }
-        else {
+    else {
         showBattleMsg(currentEnemy.name + " は " + currentEnemy.spell.name + " を となえた！");
 
         setTimeout(function() {
-            // 💥【NEW】魔法封じ状態なら、のぶゆきの顔圧でキャンセルさせる！
+            // 💥【顔圧パッチ】
             if (currentEnemy.isSilenced) {
                 showBattleMsg("しかし のぶゆきの 顔圧に 威圧され<br>プログラムを 取り消した！");
                 setTimeout(function() { if (next) next(); else endPlayerTurn(); }, 1500);
-                return; // 💥 ここで敵のターンを強制終了（無駄撃ち）！
+                return; 
             }
 
-            // 封印されていなければ、通常通り魔法発動！
             if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic();
 
             if (currentEnemy.spell.type === 'heal') {
                 let heal = currentEnemy.spell.value + Math.floor(Math.random() * 5);
-
                 currentEnemy.hp += heal; if (currentEnemy.hp > currentEnemy.maxHp) currentEnemy.hp = currentEnemy.maxHp;
                 showBattleMsg(currentEnemy.name + " の HPが " + heal + " かいふくした！");
             
@@ -278,22 +294,17 @@ function enemyTurn(next) {
                     showBattleMsg("へんさいきげん を かろうじて まぬがれた！<br>しかし なにも おきなかった！");
                 }
 
-            // 💥【NEW】ここに「さいれん（デバフ解除）」の処理を追加！
-                        // 💥【NEW】元の防御力と比べて、下がっていたら戻すスマートな処理！
+            // 💥【さいれんパッチ】
             } else if (currentEnemy.spell.type === 'cure_debuff') {
                 let orig = enemiesMaster.find(e => e.id === currentEnemy.id);
-                // 敵の元データが存在し、かつ今の防御力(def)が元(orig.def)より下がっていれば
                 if (orig && currentEnemy.def < orig.def) {
-                    currentEnemy.def = orig.def; // 元の防御力にリセット！
+                    currentEnemy.def = orig.def;
                     showBattleMsg("けたたましい さいれん が なりひびく！<br>" + currentEnemy.name + " の しゅびりょく が もとに もどった！");
                 } else {
-                    // 下がっていない時に使ってきた場合は無駄撃ち
                     showBattleMsg("けたたましい さいれん が なりひびく！<br>しかし なにも おきなかった！");
                 }
 
-
             } else {
-                // 通常の固定ダメージ魔法（ふらっしゅ等）の処理
                 let dmg = currentEnemy.spell.value + Math.floor(Math.random() * 5);
                 if (playerStatus.equipment.armor && (playerStatus.equipment.armor.name === "まほうのすーつ" || playerStatus.equipment.armor.name === "黄金スーツ")) {
                     dmg = Math.floor(dmg * 0.75);
@@ -311,6 +322,7 @@ function enemyTurn(next) {
         }, 1200);
     }
 }
+
 
 function shakeEnemy() { 
     const es = document.getElementById('enemy-img'); 
