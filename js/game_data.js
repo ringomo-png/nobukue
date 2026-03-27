@@ -74,7 +74,7 @@ var levelUpTable = [
     { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "呪文封じ顔", cost: 3, type: "silence", value: 0 } },
     { level: 11, exp: 2900, str: 33, agi: 31, hp: 62, mp: 50, spell: null },
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
-    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく", cost: 7, type: "drain", value: 17 } },
+    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく", cost: 7, type: "drain", value: 25 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
     { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 8, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
