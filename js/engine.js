@@ -589,14 +589,17 @@ window.loadMap = loadMap; window.draw = draw; window.showMessage = showMessage; 
 window.playMapBGM = function() {
     if (typeof Sound === 'undefined' || isBattle) return;
     if (currentMapKey === "0") Sound.playBGM('field');
-    else if (currentMapKey === "1" || currentMapKey === "2" || currentMapKey === "18") Sound.playBGM('town1'); 
+    // 💥 18（もちだの家）をここから外したわ！
+    else if (currentMapKey === "1" || currentMapKey === "2") Sound.playBGM('town1'); 
     else if (currentMapKey === "4") Sound.playBGM('town2'); 
     else if (currentMapKey === "5") Sound.playBGM('town3'); 
     else if (currentMapKey === "6") Sound.playBGM('town4'); 
-    else if (currentMapKey === "17") Sound.playBGM('town5'); 
+    // 💥 17（南西の街）の横に、18（もちだの家）を合体させたわ！！
+    else if (currentMapKey === "17" || currentMapKey === "18") Sound.playBGM('town5'); 
     else if (["3", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"].includes(currentMapKey)) Sound.playBGM('danjon');
     else Sound.stopBGM(); 
 };
+
 
 window.showWorldMap = function() {
     const mapData = TileMaps["0"]; 
