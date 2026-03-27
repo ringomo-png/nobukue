@@ -252,7 +252,7 @@ function enemyTurn(next) {
         if(typeof Sound !== 'undefined' && Sound.magic) Sound.magic();
 
         setTimeout(function() {
-            if (currentEnemy.spell.type === 'heal') {
+                        if (currentEnemy.spell.type === 'heal') {
                 let heal = currentEnemy.spell.value + Math.floor(Math.random() * 5);
                 currentEnemy.hp += heal; if (currentEnemy.hp > currentEnemy.maxHp) currentEnemy.hp = currentEnemy.maxHp;
                 showBattleMsg(currentEnemy.name + " の HPが " + heal + " かいふくした！");
@@ -268,7 +268,22 @@ function enemyTurn(next) {
                     showBattleMsg("へんさいきげん を かろうじて まぬがれた！<br>しかし なにも おきなかった！");
                 }
 
+            // 💥【NEW】ここに「さいれん（デバフ解除）」の処理を追加！
+                        // 💥【NEW】元の防御力と比べて、下がっていたら戻すスマートな処理！
+            } else if (currentEnemy.spell.type === 'cure_debuff') {
+                let orig = enemiesMaster.find(e => e.id === currentEnemy.id);
+                // 敵の元データが存在し、かつ今の防御力(def)が元(orig.def)より下がっていれば
+                if (orig && currentEnemy.def < orig.def) {
+                    currentEnemy.def = orig.def; // 元の防御力にリセット！
+                    showBattleMsg("けたたましい さいれん が なりひびく！<br>" + currentEnemy.name + " の しゅびりょく が もとに もどった！");
+                } else {
+                    // 下がっていない時に使ってきた場合は無駄撃ち
+                    showBattleMsg("けたたましい さいれん が なりひびく！<br>しかし なにも おきなかった！");
+                }
+
+
             } else {
+                // 通常の固定ダメージ魔法（ふらっしゅ等）の処理
                 let dmg = currentEnemy.spell.value + Math.floor(Math.random() * 5);
                 if (playerStatus.equipment.armor && (playerStatus.equipment.armor.name === "まほうのすーつ" || playerStatus.equipment.armor.name === "黄金スーツ")) {
                     dmg = Math.floor(dmg * 0.75);
@@ -280,6 +295,7 @@ function enemyTurn(next) {
                 setTimeout(() => { document.getElementById('view-area').classList.remove('screen-shake'); }, 300);
                 showBattleMsg("のぶゆき に " + dmg + " の ダメージ！");
             }
+
             if (playerStatus.hp <= 0) { setTimeout(loseBattle, 1500); return; }
             if (next) next(); else endPlayerTurn();
         }, 1200);
@@ -310,7 +326,7 @@ function winBattle() {
     } else if (currentEnemy.id === "robber") {
         isBoss = true;
         playerStatus.flags.defeatedRobber = true;
-        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの プログラマーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。");
+        showBattleMsg("ごうとう を やっつけた！<page>強盗「ぐはぁっ！ て、てめぇ……<br>ただの ぷろぐらまーじゃ ねぇのかよ……！」<page>強盗「おぼえてろよ！<br>今日のところは 勘弁してやらぁ！」<page>強盗は 逃げ出した！<page>親父「ひぃぃ！ 助かったわい……！<br>のぶゆき、ワシは 先に カウンターに 戻っとるぞ！」<page>親父が 宿屋のカウンターのほうへ 走っていった。");
     } else if (currentEnemy.id === "golem") {
         isBoss = true;
         playerStatus.flags.defeatedGolem = true;
