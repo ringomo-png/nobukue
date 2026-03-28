@@ -112,7 +112,13 @@ function showItems() {
 function useItemMenu(index) {
     if (typeof playerStatus === 'undefined') return; const item = playerStatus.inventory[index];
     if (item.name === "MFA") { alert("MFAは メニューの「MFA」タブから 起動してください！"); return; }
-    if (item.name === "よつかいどうの地図" || item.name === "世界地図コード") {
+        if (item.name === "よつかいどうの地図" || item.name === "世界地図コード") {
+        // 💥 【NEW】電波チェック（マップ0以外は弾く！）
+        if (currentMapKey !== "0") {
+            if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2();
+            alert("電波が 届かないようだ……。\n地図アプリは 外(フィールド)でしか 使えない！");
+            return;
+        }
         closeMenu();
         if(typeof showWorldMap === 'function') showWorldMap();
         return;
@@ -281,9 +287,16 @@ function showMap() {
     }
     if (!hasMap) { alert("地図を 持っていない！"); return; }
     
+    // 💥 【NEW】電波チェック（マップ0以外は弾く！）
+    if (currentMapKey !== "0") {
+        alert("電波が 届かないようだ……。\n地図アプリは 外(フィールド)でしか 使えない！");
+        return;
+    }
+    
     closeMenu();
     if(typeof showWorldMap === 'function') showWorldMap();
 }
+
 
 function showSettings() {
     if (typeof Sound !== 'undefined' && Sound.cursor2) Sound.cursor2(); 
