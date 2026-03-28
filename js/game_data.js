@@ -212,7 +212,7 @@ var npcs = [
     { map: "2", x: 25, y: 24, imgId: 1, dir: 0, anim: 0, isStatic: true, shopId: "shop_item", message: "いらっしゃいませ！<br>傷を癒す『しゃんてぃ』はいかがですか？<page>冒険の必需品ですよ！" }, 
     { map: "2", x: 19, y: 29, imgId: 3, dir: 0, anim: 0, message: "ここは 『げぇお』の村だ。<br>昔は でかいゲーム屋が あったらしいぜ。<page>この先は 魔物が ぐっと強くなるから、<br>しっかり 準備してから 行きなよ！" },
     { map: "2", x: 14, y: 11, imgId: 5, dir: 0, anim: 0, isGeouKey: true, message: "昔、ここのアダルトコーナーには たいへん お世話になったんじゃ……。<page>そういえば、そこに「家の鍵」が 落ちておったぞ。持っていくがよい。" },
-    { map: "2", x: 28, y: 29, imgId: 2, dir: 0, anim: 0, message: "名前はもちだ。久しぶりだな、黒ちゃん。<br>もっちーもちもち……。<page>……ふぅ。<br>北西のほこらに お前が昔使った<br>ローカルパスが 落ちてたぜ。<page>あそこは 敵が強いから 気をつけろよ。<page>そういや お前、まだ『火』の魔法は<br>使えたっけか？ 準備してから行けよ。" },
+    { map: "2", x: 25, y: 29, imgId: 2, dir: 0, anim: 0, message: "名前はもちだ。久しぶりだな、黒ちゃん。<br>もっちーもちもち……。<page>……ふぅ。<br>北西のほこらに お前が昔使った<br>ローカルパスが 落ちてたぜ。<page>あそこは 敵が強いから 気をつけろよ。<page>そういや お前、まだ『火』の魔法は<br>使えたっけか？ 準備してから行けよ。" },
     
     { map: "4", x: 6, y: 4, imgId: 2, dir: 0, anim: 0, isStatic: true, shopId: "shop_hankagai", message: "へっへっへ……<br>いい武器 揃ってるぜ！" },
     { map: "4", x: 13, y: 4, imgId: 4, dir: 0, anim: 0, isStatic: true, innPrice: 40, message: "ここは 繁華街の ホテルよ。<page>最近、インド人っぽい男が よく出入りしてるわね。<page>40ゴールド だけど 泊まっていく？" },
