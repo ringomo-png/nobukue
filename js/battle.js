@@ -83,12 +83,33 @@ function startBattle(bossId = null) {
 function processTurn(actionType, actionData) {
     if (battleBlock) return; battleBlock = true; const cmdArea = document.getElementById('battle-command'); if (cmdArea) { cmdArea.classList.add('invisible'); }
 
-    if (actionType === 'run') {
-        if (currentEnemy.id === "golem" || currentEnemy.id === "ryuou" || currentEnemy.id === "ryuou_final" || currentEnemy.id === "tanaka" || currentEnemy.id === "robber" || currentEnemy.id === "mochida_boss" || currentEnemy.id === "true_boss") {
+            if (actionType === 'run') {
+        if (currentEnemy.id === "golem" || currentEnemy.id === "ryuou" || currentEnemy.id === "ryuou_final" || currentEnemy.id === "tanaka" || currentEnemy.id === "robber" || currentEnemy.id === "mochida_boss" || currentEnemy.id === "true_boss" || currentEnemy.id === "goldman_boss") {
             showBattleMsg("のぶゆき は にげだした！<page>しかし まわりこまれてしまった！"); setTimeout(enemyTurn, 1500); return;
         }
-        const runChance = (playerStatus.agi >= currentEnemy.agi) ? 0.75 : 0.5; if (Math.random() < runChance) { showBattleMsg("のぶゆき は にげだした！"); setTimeout(endBattle, 1500); return; } else { showBattleMsg("のぶゆき は にげだした！<page>しかし まわりこまれてしまった！"); setTimeout(enemyTurn, 1500); return; }
+
+
+        // 💥【NEW】Tier6の強敵リストを定義して、逃走確率を計算！
+        const tier6Enemies = ["shinigami_knight", "dragon", "dragon2", "metal_slime"];
+        let runChance;
+        
+        if (tier6Enemies.includes(currentEnemy.id)) {
+            runChance = 0.45; // Tier6の敵からは 30% でしか逃げられない！
+        } else {
+            runChance = (playerStatus.agi >= currentEnemy.agi) ? 0.75 : 0.50; // 通常の敵は すばやさ依存（75% or 50%）
+        }
+
+        if (Math.random() < runChance) { 
+            showBattleMsg("のぶゆき は にげだした！"); 
+            setTimeout(endBattle, 1500); 
+            return; 
+        } else { 
+            showBattleMsg("のぶゆき は にげだした！<page>しかし まわりこまれてしまった！"); 
+            setTimeout(enemyTurn, 1500); 
+            return; 
+        }
     }
+
 
     if (actionType === 'item') {
         playerAction(actionType, actionData, function() { if (currentEnemy.hp > 0) setTimeout(enemyTurn, 1500); else setTimeout(winBattle, 1500); });
@@ -362,6 +383,15 @@ function winBattle() {
         isBoss = true;
         playerStatus.flags.defeatedGolem = true;
         showBattleMsg("すろっとまじん を たおした！<page>すろっとまじん「ギャオオオン！！<br>バ、バカな……！ 俺様が 四街道の<br>養分どもから 巻き上げた コインが……！！」<page>すろっとまじん「た、頼む！ 命だけは！<br>ご主人様から 預かっている<br>キーコードを 教えるから 助けてー！！」<page>すろっとまじん は 命乞いをしながら<br>大量のメダルを ばらまいて<br>爆発して 消え去った！");
+   
+        // ... (スロット魔人の処理) ...
+        
+    // 💥【NEW】ここに黄金ボスの勝利処理を追加！
+    } else if (currentEnemy.id === "goldman_boss") {
+        isBoss = true;
+        playerStatus.flags.defeatedGoldman = true; // 倒したフラグをオン！
+        showBattleMsg("黄金の守護者 を たおした！<page>まじん は くずれさり<br>宝箱の 封印が とけた！");
+
           } else if (currentEnemy.id === "mochida_boss") {
         isBoss = true;
         playerStatus.flags.defeatedMochida = true;
