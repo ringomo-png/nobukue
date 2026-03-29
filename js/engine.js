@@ -431,14 +431,26 @@ function tryMove(dx, dy) {
         
         if (!warped && window.amuletSteps > 0) { window.amuletSteps--; if (window.amuletSteps === 0) { showMessage("インド魔除け の スパイスの香りが<br>きえてしまった……。(効果切れ)"); } }
 
-        const encounterMaps = ["0", "7", "8", "9", "10", "11", "12", "13", "14", "15"];
+                const encounterMaps = ["0", "7", "8", "9", "10", "11", "12", "13", "14", "15"];
 
         if (!warped && encounterMaps.includes(currentMapKey)) { 
-            let encRate = (currentMapKey === "0") ? window.encounterRate : (window.encounterRate <= 0 ? 0 : 0.04);
+            let encRate = 0;
+            if (currentMapKey === "0") {
+                encRate = window.encounterRate; // フィールドは設定依存
+            } else if (currentMapKey === "7") {
+                // 💥【NEW】マップ8（ダンジョンケン）だけ出現率を特別高くする！（現在10%）
+                encRate = (window.encounterRate <= 0) ? 0 : 0.08; 
+            } else {
+                // その他の通常のダンジョンは 4%
+                encRate = (window.encounterRate <= 0) ? 0 : 0.04;
+            }
+
             // 💥【朝の改善】魔除けはフィールドのみ有効！
             if (currentMapKey === "0" && window.amuletSteps > 0) { encRate = 0; }
+            
             if (encRate > 0 && Math.random() < encRate) { if(typeof startBattle === 'function') startBattle(); return; }
         }
+
 
         if (!warped) {
             let hasGoldenSuit = (playerStatus.equipment.armor && playerStatus.equipment.armor.name === "黄金スーツ");
