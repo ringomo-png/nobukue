@@ -74,7 +74,7 @@ var levelUpTable = [
     { level: 10, exp: 2000, str: 27, agi: 24, hp: 54, mp: 40, spell: { name: "呪文封じ顔", cost: 3, type: "silence", value: 0 } },
     { level: 11, exp: 2900, str: 33, agi: 31, hp: 62, mp: 50, spell: null },
     { level: 12, exp: 4000, str: 40, agi: 36, hp: 63, mp: 58, spell: { name: "イカレ魔人", cost: 6, type: "majin", value: 0 } },
-    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく", cost: 7, type: "drain", value: 25 } },
+    { level: 13, exp: 5500, str: 48, agi: 43, hp: 70, mp: 64, spell: { name: "ほしょく", cost: 7, type: "drain", value: 17 } },
     { level: 14, exp: 7500, str: 50, agi: 47, hp: 78, mp: 70, spell: null },
     { level: 15, exp: 10000, str: 53, agi: 52, hp: 86, mp: 72, spell: { name: "しゃんてぃα", cost: 8, type: "heal", value: 85 } },
     { level: 16, exp: 13000, str: 60, agi: 58, hp: 92, mp: 95, spell: null },
@@ -107,6 +107,8 @@ var enemiesMaster = [
     { id: "magician2", img: "monster (17).PNG", name: "あかまじっく", hp: 25, maxHp: 25, atk: 25, def: 20, agi: 22, exp: 15, gold: 25, spell: {name:"火の玉", type:"attack", value:12} },
     
     { id: "goldman", img: "monster (19).PNG", name: "ごーるど", hp: 130, maxHp: 130, atk: 48, def: 15, agi: 12, exp: 120, gold: 500, spell: null },
+    { id: "goldman_boss", img: "monster (19).PNG", name: "黄金の守護者", hp: 180, maxHp: 180, atk: 48, def: 20, agi: 40, exp: 400, gold: 1000, spell: {name:"ふらっしゅ", type:"attack", value:25} },
+
     { id: "magician3", img: "monster (25).PNG", name: "あんこく", hp: 60, maxHp: 60, atk: 50, def: 40, agi: 40, exp: 180, gold: 60, spell: {name:"かえん", type:"attack", value:30} },
     { id: "rikanto2", img: "monster (13).PNG", name: "きんぐびーすと", hp: 70, maxHp: 70, atk: 72, def: 56, agi: 40, exp: 270, gold: 80, spell: {name:"じゅうおうのいかり", type:"attack", value:38} },
 
@@ -212,7 +214,7 @@ var npcs = [
     { map: "2", x: 25, y: 24, imgId: 1, dir: 0, anim: 0, isStatic: true, shopId: "shop_item", message: "いらっしゃいませ！<br>傷を癒す『しゃんてぃ』はいかがですか？<page>冒険の必需品ですよ！" }, 
     { map: "2", x: 19, y: 29, imgId: 3, dir: 0, anim: 0, message: "ここは 『げぇお』の村だ。<br>昔は でかいゲーム屋が あったらしいぜ。<page>この先は 魔物が ぐっと強くなるから、<br>しっかり 準備してから 行きなよ！" },
     { map: "2", x: 14, y: 11, imgId: 5, dir: 0, anim: 0, isGeouKey: true, message: "昔、ここのアダルトコーナーには たいへん お世話になったんじゃ……。<page>そういえば、そこに「家の鍵」が 落ちておったぞ。持っていくがよい。" },
-    { map: "2", x: 25, y: 29, imgId: 2, dir: 0, anim: 0, message: "名前はもちだ。久しぶりだな、黒ちゃん。<br>もっちーもちもち……。<page>……ふぅ。<br>北西のほこらに お前が昔使った<br>ローカルパスが 落ちてたぜ。<page>あそこは 敵が強いから 気をつけろよ。<page>そういや お前、まだ『火』の魔法は<br>使えたっけか？ 準備してから行けよ。" },
+    { map: "2", x: 28, y: 29, imgId: 2, dir: 0, anim: 0, message: "名前はもちだ。久しぶりだな、黒ちゃん。<br>もっちーもちもち……。<page>……ふぅ。<br>北西のほこらに お前が昔使った<br>ローカルパスが 落ちてたぜ。<page>あそこは 敵が強いから 気をつけろよ。<page>そういや お前、まだ『火』の魔法は<br>使えたっけか？ 準備してから行けよ。" },
     
     { map: "4", x: 6, y: 4, imgId: 2, dir: 0, anim: 0, isStatic: true, shopId: "shop_hankagai", message: "へっへっへ……<br>いい武器 揃ってるぜ！" },
     { map: "4", x: 13, y: 4, imgId: 4, dir: 0, anim: 0, isStatic: true, innPrice: 40, message: "ここは 繁華街の ホテルよ。<page>最近、インド人っぽい男が よく出入りしてるわね。<page>40ゴールド だけど 泊まっていく？" },
@@ -348,7 +350,28 @@ var npcs = [
     
     { map: "16", x: 7, y: 2, imgId: 1, dir: 0, anim: 0, isStatic: true, isBossKey3: true, message: "あの インド人みたいな男に 監禁されていたの……。<page>助けてくれて ありがとう。<br>お礼に キーコード3 を MFAに 書き込んであげる！" },
 
-    { map: "12", x: 5, y: 3, noDraw: true, chestItem: { type: "weapons", index: 6 } }, 
+      { 
+        map: "12", x: 5, y: 3, noDraw: true, isStatic: true, 
+        get message() {
+            // まだボスを倒していない場合
+            if (!playerStatus.flags.defeatedGoldman) {
+                window.pendingAction = () => { setTimeout(() => window.startBattle("goldman_boss"), 500); };
+                return "たからばこ を あけようとした！<page>しかし 箱の なかから<br>黄金を 守る まじん が あらわれた！";
+            } 
+            // ボスを倒していて、まだ中身を取っていない場合
+            else if (!this.opened) {
+                this.opened = true;
+                if (typeof Sound !== 'undefined' && Sound.densetsu) Sound.densetsu();
+                playerStatus.inventory.push({ name: "黄金剣", type: "weapon", atk: 40, price: 0 });
+                return "たからばこ を あけた！<page>のぶゆき は 伝説の<br>黄金剣 を てにいれた！";
+            } 
+            // 剣を取った後
+            else {
+                return "たからばこ は からっぽ だ。";
+            }
+        }
+    },
+
     { map: "10", x: 4, y: 3, noDraw: true, chestItem: { type: "items", index: 0 } }, 
     { map: "10", x: 5, y: 3, noDraw: true, chestItem: { type: "weapons", index: 5 } }, 
     { map: "11", x: 5, y: 5, imgId: 2, dir: 0, anim: 0, isStatic: true, isMochidaBoss: true, message: "もちだ「やあ黒ちゃん……。<br>いっしょに あそぼうよ……フフフ……。」" },
