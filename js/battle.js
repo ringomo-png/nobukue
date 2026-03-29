@@ -16,14 +16,16 @@ function startBattle(bossId = null) {
         const menuBtn = document.getElementById('menu-btn'); if (menuBtn) menuBtn.classList.add('invisible');
         const dpadContainer = document.getElementById('d-pad-container'); if (dpadContainer) dpadContainer.classList.add('invisible');
 
-        const t = {
+                const t = {
             tier1: ["slime", "slime_beth", "ghost"],
             tier2: ["magician", "scorpion", "kemono"],
             tier3: ["skeleton", "kemono", "magician2"],
             tier4: ["rikanto", "goldman", "yoroi_knight"],
-            tier5: ["goldman", "rikanto2", "magician3", "metal_slime"],
-            tier6: ["shinigami_knight", "dragon", "dragon2", "metal_slime"]
+            // 💥 他の敵を3匹ずつに増やして、しろぱちの出現率を 1/10（10%） に希釈！
+            tier5: ["goldman", "goldman", "goldman", "rikanto2", "rikanto2", "rikanto2", "magician3", "magician3", "magician3", "metal_slime"],
+            tier6: ["shinigami_knight", "shinigami_knight", "shinigami_knight", "dragon", "dragon", "dragon", "dragon2", "dragon2", "dragon2", "metal_slime"]
         };
+
 
         let encounterList = t.tier1; 
         let px = player.x; let py = player.y;
