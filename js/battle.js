@@ -369,7 +369,7 @@ function winBattle() {
         // 💥【NEW】極限まで無駄を削ぎ落とした、最高のサイバー・テキスト！
         showBattleMsg("もちだ を たおした！<page>" +
                       "もちだ「ハァ……黒ちゃん。<br>俺のシステム（脳）、<br>完全に ハックされてたみたいだ……」<page>" +
-                      "もちだ「俺は もう 動けねえ。<br>だが、一緒に飲んだ バナナらっしーは<br>正真正銘の リアル だぜ……」<page>" +
+                      "もちだ「俺は もう 動けねえ。<br>だが、一緒に飲んだ らっしーは<br>正真正銘の リアル だぜ……」<page>" +
                       "もちだ「バグなんて ない……<br>ただ……最高に……甘い……」<page>" +
                       "もちだ は 静かに 目を閉じ<br>その場に 倒れ込んだ！<page>" +
                       "どこからともなく 邪悪な声が 響き渡る！<page>" +
@@ -500,21 +500,24 @@ window.startEndingCutscene = function() {
 window.returnToWorld = null;
 
 function loseBattle() { 
+    // 💥【NEW】HPが0になった瞬間、待たずに即座にデスカウント！
+    if (typeof playerStatus.flags.deathCount === 'undefined') playerStatus.flags.deathCount = 0;
+    playerStatus.flags.deathCount++;
+
+    const bossList = ["tanaka", "golem", "mochida_boss", "robber", "ryuou_final", "true_boss", "golem2"];
+    if (bossList.includes(currentEnemy.id)) {
+        if (window.FirebaseHub) window.FirebaseHub.incrementBossKill(currentEnemy.id);
+    }
+
+    if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
+        playerStatus.flags.defeatedMochida = false;
+    }
+
+    // カウントを裏で終わらせてから、絶望のメッセージを表示
     showBattleMsg("のぶゆき は ちからつきた……。"); 
+
+    // ここから下は今まで通りの演出（2.5秒待ってからワープと没収）
     setTimeout(function() { 
-        
-        if (typeof playerStatus.flags.deathCount === 'undefined') playerStatus.flags.deathCount = 0;
-        playerStatus.flags.deathCount++;
-
-        const bossList = ["tanaka", "golem", "mochida_boss", "robber", "ryuou_final", "true_boss", "golem2"];
-        if (bossList.includes(currentEnemy.id)) {
-            if (window.FirebaseHub) window.FirebaseHub.incrementBossKill(currentEnemy.id);
-        }
-
-        if (currentEnemy.id === "ryuou_final" || currentEnemy.id === "true_boss") {
-            playerStatus.flags.defeatedMochida = false;
-        }
-
         if(typeof window.endBattle === 'function') window.endBattle(); 
         
         playerStatus.gold = Math.floor(playerStatus.gold * 0.75);
@@ -538,6 +541,7 @@ function loseBattle() {
         
     }, 2500); 
 }
+
 
 function endBattle() {
     if (!isBattle) return;
