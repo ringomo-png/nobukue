@@ -188,3 +188,74 @@ document.addEventListener('visibilitychange', () => {
         }
     }
 });
+
+// ==========================================
+// 💥【NEW】枠なしダーク・レトロサウンドアイコン（スマホ音漏れ完全防御版）
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('game-container') || document.body;
+    const soundBtn = document.createElement('div');
+    soundBtn.id = 'retro-sound-btn';
+    
+    // 🎨 枠なし・暗め・シンプルなレトロスタイル
+    soundBtn.style.position = 'absolute';
+    soundBtn.style.top = '10px';
+    soundBtn.style.left = '50%';
+    soundBtn.style.transform = 'translateX(-50%)';
+    soundBtn.style.background = 'rgba(0, 0, 0, 0.6)';
+    soundBtn.style.color = '#aaffaa';
+    soundBtn.style.border = 'none';
+    soundBtn.style.borderRadius = '2px';
+    soundBtn.style.padding = '4px 10px';
+    soundBtn.style.fontFamily = '"Courier New", Courier, monospace';
+    soundBtn.style.fontSize = '14px';
+    soundBtn.style.fontWeight = 'normal';
+    soundBtn.style.textShadow = '1px 1px 0px #000';
+    soundBtn.style.cursor = 'pointer';
+    soundBtn.style.zIndex = '900';
+    soundBtn.style.userSelect = 'none';
+    soundBtn.style.letterSpacing = '1px';
+    
+    // 初期状態は ON
+    soundBtn.innerHTML = '♪ ON';
+
+    // 💥【重要】スマホのタップ判定が背後のゲームに「貫通」するのをブロック！
+    soundBtn.ontouchstart = function(e) { e.stopPropagation(); };
+    soundBtn.onmousedown = function(e) { e.stopPropagation(); };
+
+    // 👆 タップ（クリック）された時の処理
+    soundBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // 💥 ここでも貫通ブロック
+        if (typeof Sound === 'undefined') return;
+
+        // BGMとSEをまとめて一気に切り替え！
+        let isMuted = !Sound.bgmMuted;
+        Sound.bgmMuted = isMuted;
+        Sound.seMuted = isMuted;
+
+        if (isMuted) {
+            // 💥 スマホの「音量0無視バグ」対策！
+            // 音量を0にするのではなく、強制的に「ミュート設定＆一時停止」を叩き込む！
+            if (Sound.bgmPlayer) {
+                Sound.bgmPlayer.muted = true;
+                Sound.bgmPlayer.pause(); 
+            }
+            this.innerHTML = '♪ OFF';
+            this.style.color = '#ffaaaa';
+        } else {
+            // 💥 ミュート解除で再生再開
+            if (Sound.bgmPlayer) {
+                Sound.bgmPlayer.muted = false;
+                let trackVol = (Sound.currentBgm === 'field') ? 0.5 : 1.0; 
+                Sound.bgmPlayer.volume = Sound.bgmVolume * trackVol;
+                if (Sound.currentBgm) Sound.bgmPlayer.play().catch(()=>{});
+            }
+            this.innerHTML = '♪ ON';
+            this.style.color = '#aaffaa';
+            if (Sound.decide) Sound.decide(); // 鳴らす
+        }
+    };
+
+    container.appendChild(soundBtn);
+});
